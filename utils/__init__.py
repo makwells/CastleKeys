@@ -1,5 +1,5 @@
 import init_db
-import save_password
+import utils.manage_password_db as manage_password_db
 
 
 __version__ = 0.1

@@ -5,7 +5,7 @@ from loguru import logger
 logger.remove()
 logger.add("./logs/password_manager.log", rotation="500 MB")
 
-app = Flask(__name__ )
+app = Flask(__name__)
 
 # Home page
 # Отображение и поиск сохраенных паролей, переход на другие вкладки. 
@@ -13,6 +13,12 @@ app = Flask(__name__ )
 def home():
     logger.info("Home page")
     return render_template("home.html")
+
+# Generator page
+#Генератор случайных паролей.
+@app.route("/generator")
+def generate_password():
+    return render_template("generator.html")
 
 # Settings page
 # Настройка сайта. Отображение, сохранение паролей, тема оформления итд. 

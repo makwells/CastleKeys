@@ -4,37 +4,52 @@
         }
 
         .Header{
-            font-size: 16pt; 
-            width: auto;
-            height: 60pt;
-            color: #ffffff;
+
             background-color: #111111;
-            /* text-align: left; */
-            padding-left: 10pt;
-            padding-top: 1pt;
-            border-bottom: 2px solid #ffffff;
-            border-radius: 5pt;
+
+            font-size: 12pt;
+
+            width: 85%;
+            height: 25%;
+
+            margin-top: 0;
+            margin-left: 15%;
+            margin-right: 1pt;
+
+            text-align: left;
+
+            border: 1px solid #fff;
         }
 
-        .menu_btn{
-            background-color: #111111;
-            color: #ffffff;
-            border: 2px solid #ffffff;
-            border-radius: 5pt;
-            font-size: 20px;
-            height: 50pt;
-            width: 100pt;
-            transition: all 0.3s ease;
-            margin-top: 5pt;
+        .Page-Title{
+            color: #fff; 
+            padding-left: 1%;
+            padding-top: 1%;
+            padding-bottom: 1%;
+
+            width: 20%;
         }
         
-        .menu_btn:hover{
-            background-color: #555555;
+        .Menu{
+            background-color: #111111;
+
+            width: 15%;
+            height: 2000pt;
+
+            margin-top: -81pt;
+
+            border: 1px solid #fff;
+            
         }
 
-        .menu_btn:active{
-            background-color: #292929;
+        .PM-Title{
+            text-align: center;
+            padding-top: 10pt;
+
+            border-bottom: 1px solid #fff;
+            height: 69pt;
         }
+
 
 /* #89c8ff */
         .find_parameter{
@@ -59,7 +74,7 @@
 
         .find_parameter:placeholder-shown{
             color: #444
-        }
+        } */
         .parameters{
             color: #ffffff;
             background-color: #222;
