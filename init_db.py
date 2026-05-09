@@ -1,0 +1,88 @@
+import sqlite3
+from loguru import logger
+from pathlib import Path
+
+password_db = None
+
+def init_db():
+    global password_db
+    logger.remove()
+    logger.add(
+        "logs/save_password.log",
+        rotation="500 MB",
+        level="INFO",
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"
+    )
+    
+    Path("logs").mkdir(exist_ok=True)
+    
+    password_db = sqlite3.connect("./data/passwords.db") # Корневая папка проекта
+    cursor = password_db.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS passwords (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Service TEXT NOT NULL,
+            Login TEXT NOT NULL, 
+            Password TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    password_db.commit()
+    logger.info("✅ Database initialized successfully")
+
+# Функция добавления пароля. 
+def add_password(service: str, login: str, password: str) -> bool:
+    """Добавляет запись в базу данных. Возвращает True при успехе."""
+    global password_db
+    
+    if password_db is None:
+        logger.error("❌ Database not initialized! Call init_db() first.")
+        return False
+    
+    try:
+        cursor = password_db.cursor()
+        # Исправлено: Password (без s) и добавлен id
+        cursor.execute(
+            "INSERT INTO passwords (Service, Login, Password) VALUES (?, ?, ?)", 
+            (service, login, password)
+        )
+        password_db.commit()
+        logger.success(f"✅ Password for '{login}' ({service}) saved successfully")
+        return True
+        
+    except sqlite3.IntegrityError as e:
+        password_db.rollback()
+        logger.error(f"❌ Integrity error (duplicate?): {e}")
+        return False
+    except sqlite3.OperationalError as e:
+        password_db.rollback()
+        logger.error(f"❌ Operational error: {e}")
+        return False
+    except sqlite3.Error as e:
+        password_db.rollback()
+        logger.error(f"❌ Unexpected database error: {e}")
+        return False
+
+
+def delete_password(service: str, login: str, password: str) -> bool:
+    if password_db is None: 
+        logger.error("❌ Database not initialized! Call init_db() first.")
+        return False
+    try:
+        cursor = password_db.cursor()
+        cursor.execute(
+            "")
+
+    except sqlite3.IntegrityError as e:
+        password_db.rollback()
+
+def clear_table(service: str, login: str, password: str) -> bool:
+    ...
+
+def close_db():
+    """Корректно закрывает соединение с БД."""
+    global password_db
+    if password_db:
+        password_db.close()
+        logger.info("🔌 Database connection closed")

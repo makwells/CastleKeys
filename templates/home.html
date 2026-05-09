@@ -1,36 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    <title>Password Manager</title>
+
 </head>
 <body>
-    <div class="Header">
-        <h1 id="Header-title">Password Manager</h1>
-    </div>
-    <div class="Menu">
-        <button class="menu_btn" id="home_btn">Home</button>
-        <button class="menu_btn" id="settings_btn">Settings</button>
-        <button class="menu_btn" id="account_btn">Account</button>  
-    </div>
-<div>
-    <table>
-    <thead>
-        <tr>
-        <th><b>Variable</b></th>
-        <th><b>Value</b></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-        <td>Google</td>
-        <td>hkjasdhfkas</td>
-        </tr>
-    </tbody>
-    </table>
-</div>
+    <nav>
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i> Менеджер паролей
+        </div>
+        <div class="Profile">
+            <span>Admin</span>
+            <div class="Avatar">A</div>
+        </div>
+    </nav>
 
+    <main>
+        <div class="title-block">
+            <h1>Мои пароли</h1>
+            <div class="controls">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Поиск сервиса...">
+                </div>
+                <button class="btn-add" onclick="openModal()">
+                    <i class="fa-solid fa-plus"></i> Новый
+                </button>
+            </div>
+        </div>
+
+        <div class="password-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="site-info">
+                        <div class="site-icon"><i class="fa-brands fa-google"></i></div>
+                        <div>
+                            <div class="card-title">Google</div>
+                            <div class="card-email">user@gmail.com</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="icon-btn"><i class="fa-solid fa-pen"></i></button>
+                        <button class="icon-btn delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="password-box">
+                    <span class="password-text">••••••••••••</span>
+                    <button class="icon-btn" onclick="togglePass(this, 'SuperSecret123')"><i class="fa-solid fa-eye"></i></button>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard('SuperSecret123')">
+                    <i class="fa-regular fa-copy"></i> Копировать
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="site-info">
+                        <div class="site-icon"><i class="fa-brands fa-github"></i></div>
+                        <div>
+                            <div class="card-title">GitHub</div>
+                            <div class="card-email">dev@github.com</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="icon-btn"><i class="fa-solid fa-pen"></i></button>
+                        <button class="icon-btn delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="password-box">
+                    <span class="password-text">••••••••••••</span>
+                    <button class="icon-btn" onclick="togglePass(this, 'GitToken_XYZ')"><i class="fa-solid fa-eye"></i></button>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard('GitToken_XYZ')">
+                    <i class="fa-regular fa-copy"></i> Копировать
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>Добавить пароль</h2>
+            <form>
+                <div class="form-group">
+                    <label>Название сервиса</label>
+                    <input type="text" placeholder="Например: Netflix">
+                </div>
+                <div class="form-group">
+                    <label>Email / Логин</label>
+                    <input type="text" placeholder="user@mail.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="text" placeholder="Введите пароль">
+                </div>
+                <button type="button" class="btn-submit" onclick="closeModal()">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('modalOverlay');
+
+        function openModal() {
+            modal.style.display = 'flex';
+            запрос(пост) {
+                url = "http://localhost:8000/api/v2/generate"
+            }
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        function togglePass(btn, realPass) {
+            const span = btn.previousElementSibling;
+            const icon = btn.querySelector('i');
+            
+            if (span.innerText.includes('•')) {
+                span.innerText = realPass;
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                span.innerText = '••••••••••••';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Пароль скопирован!');
+            });
+        }
+    </script>
 </body>
 </html>

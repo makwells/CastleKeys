@@ -4,38 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
        <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
-    <title>P-M Settings</title>
+       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>{{title}}</title>
 </head>
 <body>
-    <div class="Header">
-        <div class="Page-Title">
-            <h1>Настройки</h1>
+    <nav>
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i>{{header}}
         </div>
-        <div>
-            <form>
-                <input class="find_parameter" type="text" id="name" placeholder="Find parameter:">
-            </form>
+        <div class="Profile">
+            <span>Admin</span>
+            <div class="Avatar">A</div>
         </div>
-    </div>
+    </nav>
 
-
-    <div class="Menu">
-        <div class="PM-Title">
-            <h1>PM</h1>
+    <main>
+        <div class="controls">
+            <div class="search-bar">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Поиск параметра...">
+            </div>
         </div>
-        
-    </div>
 
-<!-- 
-    <div class="parameters">
+        <div class="settings">
+            <div class="cloud">
+                <i>Сохранение в облаке</i>
 
-        <input type="checkbox" id="finder" name="finder_scroll" value="on" checked="on">
-        <label for="finder_scroll">Показывать поиск при прокрутки страницы</label><br>
+            </div>
 
-        <input type="checkbox" id="save_in_cloud" name="cloud" value="on" checked="on">
-        <label for="cloud">Сохранение паролей в облаке</label>
+        </div>
 
-    </div> -->
+    </main>
+
+    
     
 </body>
 </html>

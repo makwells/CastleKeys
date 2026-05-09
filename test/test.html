@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Менеджер Паролей</title>
+    <!-- Подключаем иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0b0b10;
+            --primary-hover: #4338ca;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Навигация */
+        nav {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        /* Основной контент */
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: var(--card-bg);
+            color: white;
+            outline: none;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Сетка карточек */
+        .password-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .site-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #334155;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .password-display {
+            background-color: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .btn-icon:hover {
+            color: var(--text-main);
+        }
+
+        .btn-delete:hover {
+            color: var(--danger);
+        }
+
+        /* Модальное окно (скрыто по умолчанию) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 400px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background-color: var(--bg-color);
+            color: white;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Навигация -->
+    <nav>
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i> SecurePass
+        </div>
+        <div class="user-profile">
+            <span>Admin</span>
+            <div class="avatar">A</div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main>
+        <div class="header-actions">
+            <h1>Мои пароли</h1>
+            
+            <div style="display: flex; gap: 15px;">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Поиск...">
+                </div>
+                <button class="btn-add" onclick="openModal()">
+                    <i class="fa-solid fa-plus"></i> Добавить
+                </button>
+            </div>
+        </div>
+
+        <!-- Список паролей -->
+        <div class="password-grid" id="cardsContainer">
+            
+            <!-- Карточка 1 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="site-icon"><i class="fa-brands fa-google"></i></div>
+                    <div class="actions">
+                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon btn-delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="card-title">Google Account</div>
+                <div class="card-subtitle">user@gmail.com</div>
+                <div class="password-display">
+                    <span id="pass1">••••••••••••</span>
+                    <button class="btn-icon" onclick="togglePassword('pass1', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <div class="actions">
+                    <button class="btn-icon" style="width: 100%; border: 1px solid #334155; border-radius: 4px;" onclick="copyText('SuperSecretPassword123')">
+                        <i class="fa-regular fa-copy"></i> Копировать
+                    </button>
+                </div>
+            </div>
+
+            <!-- Карточка 2 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="site-icon"><i class="fa-brands fa-facebook"></i></div>
+                    <div class="actions">
+                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon btn-delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="card-title">Facebook</div>
+                <div class="card-subtitle">mark.zuck@fb.com</div>
+                <div class="password-display">
+                    <span id="pass2">••••••••••••</span>
+                    <button class="btn-icon" onclick="togglePassword('pass2', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <div class="actions">
+                    <button class="btn-icon" style="width: 100%; border: 1px solid #334155; border-radius: 4px;" onclick="copyText('FbPassword2024!')">
+                        <i class="fa-regular fa-copy"></i> Копировать
+                    </button>
+                </div>
+            </div>
+
+            <!-- Карточка 3 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="site-icon"><i class="fa-brands fa-github"></i></div>
+                    <div class="actions">
+                        <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon btn-delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="card-title">GitHub</div>
+                <div class="card-subtitle">dev@github.com</div>
+                <div class="password-display">
+                    <span id="pass3">••••••••••••</span>
+                    <button class="btn-icon" onclick="togglePassword('pass3', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <div class="actions">
+                    <button class="btn-icon" style="width: 100%; border: 1px solid #334155; border-radius: 4px;" onclick="copyText('GitToken_xyz_99')">
+                        <i class="fa-regular fa-copy"></i> Копировать
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Модальное окно добавления -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 style="margin-bottom: 20px;">Новый пароль</h2>
+            <form onsubmit="event.preventDefault(); alert('Функция сохранения требует Backend!'); closeModal();">
+                <div class="form-group">
+                    <label>Название сервиса</label>
+                    <input type="text" placeholder="Например: Netflix" required>
+                </div>
+                <div class="form-group">
+                    <label>Email / Логин</label>
+                    <input type="email" placeholder="user@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="text" placeholder="Введите пароль" required>
+                </div>
+                <button type="submit" class="btn-submit">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Функция показа/скрытия пароля
+        function togglePassword(id, btn) {
+            const span = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            
+            if (span.innerText.includes('•')) {
+                // Здесь должна быть логика получения реального пароля из базы
+                // Для демо просто меняем текст заглушку
+                span.innerText = "RealPassword123"; 
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                span.innerText = "••••••••••••";
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Функция копирования в буфер обмена
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Пароль скопирован в буфер обмена!');
+            });
+        }
+
+        // Управление модальным окном
+        const modal = document.getElementById('addModal');
+
+        function openModal() {
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Закрытие по клику вне окна
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

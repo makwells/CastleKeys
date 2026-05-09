@@ -1,0 +1,9 @@
+*.log
+*.db
+.vscode/
+.idea/
+venv/
+.venv/
+env/
+.env
+.test/
