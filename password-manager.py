@@ -148,7 +148,7 @@ class Password_Manager(QMainWindow):
         settings_button.setFixedSize(30, 30)
         settings_button.setStyleSheet(self.style_button)
         
-        # Button new password   
+        # Button new password  
         new_password_button = QPushButton()
         new_password_button.setIcon(qta.icon('ei.plus', color='white'))
         new_password_button.setIconSize(QSize(24, 24))
