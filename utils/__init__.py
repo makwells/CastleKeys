@@ -1,4 +1,4 @@
-from . import init_db
+from . import *
 # import utils.manage_password_db as manage_password_db
 
 

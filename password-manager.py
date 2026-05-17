@@ -1,15 +1,19 @@
-# from utils.init_db import init_db # database
-import init_db
+import init_db             # database
 
-import sys
-from loguru import logger
+from utils import settings # settings menu
+from utils import edit     # edit mode menu
+from utils import search   # search logic
+
+
+import sys                 # system lib
+from loguru import logger  # logger
 import sqlite3
-import qtawesome as qta
+import qtawesome as qta    # icons
 
 # UI
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget, QHeaderView, QAbstractItemView, QMessageBox, QDialog, QLabel
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 
 class Password_Manager(QMainWindow):
     def __init__(self):
@@ -23,12 +27,18 @@ class Password_Manager(QMainWindow):
             format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"
         )
 
+
+        self.style_window = """
+
+        background-color: #191919;
+        color: #D3D3D3;
+        """
         # Общий стиль кнопок
         self.style_button = """
         QPushButton{
         
         background-color: #515151;
-        color: #fff;
+        color: #D3D3D3;
         
         border: 1px solid #414141;
         border-radius: 10px;
@@ -88,6 +98,9 @@ class Password_Manager(QMainWindow):
         }
         """
         
+        self.settings_window = None
+        self.hide_passwords = False
+
         self.UI()                      # init UI
         logger.success("UI was successfully initialized")
         print("UI was successfully initialized")
@@ -97,12 +110,13 @@ class Password_Manager(QMainWindow):
         logger.success("Database was successfully initialized")
         print("Database was successfully initialized")
             
-    # Interface
-    def UI(self):
+    
+    def UI(self): # Interface
         # Title
         self.setWindowTitle("Password Manager") 
         # window start size
         self.resize(650, 500)
+        self.setStyleSheet(self.style_window)
 
         # Вертикальный layout
         main_layout = QVBoxLayout() 
@@ -113,7 +127,6 @@ class Password_Manager(QMainWindow):
         
         # Горизонтальный layout
         top_h_layout = QHBoxLayout() 
-
     # Search
         search_bar = QLineEdit() 
         search_bar.setPlaceholderText("Search Password")
@@ -140,13 +153,13 @@ class Password_Manager(QMainWindow):
 
         passwords_label = QLabel("Passwords")
         passwords_label.setStyleSheet("font-size: 24pt; font-weight: bold;")
-        
 
         settings_button = QPushButton()
         settings_button.setIcon(qta.icon('ri.settings-5-fill', color='white'))
         settings_button.setIconSize(QSize(24, 24))
         settings_button.setFixedSize(30, 30)
         settings_button.setStyleSheet(self.style_button)
+        settings_button.clicked.connect(self.settings_win)
         
         # Button new password  
         new_password_button = QPushButton()
@@ -168,6 +181,7 @@ class Password_Manager(QMainWindow):
         delete_button.setIconSize(QSize(24, 24))
         delete_button.setFixedSize(30, 30)
         delete_button.setStyleSheet(self.style_button)
+        delete_button.clicked.connect(self.del_password)
 
 
         center_layout.addWidget(passwords_label)
@@ -194,8 +208,10 @@ class Password_Manager(QMainWindow):
         # Запрет на редактирование ячеек
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         # Выделение сразу всей строки, а не отдельной ячейки
-        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        # self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
+        # Скрыть нумерацию строк
+        self.table.verticalHeader().setVisible(False)
         # Заголовки таблицы 
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
@@ -207,42 +223,44 @@ class Password_Manager(QMainWindow):
         # Добавление таблицы в вертикальный layout
         main_layout.addWidget(self.table)
     
-
-# Загрузка паролей из базы данных в таблицу
-    def database_init_passwords(self):
+    def database_init_passwords(self): # Загрузка паролей из базы данных в таблицу
         
         try:
             conn = sqlite3.connect('./data/passwords.db') # Подключение базы данных 
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            cursor = conn.cursor()
             cursor.execute("SELECT * FROM passwords") # Выбор таблицы 
             row = cursor.fetchall()
+
+            item = QTableWidgetItem()
 
             for password_ in row:
                 service = password_['Service']
                 login = password_['Login']
                 password = password_['Password']
+                if self.hide_passwords == True:
+                    password = "********"
+
+                self.row_count += 1 
+                self.table.setRowCount(self.row_count+1)
 
                 self.table.setItem(self.row_count, 0, QTableWidgetItem(service))
                 self.table.setItem(self.row_count, 1, QTableWidgetItem(login))
                 self.table.setItem(self.row_count, 2, QTableWidgetItem(password))
-
-                self.row_count += 1 
-                self.table.setRowCount(self.row_count+1)
         
         except Exception: 
             ...
 
-# ФОРМА ДОБАВЛЕНИЯ НОВОГО ПАРОЛЯ
-    def add_password(self):
-        self.table.setRowCount(self.row_count+1)
+        finally:
+            conn.close()
+    
+    def add_password(self): # Форма добавления нового пароля
+        # self.table.setRowCount(self.row_count+1)
         # Всплывающее окно добавления нового пароля
         new_password_window = QDialog(self)
         # Заголовок формы диалогового окна для добавления нового пароля
         new_password_window.setWindowTitle("New Password")
-
         # Размеры диалогового окна формы добавления нового пароля
         new_password_window.setFixedSize(350, 350)
 
@@ -304,39 +322,71 @@ class Password_Manager(QMainWindow):
         
             # Если заполненны все поля, то сохранять пароль
             if self.service:
-                # TODO: Логика сохранения пароля
-                # Нужно сделат добавление в бд и из бд сделать так, чтобы читалась таблица и добавлялась в интерфейс, но при этом при добавление пароля сделать так, чтобы не перезапуская новый пароль тоже отображался. 
-
                 # Добавление пароля в БД
                 init_db.init_db()
                 init_db.add_password(self.service, self.login, self.password)
 
                 #---------------------------------------------
-                    # #TODO: Тут должно появляться сообщение о том, что пароль успешно добавлен
+                    #TODO: Тут должно появляться сообщение о том, что пароль успешно добавлен
                 #---------------------------------------------
 
                 # Отображение добавленного пароля без перезапуска программы
                 # Проверка строки, если строка занята, то пароль не будет заменять предыдущий, а будет переноситься на новую строку. 
-                target_row = -1 
-                for row in range(self.table.rowCount()):
-                    item = self.table.item(row, 1)
 
-                    if item is None or item.text() == "":
-                        target_row = row
-                        break 
-                if target_row == -1: 
-                    target_row = self.table.rowCount()
-                    self.table.insertRow(target_row)
+                current_row_count = self.table.rowCount()
+                self.table.insertRow(current_row_count)
 
                 # Добавление пароля в таблицу
-                self.table.setItem(target_row, 0, QTableWidgetItem(self.service))
-                self.table.setItem(target_row, 1, QTableWidgetItem(self.login))
-                self.table.setItem(target_row, 2, QTableWidgetItem(self.password))
+                self.table.setItem(current_row_count, 0, QTableWidgetItem(self.service))
+                self.table.setItem(current_row_count, 1, QTableWidgetItem(self.login))
+                self.table.setItem(current_row_count, 2, QTableWidgetItem(self.password))
                 print(f"✅ Добавлен пароль для: {self.service}")
 
         # Срабатывает при нажатии кнопки "cancel"
         else:
             print("⛔ Добавление пароля отменено.")
+    
+    def del_password(self): # Удаление пароля
+
+        # FIX при удалении первой строки, удаляются все оставльные
+    #Удаление из таблицы(интерфейса)
+        current_row = self.table.currentRow()
+        if current_row > -1: 
+            self.table.removeRow(current_row)
+        current_row = self.table.currentRow()
+    
+    # Проверка: выбрана ли строка
+        if current_row == -1:
+            return 
+
+        service_item = self.table.item(current_row, 0)
+        if not service_item:
+            return
+        
+        service_name = service_item.text()
+
+        conn = sqlite3.connect('./data/passwords.db')
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+            "DELETE FROM passwords WHERE service = ?", 
+            (service_name,)
+            )
+            conn.commit()
+        
+            self.table.removeRow(current_row)
+        
+        except sqlite3.Error as e:
+            print(f"Ошибка при удалении: {e}")
+        finally:
+            conn.close()
+
+    
+    def settings_win(self):
+        if self.settings_window is None:
+            self.settings_window = settings.Settings_window()
+        self.settings_window.show()
+        
 
 if __name__ == "__main__":
 

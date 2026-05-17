@@ -71,14 +71,13 @@ def delete_password(service: str, login: str, password: str) -> bool:
         return False
     try:
         cursor = password_db.cursor()
-        cursor.execute(
-            "")
+        cursor.execute("""
+DELETE FROM passwords WHERE id = ?
+
+""")
 
     except sqlite3.IntegrityError as e:
         password_db.rollback()
-
-def clear_table(service: str, login: str, password: str) -> bool:
-    ...
 
 def close_db():
     """Корректно закрывает соединение с БД."""
