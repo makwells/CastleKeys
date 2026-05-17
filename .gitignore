@@ -10,3 +10,6 @@ env/
 .env
 .test/
 __pycache__
+__pycache__/
+*.pyc
+.gitignore
