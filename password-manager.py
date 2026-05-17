@@ -27,7 +27,6 @@ class Password_Manager(QMainWindow):
             format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"
         )
 
-
         self.style_window = """
 
         background-color: #191919;
@@ -148,7 +147,6 @@ class Password_Manager(QMainWindow):
 
         main_layout.addLayout(top_h_layout)
         
-
         center_layout = QHBoxLayout()
 
         passwords_label = QLabel("Passwords")
