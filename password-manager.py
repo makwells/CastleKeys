@@ -97,6 +97,10 @@ class Password_Manager(QMainWindow):
         }
         """
         
+        self.style_tab = """
+        
+        """
+
         self.settings_window = None
         self.hide_passwords = False
 
@@ -111,30 +115,39 @@ class Password_Manager(QMainWindow):
             
     
     def UI(self): # Interface
-        # Title
-        self.setWindowTitle("Password Manager") 
-        # window start size
-        self.resize(650, 500)
-        self.setStyleSheet(self.style_window)
-
-        # Вертикальный layout
-        main_layout = QVBoxLayout() 
-                
-        widget = QWidget()
-        widget.setLayout(main_layout)
-        self.setCentralWidget(widget)
         
-        # Горизонтальный layout
-        top_h_layout = QHBoxLayout() 
-    # Search
+        self.setWindowTitle("Password Manager") # Заголовок окна
+        self.resize(650, 500)                   # Стартовые размеры окна
+        self.setStyleSheet(self.style_window)   # Стили окна
+
+        # Виджет вкладок
+        tab_widget = QTabWidget()
+        tab_widget.setTabPosition(QTabWidget.TabPosition.West) # Горизонтальные вкладки слева
+        self.setCentralWidget(tab_widget)
+
+        # tab_widget.setTabShape(QTabWidget.TabShape.Triangular)
+        tab_widget.setDocumentMode(True)
+        
+
+        tab_widget.setStyleSheet("""
+        background-color: #191919;
+        """)
+
+        # Контейнеры для вкладок
+        tab_passwords = QWidget()
+        tab_profile = QWidget()
+
+        # Макет для вкладки "Пароли"
+        passwords_layout = QVBoxLayout() 
+        
+        
+        top_h_layout = QHBoxLayout() # Горизонтальный layout для поиска
+        
+        # Поиск
         search_bar = QLineEdit() 
         search_bar.setPlaceholderText("Search Password")
-        # Фиксированная высота поиска
         search_bar.setFixedHeight(30) 
         search_bar.setStyleSheet(self.style_search)
-
-        # Добавление элемента в вертикальный layout
-        # main_layout.addWidget(search_bar) 
 
         search_button = QPushButton()
         search_button.setIcon(qta.icon('fa5s.search', color='white'))
@@ -145,11 +158,13 @@ class Password_Manager(QMainWindow):
         top_h_layout.addWidget(search_bar)
         top_h_layout.addWidget(search_button)
 
-        main_layout.addLayout(top_h_layout)
+        # Добавляем поиск в макет вкладки
+        passwords_layout.addLayout(top_h_layout)
         
+        # Панель управления под поиском
         center_layout = QHBoxLayout()
 
-        passwords_label = QLabel("Passwords")
+        passwords_label = QLabel("Мои пароли")
         passwords_label.setStyleSheet("font-size: 24pt; font-weight: bold;")
 
         settings_button = QPushButton()
@@ -159,14 +174,12 @@ class Password_Manager(QMainWindow):
         settings_button.setStyleSheet(self.style_button)
         settings_button.clicked.connect(self.settings_win)
         
-        # Button new password  
         new_password_button = QPushButton()
         new_password_button.setIcon(qta.icon('ei.plus', color='white'))
         new_password_button.setIconSize(QSize(24, 24))
         new_password_button.setFixedSize(30, 30)
         new_password_button.setStyleSheet(self.style_button)
         new_password_button.clicked.connect(self.add_password)
-        # layout.addStretch() # Пружина
 
         edit_button = QPushButton()
         edit_button.setIcon(qta.icon('ri.edit-box-fill', color='white'))
@@ -181,46 +194,47 @@ class Password_Manager(QMainWindow):
         delete_button.setStyleSheet(self.style_button)
         delete_button.clicked.connect(self.del_password)
 
-
         center_layout.addWidget(passwords_label)
-        center_layout.addStretch() # Пружина
+        center_layout.addStretch() 
         center_layout.addWidget(settings_button)
         center_layout.addWidget(new_password_button)
         center_layout.addWidget(edit_button)
         center_layout.addWidget(delete_button)
 
-        main_layout.addLayout(center_layout)
+        # Добавляем панель управления в макет вкладки
+        passwords_layout.addLayout(center_layout)
 
-    # Table
+        # Таблица с паролями
         self.table = QTableWidget()
-
         self.row_count = 0
-
-        # Количество Столбцов
         self.table.setColumnCount(3)
-        # Количество строк
         self.table.setRowCount(self.row_count+1)
-        # Авто-размер строк
         self.table.resizeRowsToContents()     
-
-        # Запрет на редактирование ячеек
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        # Выделение сразу всей строки, а не отдельной ячейки
-        # self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-
-        # Скрыть нумерацию строк
         self.table.verticalHeader().setVisible(False)
-        # Заголовки таблицы 
+        
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         header.setStyleSheet(self.style_HeaderView)
 
         self.table.setHorizontalHeaderLabels(["Service", "Login", "Password"])
-        # Стиль заголовков таблицы 
         self.table.setStyleSheet(self.style_table)
-        # Добавление таблицы в вертикальный layout
-        main_layout.addWidget(self.table)
-    
+        
+        # Добавляем таблицу с паролями в макет вкладки
+        passwords_layout.addWidget(self.table)
+
+        # Привязываем весь настроенный макет к первой вкладке
+        tab_passwords.setLayout(passwords_layout) 
+
+        # Настраиваем вторую вкладку (Профиль), чтобы она не была пустой
+        profile_layout = QVBoxLayout()
+        profile_layout.addWidget(QLabel("Страница профиля и настроек"))
+        profile_layout.addStretch()
+        tab_profile.setLayout(profile_layout)
+
+        tab_widget.addTab(tab_passwords, "Пароли")
+        tab_widget.addTab(tab_profile, "Профиль")
+
     def database_init_passwords(self): # Загрузка паролей из базы данных в таблицу
         
         try:
