@@ -1,0 +1,27 @@
+QMainWindow{
+    background-color: #191919;
+    color: #D3D3D3;
+    font-family: monospace;
+}
+
+QTreeView{
+    background-color: #222222;
+    color: #D3D3D3;
+    font-size: 20pt;
+    border: 1px solid #c7c7c7;
+}
+
+QPushButton{
+    background-color: #252525;
+    border: 1px solid #c7c7c7;
+    border-radius: 8px;
+}
+
+QPushButton:enabled{
+    background-color: #333333;
+}
+
+QPushButton:hover{
+    background-color: #444444;
+}
+
