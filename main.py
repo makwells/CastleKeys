@@ -1,24 +1,20 @@
-"""
-PM -
-
-"""
-
+# main.py
 
 import sys
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QFontDatabase
 from src.views.main_window import MainWindow
 from src.controllers.main_controller import MainController
+from src.database import *
 
 class Password_Manager:
     
     version = 0.1
     program_name = "PM"
     author = "makwells"
-    project = "https://github.com/makwells/"
+    project = "https://github.com/makwells/Password-Manager"
 
     def __init__(self):
-        with open("src/assets/main_styles.qss", "r") as styles_file:
+        with open("src/assets/styles/main_styles.qss", "r") as styles_file:
             self.style = styles_file.read()
 
         self.PM()
@@ -31,9 +27,9 @@ class Password_Manager:
         view = MainWindow()
         controller = MainController(view)
 
-        view.show()
 
-        # QFontDatabase.addApplicationFont("src/assets/fonts/FiraCode.ttf")
+
+        view.show()
 
         app.setStyleSheet(self.style)
 

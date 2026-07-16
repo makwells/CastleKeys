@@ -1,0 +1,34 @@
+QMainWindow{
+    background-color: #151515;
+    color: #D3D3D3;
+    font-family: monospace;
+}
+
+QTreeView{
+    background-color: #111111;
+    color: #D3D3D3;
+    font-size: 20pt;
+    border: 1px solid #222222;
+    border-radius: 8px;
+}
+
+QPushButton{
+    background-color: #111111;
+    border: 1px solid #050505;
+    border-radius: 8px;
+}
+
+
+QPushButton:hover{
+    background-color: #111;
+}
+
+QLineEdit{
+    background-color: #111111;
+    border: 1px solid #050505;
+    border-radius: 8px;
+    color: #c7c7c7;
+    font-size: 16pt;
+}
+
+
