@@ -1,11 +1,8 @@
 # Create_New_Password.py
-import sys
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
-from ..views.main_window import MainWindow
 from src.database import *
-
 
 # TODO добавить теги для пароолей
 # тег wifi
@@ -18,26 +15,35 @@ class CreateNewPassword(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        with open("src/assets/styles/dialog_styles.qss", "r") as styles_file:
+            style = styles_file.read()
+
+        self.setStyleSheet(style)
+
         self.setWindowTitle("New password")
-        self.setFixedSize(400, 300)
+        self.setFixedSize(400, 400)
 
         self.new_password_ui()
         
         init_db()
 
     def new_password_ui(self):
-        layout = QVBoxLayout()
+        self.new_password_layout = QVBoxLayout()
         message = QLabel(f"Create new password")
+        message.setStyleSheet("font-weight: bold;")
         message.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         self.label_service = QLabel("Service:")
         self.input_service = QLineEdit()
+        self.input_service.setFixedHeight(30)
         self.input_service.setPlaceholderText("example.com")
         self.label_login = QLabel("Login:")
         self.input_login = QLineEdit()
+        self.input_login.setFixedHeight(30)
         self.input_login.setPlaceholderText("example@gmail.com")
         self.label_password = QLabel("Password:")
         self.input_password = QLineEdit()
+        self.input_password.setFixedHeight(30)
         self.input_password.setPlaceholderText("example123456789")
 
         
@@ -47,16 +53,16 @@ class CreateNewPassword(QDialog):
         buttons.accepted.connect(self.accept) # Triggers QDialog built-in accept state
         buttons.rejected.connect(self.reject) # Triggers QDialog built-in reject state
         
-        layout.addWidget(message)
-        layout.addWidget(self.label_service)
-        layout.addWidget(self.input_service)
-        layout.addWidget(self.label_login)
-        layout.addWidget(self.input_login)
-        layout.addWidget(self.label_password)
-        layout.addWidget(self.input_password)
-        layout.addWidget(buttons)
-    
-        self.setLayout(layout)
+        self.new_password_layout.addWidget(message)
+        self.new_password_layout.addWidget(self.label_service)
+        self.new_password_layout.addWidget(self.input_service)
+        self.new_password_layout.addWidget(self.label_login)
+        self.new_password_layout.addWidget(self.input_login)
+        self.new_password_layout.addWidget(self.label_password)
+        self.new_password_layout.addWidget(self.input_password)
+        self.new_password_layout.addWidget(buttons)
+
+        self.setLayout(self.new_password_layout)
 
         self.show()
     
@@ -67,8 +73,6 @@ class CreateNewPassword(QDialog):
 
     def create_password(self, service, login, password):
         add_password(service, login, password)
-
-
-
+        
 
         

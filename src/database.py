@@ -27,7 +27,8 @@ def init_db():
                 Service TEXT NOT NULL,
                 Login TEXT NOT NULL, 
                 Password TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                Description TEXT
             )
         """)
     password_db.commit()

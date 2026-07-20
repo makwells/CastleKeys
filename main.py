@@ -3,15 +3,17 @@
 import sys
 from PyQt6.QtWidgets import QApplication
 from src.views.main_window import MainWindow
+from src.views.Dialogs.Create_New_Password import CreateNewPassword
+from src.views.Dialogs.edit_password import Edit_Password
 from src.controllers.main_controller import MainController
 from src.database import *
 
 class Password_Manager:
     
     version = 0.1
-    program_name = "PM"
+    program_name = "CastleKeys"
     author = "makwells"
-    project = "https://github.com/makwells/Password-Manager"
+    project = "https://github.com/makwells/CastleKeys"
 
     def __init__(self):
         with open("src/assets/styles/main_styles.qss", "r") as styles_file:
@@ -26,8 +28,6 @@ class Password_Manager:
         
         view = MainWindow()
         controller = MainController(view)
-
-
 
         view.show()
 

@@ -19,8 +19,8 @@ QPushButton{
 }
 
 
-QPushButton:hover{
-    background-color: #111;
+QPushButton:pressed{
+    background-color: #fff;
 }
 
 QLineEdit{
@@ -30,5 +30,3 @@ QLineEdit{
     color: #c7c7c7;
     font-size: 16pt;
 }
-
-

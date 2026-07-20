@@ -1,4 +1,6 @@
-from ..views.Create_New_Password import CreateNewPassword
+from ..views.Dialogs.Create_New_Password import CreateNewPassword
+from ..views.Dialogs.settings import Settings
+from ..views.Dialogs.edit_password import Edit_Password
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -8,6 +10,10 @@ class MainController():
         self._view  = view      #MainWindow
 
         self._connect_signals() #Signals
+
+        self.service_name_ = None
+        self.login_ = None
+        self.password_ = None
 
     def _connect_signals(self):
         
@@ -29,6 +35,8 @@ class MainController():
             self._view.login_label.hide()
             self._view.password_label.hide()
             self._view.creation_date_label.hide()
+            self._view.description_label.hide()
+            self._view.description.hide()
             return
 
         else: # если выбрано что-то иное то показывать
@@ -36,16 +44,20 @@ class MainController():
             self._view.login_label.show()
             self._view.password_label.show()
             self._view.creation_date_label.show()
+            self._view.description_label.show()
+            self._view.description.show()
 
-        service_name = item.text()
-        login = item.data(Qt.ItemDataRole.UserRole + 1)
-        password = item.data(Qt.ItemDataRole.UserRole + 2)
-        date = item.data(Qt.ItemDataRole.UserRole + 3)
+        self.service_name_ = item.text()
+        self.login_ = item.data(Qt.ItemDataRole.UserRole + 1)
+        self.password_ = item.data(Qt.ItemDataRole.UserRole + 2)
+        self.date_ = item.data(Qt.ItemDataRole.UserRole + 3)
 
-        self._view.service_label.setText(f"Service: {service_name}")
-        self._view.login_label.setText(f"Login: {login}")
-        self._view.password_label.setText(f"Password: {password}")
-        self._view.creation_date_label.setText(f"Creation date: {date}")        
+        self._view.service_label.setText(f"Service: {self.service_name_}")
+        self._view.login_label.setText(f"Login: {self.login_}")
+        self._view.password_label.setText(f"Password: {self.password_}")
+        self._view.creation_date_label.setText(f"Creation date: {self.date_}")
+
+
 
     #add new password
     def _new_password_clicked(self):
@@ -55,7 +67,19 @@ class MainController():
     #edit password
     def _edit_password_clicked(self):
         #open the child window to edit a password
-        print('edit button')
+        
+        self.edit_menu = Edit_Password()
+        
+        get_service = self.service_name_
+        get_login = self.login_
+        get_password = self.password_
+
+        # заполнять холдер текст старыми данными
+        self.edit_menu.edit_input_service.setPlaceholderText(get_service)
+        self.edit_menu.edit_input_login.setPlaceholderText(get_login)
+        self.edit_menu.edit_input_password.setPlaceholderText(get_password)
+
+        # запретить редактирование корня
 
     #remove password
     def _remove_password_clicked(self):
@@ -64,4 +88,5 @@ class MainController():
     
     def _setting_clicked(self):
         #open the child window for application settings
-        print('setting button')
+        # print('setting button')
+        Settings(self._view)
