@@ -2,21 +2,31 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from ..database import *
-from .Dialogs.Create_New_Password import CreateNewPassword
+from .Dialogs.create_new_password import CreateNewPassword
+import json 
+from ..setuplogger import setup_logger
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        
-        # Настройки окна и стартовые запуски
+
+        setup_logger() # init logger
+
+        # Config
+        with open("config.json", "r") as config_file:
+            logger.success("Config loaded")
+            self.config = json.load(config_file)
+
+        # Window and startup settings
         self.setWindowTitle("CastleKeys")     # title
         self.resize(900, 700)                 # start window size
         self.setMinimumSize(900, 700)         # minimum window size
-        init_db()                             # init db
         self.init_ui()                        # load ui
         self.load_db()                        # load db
 
     def init_ui(self):                        # Elements Interface
+        setup_logger()                        # logger
+        logger.debug("UI loaded")
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -27,9 +37,9 @@ class MainWindow(QMainWindow):
 
     # Left workspace(Tree)
         self.tree_view = QTreeView()         # Tree
-        self.tree_view.setHeaderHidden(True) # HeaderHidden
+        self.tree_view.setHeaderHidden(True) # Hide header 
         self.tree_view.setFixedWidth(250)    # Width
-        # self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
+        self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
         
         self.tree_model = QStandardItemModel()
         
@@ -39,7 +49,7 @@ class MainWindow(QMainWindow):
         # Привязываем созданную модель к отображению
         self.tree_view.setModel(self.tree_model)
     
-        
+    
     # Right workspace
         self.right_layout = QVBoxLayout()
         self.right_container = QWidget()
@@ -51,7 +61,7 @@ class MainWindow(QMainWindow):
         """)
 
         # Заголовок пароля(название). Необходимо для визуального понимания того, какой пароль просматривает пользователь.
-        self.title = QLabel("PM")
+        self.title = QLabel()
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.title.setStyleSheet("font-size: 24pt; border: 0px solid #111111; background-color: #333;")
         label_font = self.title.font()
@@ -76,30 +86,58 @@ class MainWindow(QMainWindow):
         self.creation_date_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
 
         # Комментарий к паролю
-        # Логика в том, что у пользователя может быть несколько аккаунто одного сервиса, быть аунтефикатор, чей аккаунт итд, комментарий служит ориетиром. 
+        # Логика в том, что у пользователя может быть несколько аккаунто одного сервиса, быть аунтефикатор, чей-то аккаунт итд, комментарий служит ориетиром. 
         self.description_label = QLabel("Description:")
         self.description_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.description_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+
+        # TODO сохрнение заметки.
+        # Заметка должна храниться в памяти компьютера при нажатии на другой пароль. При нажатии на другой пароль она сохраняется в базу данных и при следующем заходе в программу считывает ее уже с базы данных.
         self.description = QTextEdit()
 
-        # TODO кнопка скрытия информации
-        # Сделать кнопку для скрытия информации о пароле. Необходимо для людных мест и если рядом кто-то посторонний.
-        # Логика в том, что при нажатии кнопки пароли мнгновенно скрываются, а для того, чтобы показать пароли нужно будет ввести пароль. В ИДЕАЛЕ СКРЫВАТЬ ПАРОЛИ ПОУМОЛЧАНИЮ И НЕ МЕНЯТЬ ПАРАМЕТР ВИДИМОСТИ. 
-
-        # TODO Поле для комментариев
-        # Сохранение заметки в реальном времени. 
-        # Нужно сохранять заметку в памяти, а после закрытия программа доавит ее в базу данных, после чего при перезапуске будет читать заметку с базы данных. 
-
-
-        self.right_layout.addWidget(self.title)
-        self.right_layout.addWidget(self.service_label)
-        self.right_layout.addWidget(self.login_label)
-        self.right_layout.addWidget(self.password_label)
-        self.right_layout.addWidget(self.creation_date_label)
-        self.right_layout.addWidget(self.description_label)
-        self.right_layout.addWidget(self.description)
+        # FIXME кнопка скрытия информации
+        # Необходимо для людных мест и если рядом кто-то посторонний.
+        # Логика в том, что при нажатии кнопки пароли мнгновенно скрываются, а для того, чтобы показать пароли нужно будет ввести пароль. В ИДЕАЛЕ СКРЫВАТЬ ПАРОЛИ ПОУМОЛЧАНИЮ И НЕ МЕНЯТЬ ПАРАМЕТР ВИДИМОСТИ. иконка глазика
         
-        # hide on startup
+        # Нужно сделать автоматическое скрытие при запуске программы
+        # Нужно сделать поле ввода пароля при показе его снова. 
+        
+        self.under_title_layout = QHBoxLayout()
+
+        self.hide_password_btn = QPushButton("hide")
+        self.hide_password_btn.setFixedSize(40, 40)
+        self.hide_password_btn_state = False
+        self.edit_password_btn = QPushButton("edit")
+        self.edit_password_btn.setFixedSize(40, 40)
+
+        self.del_password_btn = QPushButton("del")
+        self.del_password_btn.setFixedSize(40, 40)
+
+        self.under_title_layout.addStretch()
+        self.under_title_layout.addWidget(self.hide_password_btn)
+        self.under_title_layout.addWidget(self.edit_password_btn)
+        self.under_title_layout.addWidget(self.del_password_btn)
+
+        self.right_layout.addLayout(self.under_title_layout)
+
+        # ui elements right workspace
+        right_layout_elements = [
+            self.title,
+            self.service_label,
+            self.login_label,
+            self.password_label,
+            self.creation_date_label,
+            self.description_label,
+            self.description]
+        
+
+        for element in right_layout_elements:
+            self.right_layout.addWidget(element)
+
+        self.hide_password_btn.hide()
+        self.edit_password_btn.hide()
+        self.del_password_btn.hide()
+
         self.service_label.hide()
         self.login_label.hide()
         self.password_label.hide()
@@ -107,7 +145,6 @@ class MainWindow(QMainWindow):
         self.description_label.hide()
         self.description.hide()
         
-
         self.right_layout.addStretch()
 
         self.right_container.setLayout(self.right_layout)
@@ -122,33 +159,32 @@ class MainWindow(QMainWindow):
             border-radius: 8px;
          """)
 
-        self.new_button = QPushButton("New")
-        self.new_button.setFixedSize(40, 30)
+        self.app_title = QLabel("CastleKeys")
+        self.app_title.setStyleSheet("border: 1px solid #111111; font-size: 24pt; font-weight: bold;")
 
-        self.edit_button = QPushButton("edit")
-        self.edit_button.setFixedSize(40, 30)
+        self.new_password_btn = QPushButton("New")
+        self.new_password_btn.setFixedSize(40, 30)
 
-        self.remove_button = QPushButton("remove")
-        self.remove_button.setFixedSize(40, 30)
-
-        self.settings_button = QPushButton("setting")
-        self.settings_button.setFixedSize(40, 30)
+        self.settings_btn = QPushButton("setting")
+        self.settings_btn.setFixedSize(40, 30)
 
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search")
         self.search.setFixedSize(500, 30)
 
-        self.search_button = QPushButton("search")
-        self.search_button.setFixedSize(40, 30)
+        self.search_btn = QPushButton("search")
+        self.search_btn.setFixedSize(40, 30)
         
-
-        self.tool_layout.addWidget(self.new_button)
-        self.tool_layout.addWidget(self.edit_button)
-        self.tool_layout.addWidget(self.remove_button)
+        # tool_layout_elements
+        
+        # self.tool_layout.addWidget(self.remove_button)
+        self.tool_layout.addWidget(self.app_title)
         self.tool_layout.addStretch() 
         self.tool_layout.addWidget(self.search)
+        self.tool_layout.addWidget(self.search_btn)
         self.tool_layout.addStretch() 
-        self.tool_layout.addWidget(self.settings_button)
+        self.tool_layout.addWidget(self.new_password_btn)
+        self.tool_layout.addWidget(self.settings_btn)
 
         self.tool_container.setLayout(self.tool_layout)
         #----------------------------------------------------------------------------------
@@ -164,10 +200,14 @@ class MainWindow(QMainWindow):
     
     # Подгрузка паролей из базы данных и добавление их в дерево. 
     def load_db(self):
+        setup_logger()
+        init_db()                             
         data = get_all_passwords()
         
         self.tree_model.clear()
         
+        # TODO нужно писать при нажатии на корень дерева информацию о базе данных: объем базы данных, количество паролей итд. Нужно создать невидимые объекты QLabel и при нажатии на корень они стали видимыми, а если нажать на пароль, то снова невидимыми. 
+
         self.root_item = QStandardItem("Passwords")
         root_item_font = self.root_item.font()
         root_item_font.setBold(True)
@@ -196,8 +236,6 @@ class MainWindow(QMainWindow):
             self.date_text = row[4] if len(row) > 4 else "Unknown"
             # self.description = row[5]
 
-
-
             service_item = QStandardItem(self.service_text)
             
             service_item.setData(self.entry_id, Qt.ItemDataRole.UserRole)
@@ -208,4 +246,14 @@ class MainWindow(QMainWindow):
             self.root_item.appendRow(service_item)
             
         self.tree_view.expandAll()
-            
+        close_db()
+
+    def db_information(self):
+        self.db_size_lb = QLabel("")
+        self.db_creation_date = QLabel("")
+        self.path_to_db = QLabel("")
+        self.db_count_passwords = QLabel("")
+        self.db_count_dublicate = QLabel("")
+
+        self.db_login = QLabel("")
+        self.db_password = QLabel("")

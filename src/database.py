@@ -2,19 +2,15 @@ import sqlite3
 from loguru import logger
 from pathlib import Path
 
+from src.setuplogger import setup_logger
+
 # TODO нужно сделать хеширование паролей
 
 password_db = None
 
 def init_db():
+    setup_logger()
     global password_db
-    logger.remove()
-    logger.add(
-        "src/logs/databases/save_password.log",
-        rotation="500 MB",
-        level="INFO",
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"
-    )
         
     Path("logs").mkdir(exist_ok=True)
         
@@ -27,20 +23,21 @@ def init_db():
                 Service TEXT NOT NULL,
                 Login TEXT NOT NULL, 
                 Password TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                Created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 Description TEXT
             )
         """)
     password_db.commit()
-    logger.success("✅ Database initialized successfully")
-    print("✅ Database initialized successfully")
+    logger.success("The database is connected.")
     
 # Функция добавления пароля. 
 def add_password(service: str, login: str, password: str) -> bool:
+    setup_logger()
+
     global password_db
         
     if password_db is None:
-        logger.error("❌ Database not initialized! Call init_db() first. ")
+        logger.error("Database not initialized! Call init_db() first")
         return False
         
     try:
@@ -50,50 +47,50 @@ def add_password(service: str, login: str, password: str) -> bool:
                 (service, login, password)
         )
         password_db.commit()
-        logger.success(f"✅ Password for '{login}' ({service}) saved successfully")
-        print(f"✅ Password for '{login}' ({service}) saved successfully")
+        logger.success(f"Password for '{login}' ({service}) saved successfully")
         return True
             
     except sqlite3.IntegrityError as e:
         password_db.rollback()
-        logger.error(f"❌ Integrity error (duplicate?): {e}")
+        logger.error(f"Integrity error (duplicate?): {e}")
         return False
     except sqlite3.OperationalError as e:
         password_db.rollback()
-        logger.error(f"❌ Operational error: {e}")
+        logger.error(f"Operational error: {e}")
         return False
     except sqlite3.Error as e:
         password_db.rollback()
-        logger.error(f"❌ Unexpected database error: {e}")
+        logger.error(f"Unexpected database error: {e}")
         return False
 
+def delete_password(password_id: int) -> bool:
+    setup_logger()
 
-def delete_password(service: str, login: str, password: str) -> bool:
     global password_db
     if password_db is None: 
-        logger.error("❌ Database not initialized! Call init_db() first.")
         return False
     try:
         cursor = password_db.cursor()
-        cursor.execute("""
-        DELETE FROM passwords WHERE id = ?
-
-        """)
-
-    except sqlite3.IntegrityError as e:
+        # Удаляем строго одну запись по ее первичному ключу
+        cursor.execute("DELETE FROM passwords WHERE id = ?", (password_id,))
+        password_db.commit()
+        cursor.close()
+        return True
+    except sqlite3.Error:
         password_db.rollback()
+        return False
 
 def get_all_passwords() -> list:
     global password_db
     if password_db is None:
-        logger.error("❌ Database not initialized!")
+        logger.error("Database not initialized!")
         return []
     try:
         cursor = password_db.cursor()
-        cursor.execute("SELECT id, Service, Login, Password FROM passwords")
+        cursor.execute("SELECT id, Service, Login, Password, Created_at FROM passwords")
         return cursor.fetchall() 
     except sqlite3.Error as e:
-        logger.error(f"❌ Error fetching passwords: {e}")
+        logger.error(f"Error fetching passwords: {e}")
         return []
 
 
@@ -101,4 +98,4 @@ def close_db():
     global password_db
     if password_db:
         password_db.close()
-        logger.info("🔌 Database connection closed")
+        logger.success("The database has been successfully closed")

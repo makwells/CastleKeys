@@ -2,7 +2,9 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
+
 from src.database import *
+from src.setuplogger import setup_logger
 
 # TODO добавить теги для пароолей
 # тег wifi
@@ -14,19 +16,23 @@ from src.database import *
 class CreateNewPassword(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        setup_logger()
 
         with open("src/assets/styles/dialog_styles.qss", "r") as styles_file:
             style = styles_file.read()
+            logger.success("Styles for the dialog window have been loaded")
 
+        logger.info("The style file for the dialog box is open")
         self.setStyleSheet(style)
+        styles_file.close()
+        logger.info("The style file for the dialog box is closed")
+        
 
         self.setWindowTitle("New password")
         self.setFixedSize(400, 400)
 
         self.new_password_ui()
         
-        init_db()
-
     def new_password_ui(self):
         self.new_password_layout = QVBoxLayout()
         message = QLabel(f"Create new password")
@@ -65,14 +71,22 @@ class CreateNewPassword(QDialog):
         self.setLayout(self.new_password_layout)
 
         self.show()
+
+    def reject(self):
+        logger.debug("new password window clicked reject")
+        close_db()
+        super().reject()
     
     def accept(self):
+        logger.debug("new password window clicked accept")
         self.create_password(self.input_service.text(), self.input_login.text(), self.input_password.text())
         super().accept() 
 
 
     def create_password(self, service, login, password):
+        init_db()
         add_password(service, login, password)
+        close_db()
         
 
         

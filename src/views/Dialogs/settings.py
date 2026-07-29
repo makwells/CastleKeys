@@ -12,12 +12,20 @@ class Settings(QDialog):
             style = styles_file.read()
 
         self.setStyleSheet(style)
-
-        self.setWindowTitle("Settings")
-        self.resize(800, 600)
-
         self.settings_ui()
     
     def settings_ui(self):
+        self.setWindowTitle("Settings")
+        self.resize(800, 600)
 
+        self.main_block = QHBoxLayout()
+
+        self.storage_block = QVBoxLayout()
+
+        self.path_to_passwords = QLineEdit()
+        self.path_to_passwords.setPlaceholderText(".Passwords")
+        self.storage_block.addWidget(self.path_to_passwords)
+
+        self.main_block.addLayout(self.storage_block)
+        self.setLayout(self.main_block)
         self.show()
