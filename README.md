@@ -1,6 +1,6 @@
 <h1 align="center">CastleKeys</h1>
 
-<img align="center" width="100%" height="70% src="src/assets/images/banner.jpg" >
+<img align="center" width="100%" src="src/assets/images/banner.jpg" alt="banner.jpg">
 
 **CastleKeys** - Куда безопаснее и удобнее, чем хранить пароли в браузере или заметках. 
 
