@@ -18,7 +18,6 @@ class CastleKeys:
     project = "https://github.com/makwells/CastleKeys"
 
     def __init__(self):
-        setup_logger()
         logger.success("The application has started.")
 
         with open("src/assets/styles/main_styles.qss", "r") as styles_file:

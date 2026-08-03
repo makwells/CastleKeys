@@ -21,6 +21,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS passwords (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Service TEXT NOT NULL,
+                URL TEXT,
                 Login TEXT NOT NULL, 
                 Password TEXT NOT NULL,
                 Created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,8 +32,7 @@ def init_db():
     logger.success("The database is connected.")
     
 # Функция добавления пароля. 
-def add_password(service: str, login: str, password: str) -> bool:
-    setup_logger()
+def add_password(service: str, url: str, login: str, password: str) -> bool:
 
     global password_db
         
@@ -43,11 +43,11 @@ def add_password(service: str, login: str, password: str) -> bool:
     try:
         cursor = password_db.cursor()
         cursor.execute(
-                "INSERT INTO passwords (Service, Login, Password) VALUES (?, ?, ?)", 
-                (service, login, password)
+                "INSERT INTO passwords (Service, URL, Login, Password) VALUES (?, ?, ?, ?)", 
+                (service, url, login, password)
         )
         password_db.commit()
-        logger.success(f"Password for '{login}' ({service}) saved successfully")
+        logger.success(f"Password for '{service}' ({login}) saved successfully")
         return True
             
     except sqlite3.IntegrityError as e:
@@ -64,7 +64,6 @@ def add_password(service: str, login: str, password: str) -> bool:
         return False
 
 def delete_password(password_id: int) -> bool:
-    setup_logger()
 
     global password_db
     if password_db is None: 
@@ -87,7 +86,7 @@ def get_all_passwords() -> list:
         return []
     try:
         cursor = password_db.cursor()
-        cursor.execute("SELECT id, Service, Login, Password, Created_at FROM passwords")
+        cursor.execute("SELECT id, Service, URL, Login, Password, Created_at, Description FROM passwords")
         return cursor.fetchall() 
     except sqlite3.Error as e:
         logger.error(f"Error fetching passwords: {e}")
