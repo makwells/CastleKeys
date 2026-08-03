@@ -13,13 +13,15 @@ class MainWindow(QMainWindow):
 
         # Config
         with open("config.json", "r") as config_file:
-            logger.success("Config loaded")
+            logger.success("Config successfully loaded ✅")
             self.config = json.load(config_file)
 
         self.init_ui()                        # load ui
         self.load_db()                        # load db
 
     def init_ui(self):                        # Elements Interface
+        logger.debug("Main Window successfully loaded! ✅")
+
         
         self.tool_bar()                       # Tool bar
         self.workspace_l()                    # Left workspace
@@ -30,7 +32,6 @@ class MainWindow(QMainWindow):
         self.resize(900, 700)                 # start window size
         self.setMinimumSize(900, 700)         # minimum window size
 
-        logger.debug("UI loaded")
 
         self.central_widget = QWidget()       # Central widget
         self.workspace_container = QWidget()
@@ -103,6 +104,7 @@ class MainWindow(QMainWindow):
 
     # TOOL BAR WIDGETS
     def tool_bar(self):
+        logger.debug("Tool bar successfully loaded! ✅")
         self.app_title = QLabel("CastleKeys")
         self.app_title.setStyleSheet("border: 1px solid #111111; font-size: 24pt; font-weight: bold;")
         
@@ -127,7 +129,6 @@ class MainWindow(QMainWindow):
             border: 1px solid #222222;
             border-radius: 8px;
          """)
-
         tools = [
             self.app_title,
             self.tool_layout.addStretch(),
@@ -137,12 +138,12 @@ class MainWindow(QMainWindow):
             self.new_password_btn,
             self.settings_btn,
         ]
-
         for tool_bar_element in tools:
             self.tool_layout.addWidget(tool_bar_element)
 
     # LEFT WORKSPACE -> TREE
     def workspace_l(self): 
+        logger.debug("Left workspace successfully loaded! ✅")
         self.tree_view = QTreeView()         # Tree
         self.tree_view.setHeaderHidden(True) # Hide header 
         self.tree_view.setFixedWidth(250)    # Width
@@ -155,6 +156,7 @@ class MainWindow(QMainWindow):
 
     # RIGHT WORKSPACE
     def workspace_r(self):
+        logger.debug("Right workspace successfully loaded! ✅")
         self.db_information()
          # NOTE Заголовок пароля(название). Необходимо для визуального понимания того, какой пароль просматривает пользователь.
         self.title = QLabel()
@@ -268,7 +270,6 @@ class MainWindow(QMainWindow):
             right_layout_element.hide()
             if index == 0: self.right_layout.addLayout(self.under_title_layout)
 
-
         # Добавление элементов database_infromation
         for db_information_elements in right_workspace_db_information_elements:
             self.right_layout.addWidget(db_information_elements)
@@ -283,11 +284,19 @@ class MainWindow(QMainWindow):
 
     # DATABASE INFORMATION WIDGETS
     def db_information(self):
+        logger.debug("Database information successfully loaded! ✅")
         self.db_size_lb = QLabel("Size database: ")
+        self.db_size_lb.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.db_creation_date = QLabel("Creation date: ")
+        self.db_creation_date.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.path_to_db = QLabel("Path to database: ")
+        self.path_to_db.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.db_count_passwords = QLabel("Database count passwords: ")
+        self.db_count_passwords.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.db_count_dublicate = QLabel("Database cound dublicate: ")
-
+        self.db_count_dublicate.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.db_login = QLabel("Login for database: ")
+        self.db_login.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.db_password = QLabel("Password for database: ")
+        self.db_password.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+
