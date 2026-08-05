@@ -7,6 +7,10 @@ from src.database import *
 from src.setuplogger import setup_logger
 
 class Edit_Password(QDialog):
+
+    data_edit_password = pyqtSignal(object)
+    finished = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -16,13 +20,11 @@ class Edit_Password(QDialog):
 
         self.setStyleSheet(style)
         styles_file.close()
-        
 
         self.setWindowTitle("Edit password")
         self.setFixedSize(400, 400)
 
         self.edit_password_ui()
-
     
     def edit_password_ui(self):
         self.edit_password_layout = QVBoxLayout()
@@ -38,13 +40,9 @@ class Edit_Password(QDialog):
         message.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         
-        # self.edit_label_service = QLabel("Rename service:")
         self.edit_input_service = QLineEdit()
-        
         self.edit_input_url = QLineEdit()
-        # self.edit_label_login = QLabel("New login:")
         self.edit_input_login = QLineEdit()
-        # self.edit_label_password = QLabel("New password:")
         self.edit_input_password = QLineEdit()
         
         buttons = QDialogButtonBox(
@@ -69,12 +67,32 @@ class Edit_Password(QDialog):
         self.edit_password_layout.addWidget(buttons)
 
         self.setLayout(self.edit_password_layout)
-
+        
         self.show()
+
+    def _save_edit(self):
+        # Получаем новые данные
+        service  = self.edit_input_service.text().strip()
+        url      = self.edit_input_url.text().strip()
+        login    = self.edit_input_login.text().strip()
+        password = self.edit_input_password.text().strip()
+
+        # write new data
+        data = {
+            "service": service,
+            "url": url,
+            "login": login,
+            "password": password,
+        }
+
+        self.data_edit_password.emit(data) #send new data
+        self.finished.emit()               #finish thread
+        super().accept()
+        
+
     
     def accept(self):
-        self.edit_password(self.edit_input_service, self.edit_input_login, self.edit_input_password)
-        super().accept
+        self._save_edit()
     
-    def edit_password(self, service, login, password):
-        ...
+    # def edit_password(self, service, login, password):
+    #     ...

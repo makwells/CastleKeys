@@ -2,10 +2,13 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
-from ..database import *
-from .Dialogs.create_new_password import CreateNewPassword
+
 import json 
+
+# from .Dialogs.create_new_password import CreateNewPassword
+from ..database import *
 from ..setuplogger import setup_logger
+from .icons import icons_set_color
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -66,19 +69,6 @@ class MainWindow(QMainWindow):
         self.root_item.setFont(root_item_font)
         
         self.tree_model.appendRow(self.root_item)
-
-        # FIXME добавление пароля в реальном времени
-        # идея в том, чтобы при добавлении пароля хранить его в памяти компьютера, а после закрытия программы пароль добавлял в базу данных. При следующем запуске программа будет уже считывать пароль из базы данных. 
-
-        
-        # self.dialog_new_password = CreateNewPassword()
-        # self.dialog_new_password.new_password_ui
-
-        # input_service = self.dialog_new_password.input_service
-        # input_login = self.dialog_new_password.input_login.text()
-        # input_password = self.dialog_new_password.input_password.text()
-
-        # self.root_item.appendRow(input_service)
         
         for row in data:
             self.entry_id = row[0]
@@ -105,21 +95,34 @@ class MainWindow(QMainWindow):
     # TOOL BAR WIDGETS
     def tool_bar(self):
         logger.debug("Tool bar successfully loaded! ✅")
+
+        icon_size = QSize(24, 24)
+
         self.app_title = QLabel("CastleKeys")
         self.app_title.setStyleSheet("border: 1px solid #111111; font-size: 24pt; font-weight: bold;")
         
-        self.new_password_btn = QPushButton("New")
+        self.new_password_btn = QPushButton("")
         self.new_password_btn.setFixedSize(40, 30)
+        self.new_password_icon = icons_set_color("add.svg", "#D3D3D3", icon_size)
+        self.new_password_btn.setIcon(self.new_password_icon)
+        self.new_password_btn.setIconSize(icon_size)
 
-        self.settings_btn = QPushButton("setting")
+        self.settings_btn = QPushButton()
         self.settings_btn.setFixedSize(40, 30)
+    
+        self.settings_icon = icons_set_color("settings.svg", "#D3D3D3", icon_size)
+        self.settings_btn.setIcon(self.settings_icon)
+        self.settings_btn.setIconSize(icon_size)
 
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search")
         self.search.setFixedSize(500, 30)
 
-        self.search_btn = QPushButton("search")
+        self.search_btn = QPushButton()
         self.search_btn.setFixedSize(40, 30)
+        self.search_icon = icons_set_color("search.svg", "#D3D3D3", icon_size)
+        self.search_btn.setIcon(self.search_icon)
+        self.search_btn.setIconSize(icon_size)
 
         self.tool_container = QWidget()
         self.tool_layout = QHBoxLayout()
@@ -189,6 +192,9 @@ class MainWindow(QMainWindow):
         # CREATION DATE
         # NOTE Логика в том, что у пользователя может быть несколько аккаунтов одного сервиса и дата создания пароля служит ориентиром. 
         self.creation_date_label = QLabel(f"Creation date: ")
+        self.creation_date_icon = QPixmap("src/assets/icons/clock.svg")
+        scaled_pixmap = self.creation_date_icon.scaled(24, 24, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        self.creation_date_label.setPixmap(scaled_pixmap)
         self.creation_date_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
 
 
@@ -207,15 +213,28 @@ class MainWindow(QMainWindow):
         # Логика в том, что при нажатии кнопки пароли мнгновенно скрываются, а для того, чтобы показать пароли нужно будет ввести пароль. В ИДЕАЛЕ СКРЫВАТЬ ПАРОЛИ ПОУМОЛЧАНИЮ И НЕ МЕНЯТЬ ПАРАМЕТР ВИДИМОСТИ. иконка глазика
         # Нужно сделать автоматическое скрытие при запуске программы
         # Нужно сделать поле ввода пароля при показе его снова.
-        self.hide_password_btn = QPushButton("hide")
+        icon_size = QSize(24, 24)
+
+
+        self.hide_password_btn = QPushButton("")
         self.hide_password_btn.setFixedSize(40, 40)
         self.hide_password_btn_state = False
+        self.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
+        self.hide_password_btn.setIcon(self.hide_password_icon)
+        self.hide_password_btn.setIconSize(icon_size)
 
-        self.edit_password_btn = QPushButton("edit")
+        self.edit_password_btn = QPushButton("")
         self.edit_password_btn.setFixedSize(40, 40)
+        self.edit_password_icon = icons_set_color("edit.svg", "#D3D3D3", icon_size)
+        self.edit_password_btn.setIcon(self.edit_password_icon)
+        self.edit_password_btn.setIconSize(icon_size)
 
-        self.del_password_btn = QPushButton("del")
+        self.del_password_btn = QPushButton("")
         self.del_password_btn.setFixedSize(40, 40)
+        self.del_password_icon = icons_set_color("delete.svg", "#D3D3D3", icon_size)
+        self.del_password_btn.setIcon(self.del_password_icon)
+        self.del_password_btn.setIconSize(icon_size)
+
 
         self.right_layout = QVBoxLayout()
         self.under_title_layout = QHBoxLayout()
@@ -280,7 +299,6 @@ class MainWindow(QMainWindow):
         self.right_layout.addStretch()
 
         self.right_container.setLayout(self.right_layout)
-
 
     # DATABASE INFORMATION WIDGETS
     def db_information(self):

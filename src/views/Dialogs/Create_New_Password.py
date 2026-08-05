@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
+
 from src.database import *
 from src.setuplogger import setup_logger
 
@@ -14,6 +15,8 @@ from src.setuplogger import setup_logger
 #c7c7c7
 
 class CreateNewPassword(QDialog):
+    password_created = pyqtSignal(dict)
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -29,6 +32,7 @@ class CreateNewPassword(QDialog):
         self.setFixedSize(400, 400)
 
         self.new_password_ui()
+        # self.save_btn.clicked.connect(self._on_save)
         
     def new_password_ui(self):
         self.new_password_layout = QVBoxLayout()
@@ -80,6 +84,23 @@ class CreateNewPassword(QDialog):
         self.setLayout(self.new_password_layout)
 
         self.show()
+
+    def _on_save(self):
+        service = self.input_service.text().strip()
+        login = self.input_login.text().strip()
+
+        if not service or login: 
+            return 
+
+        data = {
+            "service": service,
+            "url": self.input_url.text().strip(),
+            "login": login,
+            "password": self.input_password.text(),
+            # "description": self.input_description.toPlainText(),
+        }
+        self.password_created.emit(data)
+        self.accept()
 
     def reject(self):
         logger.debug("new password window clicked reject")

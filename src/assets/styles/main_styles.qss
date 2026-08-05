@@ -1,11 +1,11 @@
 QMainWindow{
     background-color: #151515;
     color: #D3D3D3;
-    font-family: monospace;
+    font-family: "Arial";
 }
 
 QTreeView{
-    background-color: #111111;
+    background-color: #111;
     color: #D3D3D3;
     font-size: 20pt;
     border: 1px solid #222222;
@@ -13,14 +13,9 @@ QTreeView{
 }
 
 QPushButton{
-    background-color: #111111;
+    background-color: #424242;
     border: 1px solid #050505;
     border-radius: 8px;
-}
-
-
-QPushButton:pressed{
-    background-color: #fff;
 }
 
 QLineEdit{

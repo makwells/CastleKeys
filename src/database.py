@@ -1,3 +1,4 @@
+#database.py
 import sqlite3
 from loguru import logger
 from pathlib import Path
@@ -91,6 +92,34 @@ def get_all_passwords() -> list:
     except sqlite3.Error as e:
         logger.error(f"Error fetching passwords: {e}")
         return []
+
+def update_password(password_id: int, service: str, url: str, login: str, password: str) -> bool:
+    global password_db
+    
+    if password_db is None:
+        logger.error("Database not initialized!")
+        return False
+        
+    try:
+        cursor = password_db.cursor()
+        # Выполняем SQL-запрос UPDATE по конкретному id
+        cursor.execute(
+            """
+            UPDATE passwords 
+            SET Service = ?, URL = ?, Login = ?, Password = ? 
+            WHERE id = ?
+            """, 
+            (service, url, login, password, password_id)
+        )
+        password_db.commit()
+        cursor.close()
+        logger.success(f"Password ID {password_id} ('{service}') updated successfully")
+        return True
+            
+    except sqlite3.Error as e:
+        password_db.rollback()
+        logger.error(f"Error updating password ID {password_id}: {e}")
+        return False
 
 
 def close_db():

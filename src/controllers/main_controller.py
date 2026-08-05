@@ -4,6 +4,8 @@ from ..views.Dialogs.settings import Settings
 from ..views.Dialogs.edit_password import Edit_Password
 
 from ..models.db_info import Database_info
+from src.views.icons import icons_set_color
+
 
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
@@ -41,7 +43,7 @@ class MainController():
     def _on_category_clicked(self, index):
 
         self.item = self._view.tree_model.itemFromIndex(index)
-        item_name = self.item.text()                                  #get text
+        item_name = self.item.text()                                          #get text
         self._view.title.setText(f"{item_name}".upper())                      #change title
         
 
@@ -111,17 +113,57 @@ class MainController():
         logger.debug("Edit button clicked")
         
         self.edit_menu = Edit_Password()
+        # self.edit_menu.exec()
         
         get_service = self.service_name_
+        get_url = self.url_
         get_login = self.login_
         get_password = self.password_
 
-        # заполнять холдер текст старыми данными
+        # заполнять холдертекст старыми данными
         self.edit_menu.edit_input_service.setPlaceholderText(get_service)
         self.edit_menu.edit_input_login.setPlaceholderText(get_login)
+        self.edit_menu.edit_input_url.setPlaceholderText(get_url)
         self.edit_menu.edit_input_password.setPlaceholderText(get_password)
 
-        # TODO изменять старые данные в функции редактирования пароля
+        self.edit_menu.data_edit_password.connect(self.update_ui_edited)
+    
+    def update_ui_edited(self, data:dict):
+        #get edited password 
+        new_service  = data.get("service") or self.service_name_
+        new_url      = data.get("url") or self.url_
+        new_login    = data.get("login") or self.login_
+        new_password = data.get("password") or self.password_
+        
+        if new_service != "": logger.debug(f"Received updated service data: {new_service}")
+        if new_url != "": logger.debug(f"Received updated url data: {new_url}")
+        if new_login != "": logger.debug(f"Received updated login data: {new_login}")
+        if new_password != "": logger.debug(f"Received updated password data: {new_password}")
+
+
+        #change in db
+        success = update_password(
+            password_id=self._view.entry_id,
+            service=new_service,
+            url=new_url,
+            login=new_login,
+            password=new_password
+        )
+        if success:
+            #change in ui
+            self._view.service_label.setText(f"Service: {new_service}") 
+            self._view.url_lb.setText(f"URL: {new_url}")
+            self._view.login_label.setText(f"Login: {new_login}")
+            self._view.password_label.setText(f"Password: {new_password}")
+
+            self.service_name_ = new_service
+            self.url_ = new_url
+            self.login_ = new_login
+            self.password_ = new_password
+
+            self.item.setText(self.service_name_)                     # заголовок в дереве
+            self._view.title.setText(f"{self.service_name_}".upper()) #заголовок в right_workspace
+            
 
         
     def _del_password_clicked(self, tree_view):
@@ -151,7 +193,6 @@ class MainController():
             # Если из файла базы данных удалено, удаляем строку из интерфейса
             model.removeRow(row, parent_index)
             logger.success(f"The row with ID {db_id} has been removed from the interface.")
-
     
     def _setting_clicked(self):
         #open the child window for application settings
@@ -159,9 +200,7 @@ class MainController():
         Settings(self._view)
 
     def _search_clicked(self):
-
         logger.debug("Search button clicked")
-
 
     def db_information(self):
         logger.debug("db_infromation clicked")
@@ -174,14 +213,23 @@ class MainController():
         self._view.db_password.show()
     
     def hide(self, checked=None):
+
+        icon_size = QSize(24, 24)
     
         if not self._view.hide_password_btn_state:
             self._view.password_label.setText("Password: " + self.hide_password) 
-            self._view.hide_password_btn.setText("Show")
+            self._view.hide_password_btn.setText("")
+            self._view.hide_password_icon = icons_set_color("hide.svg", "#D3D3D3", icon_size)
+            self._view.hide_password_btn.setIcon(self._view.hide_password_icon)
+            self._view.hide_password_btn.setIconSize(icon_size)
+
             self._view.hide_password_btn_state = True
             logger.debug("Password hidden")
         else:
             self._view.password_label.setText(self.current_password)
-            self._view.hide_password_btn.setText("Hide")
+            self._view.hide_password_btn.setText("")
+            self._view.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
+            self._view.hide_password_btn.setIcon(self._view.hide_password_icon)
+            self._view.hide_password_btn.setIconSize(icon_size)
             self._view.hide_password_btn_state = False
             logger.debug("Password is shown")
