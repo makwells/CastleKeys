@@ -7,7 +7,7 @@ language = "en"
 
 [database]
 autoSave = true
-auto-hide-passwords = true
+auto_hide_passwords = true
 database_dir = "Passwords/"
 download_dir = ""
 
@@ -15,10 +15,11 @@ download_dir = ""
 new_version_notification = true
 
 [hotkeys]
-new_password = ""
-del_password = ""
-edit_password = ""
-hide_password = ""
+new_password = "Ctrl+N"
+edit_password = "Ctrl+E"
+del_password = "Ctrl+Backspace"
+hide_password = "Ctrl+G"
+settings = "Ctrl+I"
 hide_tree = ""
 up = ""
 down = ""

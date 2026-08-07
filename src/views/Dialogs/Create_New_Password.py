@@ -3,7 +3,6 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
-
 from src.database import *
 from src.setuplogger import setup_logger
 
@@ -11,8 +10,6 @@ from src.setuplogger import setup_logger
 # тег wifi
 # тег site
 # тег token итд
-
-#c7c7c7
 
 class CreateNewPassword(QDialog):
     password_created = pyqtSignal(dict)
@@ -26,7 +23,6 @@ class CreateNewPassword(QDialog):
 
         self.setStyleSheet(style)
         styles_file.close()
-        
 
         self.setWindowTitle("New password")
         self.setFixedSize(400, 400)

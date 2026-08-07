@@ -3,10 +3,6 @@ from PyQt6.QtWidgets import QApplication
 from src.views.main_window import MainWindow
 from src.views.Dialogs.create_new_password import CreateNewPassword
 from src.views.Dialogs.edit_password import Edit_Password
-
-from src.views.theme_manager import ConfigManager
-
-
 from src.controllers.main_controller import MainController
 
 from src.database import *
@@ -23,11 +19,6 @@ class CastleKeys:
 
     def __init__(self):
         logger.success("The application has started.")
-
-         #config
-        with open("config.toml", "r", encoding="utf-8") as config_file:
-            logger.success("Config successfully loaded ✅")
-            self.config = toml.load(config_file)
 
         self.castlekeys()
 

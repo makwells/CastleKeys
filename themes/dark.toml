@@ -35,7 +35,4 @@ r_workspace_background = "#111111"
 r_workspace_border = "#222222"
 
 [dialogs]
-background = "#151515"
-accient = "#D3D3D3"
-border = "#222222"
-icons = "#D3D3D3"
+dialog_background = "#151515"

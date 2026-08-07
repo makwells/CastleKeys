@@ -3,7 +3,6 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
-# import json 
 import toml
 
 # from .Dialogs.create_new_password import CreateNewPassword
@@ -13,7 +12,7 @@ from .icons import icons_set_color
 from .theme_manager import ConfigManager
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self): #start
         super().__init__()
 
         # Config
@@ -21,22 +20,23 @@ class MainWindow(QMainWindow):
             logger.success("Config successfully loaded ✅")
             self.config = toml.load(config_file)
 
+
         self.themes_dir = "themes/"
         self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
-        self.apply_theme()
+
+        self.apply_theme()                    # load theme
         self.init_ui()                        # load ui
         self.load_db()                        # load db
 
-    def apply_theme(self):
-        """Динамически запрашивает QSS из менеджера и применяет к текущему окну."""
+    def apply_theme(self): #init theme
         try:
             style = ConfigManager.get_style()
             self.setStyleSheet(style)
-            logger.success("Theme successfully applied to MainWindow ✅")
+            logger.success(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
         except Exception as e:
-            logger.error(f"Failed to apply theme: {e}")
+            logger.error(f"Failed to apply theme {self.current_theme}: {e}")
 
-    def init_ui(self):                        # Elements Interface
+    def init_ui(self): #init ui
         logger.debug("Main Window successfully loaded! ✅")
 
         self.tool_bar()                       # Tool bar
@@ -68,8 +68,7 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(self.workspace_layout)
         self.central_widget.setLayout(main_layout)
     
-    # Подгрузка паролей из базы данных и добавление их в дерево. 
-    def load_db(self):
+    def load_db(self): #init database
         init_db()                             
         data = get_all_passwords()
         
@@ -105,8 +104,7 @@ class MainWindow(QMainWindow):
             
         self.tree_view.expandAll()
 
-    # TOOL BAR WIDGETS
-    def tool_bar(self):
+    def tool_bar(self): #tool_bar widgets
         logger.debug("Tool bar successfully loaded! ✅")
 
         icon_size = QSize(24, 24)
@@ -154,8 +152,7 @@ class MainWindow(QMainWindow):
         self.tool_layout.addWidget(self.new_password_btn)
         self.tool_layout.addWidget(self.settings_btn)
 
-    # LEFT WORKSPACE -> TREE
-    def workspace_l(self): 
+    def workspace_l(self): #left workspace widgets
         logger.debug("Left workspace successfully loaded! ✅")
         self.tree_view = QTreeView()         # Tree
         self.tree_view.setObjectName("LeftWorkspace")
@@ -168,8 +165,7 @@ class MainWindow(QMainWindow):
         # Привязываем созданную модель к отображению
         self.tree_view.setModel(self.tree_model)
 
-    # RIGHT WORKSPACE
-    def workspace_r(self):
+    def workspace_r(self): #right workspace widgets
         logger.debug("Right workspace successfully loaded! ✅")
         self.db_information()
          # NOTE Заголовок пароля(название). Необходимо для визуального понимания того, какой пароль просматривает пользователь.
@@ -309,8 +305,7 @@ class MainWindow(QMainWindow):
 
         self.right_container.setLayout(self.right_layout)
 
-    # DATABASE INFORMATION WIDGETS
-    def db_information(self):
+    def db_information(self): #database information widgets
         logger.debug("Database information successfully loaded! ✅")
         self.db_size_lb = QLabel("Size database: ")
         self.db_size_lb.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
@@ -326,4 +321,3 @@ class MainWindow(QMainWindow):
         self.db_login.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.db_password = QLabel("Password for database: ")
         self.db_password.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-

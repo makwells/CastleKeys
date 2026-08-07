@@ -17,6 +17,9 @@ from ..setuplogger import setup_logger
 
 class MainController():
     def __init__(self, view):
+        with open("config.toml", "r", encoding="utf-8") as config_file:
+            self.config = toml.load(config_file)
+
         self._view  = view      #MainWindow
 
         self.service_name_ = None
@@ -27,6 +30,7 @@ class MainController():
         self._view.hide_password_btn_state = not self._view.hide_password_btn_state
 
         self._connect_signals() #Signals
+        self.HotKeys()
 
     def _connect_signals(self):
         
@@ -40,8 +44,7 @@ class MainController():
 
         # TODO Нужно блокировать окно программы, когда открыто диалоговое окно, чтобы нельзя было открыть одновремено несколько окон добавления пароля или окон редактрирования. 
 
-    #select category
-    def _on_category_clicked(self, index):
+    def _on_category_clicked(self, index): #select category
 
         self.item = self._view.tree_model.itemFromIndex(index)
         item_name = self.item.text()                                          #get text
@@ -101,15 +104,13 @@ class MainController():
         self.password_length = len(self.current_password)
         self.hide_password = "*" * self.password_length
             
-    #add new password
-    def _new_password_clicked(self):
+    def _new_password_clicked(self): #add new password
         #open the child window to create a new password
         logger.debug("New button clicked")
 
         CreateNewPassword(self._view)
     
-    #edit password
-    def _edit_password_clicked(self):
+    def _edit_password_clicked(self): #edit password
         #open the child window to edit a password
         logger.debug("Edit button clicked")
         
@@ -129,7 +130,7 @@ class MainController():
 
         self.edit_menu.data_edit_password.connect(self.update_ui_edited)
     
-    def update_ui_edited(self, data:dict):
+    def update_ui_edited(self, data:dict): #update edited passwords
         #get edited password 
         new_service  = data.get("service") or self.service_name_
         new_url      = data.get("url") or self.url_
@@ -165,7 +166,7 @@ class MainController():
             self.item.setText(self.service_name_)                     # заголовок в дереве
             self._view.title.setText(f"{self.service_name_}".upper()) #заголовок в right_workspace
             
-    def _del_password_clicked(self, tree_view):
+    def _del_password_clicked(self, tree_view): #del password
         logger.debug("Del button clicked")
         # Получаем индекс выбранного элемента
         current_index = self._view.tree_view.currentIndex()
@@ -193,15 +194,15 @@ class MainController():
             model.removeRow(row, parent_index)
             logger.success(f"The row with ID {db_id} has been removed from the interface.")
     
-    def _setting_clicked(self):
+    def _setting_clicked(self): #settings
         #open the child window for application settings
         logger.debug("Settings button clicked")
         Settings(self._view)
 
-    def _search_clicked(self):
+    def _search_clicked(self): #seach
         logger.debug("Search button clicked")
 
-    def db_information(self):
+    def db_information(self): #database information
         logger.debug("db_infromation clicked")
         self._view.db_size_lb.show()
         self._view.db_creation_date.show()
@@ -211,7 +212,7 @@ class MainController():
         self._view.db_login.show()
         self._view.db_password.show()
     
-    def hide(self, checked=None):
+    def hide(self, checked=None): #hide passwords
 
         icon_size = QSize(24, 24)
     
@@ -232,3 +233,33 @@ class MainController():
             self._view.hide_password_btn.setIconSize(icon_size)
             self._view.hide_password_btn_state = False
             logger.debug("Password is shown")
+
+    def HotKeys(self): #Hotkeys
+        hotkeys = {
+            "new_password":  self.config["hotkeys"].get("new_password", "Ctrl+N"),
+            "edit_password": self.config["hotkeys"].get("edit_password", "Ctrl+E"),
+            "del_password": self.config["hotkeys"].get("del_password", "Ctrl+Backspace"),
+            "hide_password": self.config["hotkeys"].get("hide_password", "Ctrl+G"),
+            "settings": self.config["hotkeys"].get("settings", "Ctrl+I"),
+        }
+
+        if hotkeys["new_password"]:
+            self.shortcut_new = QShortcut(QKeySequence(hotkeys["new_password"]), self._view)
+            self.shortcut_new.activated.connect(self._new_password_clicked)
+
+        if hotkeys["edit_password"]:
+            self.shortcut_edit = QShortcut(QKeySequence(hotkeys["edit_password"]), self._view)
+            self.shortcut_edit.activated.connect(self._edit_password_clicked)
+        
+        if hotkeys["del_password"]:
+            self.shortcut_del = QShortcut(QKeySequence(hotkeys["del_password"]), self._view)
+            self.shortcut_del.activated.connect(lambda: self._del_password_clicked(self._view.tree_view))
+
+        if hotkeys["hide_password"]:
+            self.shortcut_hide = QShortcut(QKeySequence(hotkeys["hide_password"]), self._view)
+            self.shortcut_edit.activated.connect(self.hide)
+
+        if hotkeys["settings"]:
+            self.shortcut_settings = QShortcut(QKeySequence(hotkeys["settings"]), self._view)
+            self.shortcut_edit.activated.connect(self._setting_clicked)
+
