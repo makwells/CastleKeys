@@ -3,29 +3,42 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
-import json 
+# import json 
+import toml
 
 # from .Dialogs.create_new_password import CreateNewPassword
 from ..database import *
 from ..setuplogger import setup_logger
 from .icons import icons_set_color
+from .theme_manager import ConfigManager
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         # Config
-        with open("config.json", "r") as config_file:
+        with open("config.toml", "r", encoding="utf-8") as config_file:
             logger.success("Config successfully loaded ✅")
-            self.config = json.load(config_file)
+            self.config = toml.load(config_file)
 
+        self.themes_dir = "themes/"
+        self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
+        self.apply_theme()
         self.init_ui()                        # load ui
         self.load_db()                        # load db
+
+    def apply_theme(self):
+        """Динамически запрашивает QSS из менеджера и применяет к текущему окну."""
+        try:
+            style = ConfigManager.get_style()
+            self.setStyleSheet(style)
+            logger.success("Theme successfully applied to MainWindow ✅")
+        except Exception as e:
+            logger.error(f"Failed to apply theme: {e}")
 
     def init_ui(self):                        # Elements Interface
         logger.debug("Main Window successfully loaded! ✅")
 
-        
         self.tool_bar()                       # Tool bar
         self.workspace_l()                    # Left workspace
         self.workspace_r()                    # Right workspace
@@ -99,55 +112,53 @@ class MainWindow(QMainWindow):
         icon_size = QSize(24, 24)
 
         self.app_title = QLabel("CastleKeys")
-        self.app_title.setStyleSheet("border: 1px solid #111111; font-size: 24pt; font-weight: bold;")
-        
-        self.new_password_btn = QPushButton("")
-        self.new_password_btn.setFixedSize(40, 30)
-        self.new_password_icon = icons_set_color("add.svg", "#D3D3D3", icon_size)
-        self.new_password_btn.setIcon(self.new_password_icon)
-        self.new_password_btn.setIconSize(icon_size)
-
-        self.settings_btn = QPushButton()
-        self.settings_btn.setFixedSize(40, 30)
-    
-        self.settings_icon = icons_set_color("settings.svg", "#D3D3D3", icon_size)
-        self.settings_btn.setIcon(self.settings_icon)
-        self.settings_btn.setIconSize(icon_size)
+        self.app_title.setObjectName("ToolBarTitle")
 
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search")
         self.search.setFixedSize(500, 30)
+        self.search.setObjectName("ToolBarSearch")
 
         self.search_btn = QPushButton()
         self.search_btn.setFixedSize(40, 30)
         self.search_icon = icons_set_color("search.svg", "#D3D3D3", icon_size)
         self.search_btn.setIcon(self.search_icon)
         self.search_btn.setIconSize(icon_size)
+        self.search_btn.setObjectName("ToolBarButtons")
+
+        
+        self.new_password_btn = QPushButton("")
+        self.new_password_btn.setFixedSize(40, 30)
+        self.new_password_icon = icons_set_color("add.svg", "#D3D3D3", icon_size)
+        self.new_password_btn.setIcon(self.new_password_icon)
+        self.new_password_btn.setIconSize(icon_size)
+        self.new_password_btn.setObjectName("ToolBarButtons")
+
+        self.settings_btn = QPushButton()
+        self.settings_btn.setFixedSize(40, 30)
+        self.settings_icon = icons_set_color("settings.svg", "#D3D3D3", icon_size)
+        self.settings_btn.setIcon(self.settings_icon)
+        self.settings_btn.setIconSize(icon_size)
+        self.settings_btn.setObjectName("ToolBarButtons")
 
         self.tool_container = QWidget()
+        self.tool_container.setObjectName("ToolBar")
         self.tool_layout = QHBoxLayout()
 
-        self.tool_container.setStyleSheet("""
-            background-color: #111111;
-            border: 1px solid #222222;
-            border-radius: 8px;
-         """)
-        tools = [
-            self.app_title,
-            self.tool_layout.addStretch(),
-            self.search,
-            self.search_btn,
-            self.tool_layout.addStretch(),
-            self.new_password_btn,
-            self.settings_btn,
-        ]
-        for tool_bar_element in tools:
-            self.tool_layout.addWidget(tool_bar_element)
+        self.tool_layout = QHBoxLayout()
+        self.tool_layout.addWidget(self.app_title)
+        self.tool_layout.addStretch()
+        self.tool_layout.addWidget(self.search)
+        self.tool_layout.addWidget(self.search_btn)
+        self.tool_layout.addStretch()
+        self.tool_layout.addWidget(self.new_password_btn)
+        self.tool_layout.addWidget(self.settings_btn)
 
     # LEFT WORKSPACE -> TREE
     def workspace_l(self): 
         logger.debug("Left workspace successfully loaded! ✅")
         self.tree_view = QTreeView()         # Tree
+        self.tree_view.setObjectName("LeftWorkspace")
         self.tree_view.setHeaderHidden(True) # Hide header 
         self.tree_view.setFixedWidth(250)    # Width
         self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
@@ -164,48 +175,46 @@ class MainWindow(QMainWindow):
          # NOTE Заголовок пароля(название). Необходимо для визуального понимания того, какой пароль просматривает пользователь.
         self.title = QLabel()
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.title.setStyleSheet("font-size: 24pt; border: 0px solid #111111; background-color: #333;")
         label_font = self.title.font()
         label_font.setBold(True)
         self.title.setFont(label_font)
-
+        self.title.setObjectName("RightWorkspaceTitle")
 
         # SERVICE
-        self.service_label = QLabel(f"Service: ")
-        self.service_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+        self.service_lb = QLabel(f"Service: ")
+        self.service_lb.setObjectName("RightWorkspaceLabel")
 
         #URL
         self.url_lb = QLabel("URL: ")
-        self.url_lb.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+        self.url_lb.setObjectName("RightWorkspaceLabel")
 
 
         # LOGIN 
-        self.login_label = QLabel(f"Login: ")
-        self.login_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+        self.login_lb = QLabel(f"Login: ")
+        self.login_lb.setObjectName("RightWorkspaceLabel")
 
 
         # PASSWORD
-        self.password_label = QLabel(f"Password: ")
-        self.password_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+        self.password_lb = QLabel(f"Password: ")
+        self.password_lb.setObjectName("RightWorkspaceLabel")
 
 
         # CREATION DATE
         # NOTE Логика в том, что у пользователя может быть несколько аккаунтов одного сервиса и дата создания пароля служит ориентиром. 
-        self.creation_date_label = QLabel(f"Creation date: ")
-        self.creation_date_icon = QPixmap("src/assets/icons/clock.svg")
-        scaled_pixmap = self.creation_date_icon.scaled(24, 24, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-        self.creation_date_label.setPixmap(scaled_pixmap)
-        self.creation_date_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+        self.creation_date_lb = QLabel(f"Creation date: ")
+        self.creation_date_lb.setObjectName("RightWorkspaceLabel")
 
 
         # DESCRIPTION
-        self.description_label = QLabel("Description:")
-        self.description_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.description_label.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+        self.description_lb = QLabel("Description:")
+        self.description_lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.description_lb.setObjectName("RightWorkspaceLabel")
         # NOTE Описание к паролю
         # Логика в том, что у пользователя может быть несколько аккаунто одного сервиса, быть аунтефикатор, чей-то аккаунт итд, описание служит ориетиром. Нужно при любом действии пользователя единожды сохранить описание.
         # Описание должно храниться в памяти компьютера при нажатии на другой пароль. При нажатии на другой пароль оно сохраняется в базу данных и при следующем заходе в программу считывает ее уже с базы данных.
         self.description = QTextEdit()
+        self.description.setObjectName("RightWorkspace")
+
 
 
         # FIXME кнопка скрытия информации
@@ -219,34 +228,34 @@ class MainWindow(QMainWindow):
         self.hide_password_btn = QPushButton("")
         self.hide_password_btn.setFixedSize(40, 40)
         self.hide_password_btn_state = False
+        
         self.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
         self.hide_password_btn.setIcon(self.hide_password_icon)
         self.hide_password_btn.setIconSize(icon_size)
+        self.hide_password_btn.setObjectName("RightWorkspaceButtons")
+
 
         self.edit_password_btn = QPushButton("")
         self.edit_password_btn.setFixedSize(40, 40)
         self.edit_password_icon = icons_set_color("edit.svg", "#D3D3D3", icon_size)
         self.edit_password_btn.setIcon(self.edit_password_icon)
         self.edit_password_btn.setIconSize(icon_size)
+        self.edit_password_btn.setObjectName("RightWorkspaceButtons")
+
 
         self.del_password_btn = QPushButton("")
         self.del_password_btn.setFixedSize(40, 40)
         self.del_password_icon = icons_set_color("delete.svg", "#D3D3D3", icon_size)
         self.del_password_btn.setIcon(self.del_password_icon)
         self.del_password_btn.setIconSize(icon_size)
-
+        self.del_password_btn.setObjectName("RightWorkspaceButtons")
 
         self.right_layout = QVBoxLayout()
         self.under_title_layout = QHBoxLayout()
 
 
         self.right_container = QWidget()
-        self.right_container.setStyleSheet("""
-            background-color: #111111;
-            border: 1px solid #222222;
-            border-radius: 8px;
-        """)
-        
+        self.right_container.setObjectName("RightWorkspace")
 
         # Right Workspace elements
         right_under_title_workspace_elements = [
@@ -257,12 +266,12 @@ class MainWindow(QMainWindow):
         ]
         right_workspace_elements = [
             self.title,
-            self.service_label,
+            self.service_lb,
             self.url_lb,
-            self.login_label,
-            self.password_label,
-            self.creation_date_label,
-            self.description_label,
+            self.login_lb,
+            self.password_lb,
+            self.creation_date_lb,
+            self.description_lb,
             self.description]
         right_workspace_db_information_elements = [
             self.db_size_lb,

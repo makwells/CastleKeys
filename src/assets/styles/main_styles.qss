@@ -1,27 +1,81 @@
 QMainWindow{
-    background-color: #151515;
-    color: #D3D3D3;
+    background-color: @background;
+    color: @text;
     font-family: "Arial";
 }
 
-QTreeView{
-    background-color: #111;
-    color: #D3D3D3;
-    font-size: 20pt;
-    border: 1px solid #222222;
+#ToolBar{
+    background-color: @tool_background;
+    border: 1px solid @tool_border;
     border-radius: 8px;
 }
 
-QPushButton{
-    background-color: #424242;
-    border: 1px solid #050505;
+#ToolBarButtons{ 
+    background-color: @btn_background;
+    border: 1px solid @btn_border;
     border-radius: 8px;
 }
 
-QLineEdit{
-    background-color: #111111;
-    border: 1px solid #050505;
+#ToolBarButtons:hover{
+    background: @btn_background_hover;
+    border: 1px solid @btn_border_hover;
+}
+
+#ToolBarSearch{
+    background-color: @search_backgorund;
+    color: @search_text;
+    border: 1px solid @serach_border;
     border-radius: 8px;
-    color: #c7c7c7;
     font-size: 16pt;
 }
+
+
+#ToolBarTitle{
+    border: 1px solid #111111;
+    font-size: 24pt;
+    font-weight: bold;
+}
+
+
+#LeftWorkspace{
+    background-color: @tree_background;
+    color: @tree_text;
+    font-size: 20pt;
+    border: 1px solid @tree_border;
+    border-radius: 8px;
+    selection-background-color: @tree_selection;
+    selection-color: @tree_selection_text;
+}
+
+
+#RightWorkspace{
+    background-color: @r_workspace_background;
+    border: 1px solid @r_workspace_border;
+    border-radius: 8px;
+}
+
+#RightWorkspaceTitle{
+    font-size: 24pt;
+    background-color: #333;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    color: #D3D3D3
+}
+
+#RightWorkspaceButtons{
+    background-color: @btn_background;
+    border: 1px solid @btn_border;
+    border-radius: 8px;
+}
+
+#RightWorkspaceButtons:hover{
+    background: @btn_background_hover;
+    border: 1px solid @btn_border_hover;
+}
+
+#RightWorkspaceLabel {
+    font-size: 20pt;
+    border: 0px solid #111111;
+}
+
+

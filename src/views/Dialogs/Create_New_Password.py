@@ -104,7 +104,7 @@ class CreateNewPassword(QDialog):
 
     def reject(self):
         logger.debug("new password window clicked reject")
-        close_db()
+        # close_db()
         super().reject()
     
     def accept(self):

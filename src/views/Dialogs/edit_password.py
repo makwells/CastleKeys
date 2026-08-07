@@ -55,8 +55,8 @@ class Edit_Password(QDialog):
         edit_input_layout_elements = {
             "Rename service:":self.edit_input_service,
             "Rename URL:":self.edit_input_url,
-            "New login:":self.edit_input_login,
-            "New password:":self.edit_input_password
+            "Rename login:":self.edit_input_login,
+            "Rename password:":self.edit_input_password
         }
 
         for edit_input_name, edit_input_elements in edit_input_layout_elements.items():
@@ -69,6 +69,9 @@ class Edit_Password(QDialog):
         self.setLayout(self.edit_password_layout)
         
         self.show()
+        
+    def accept(self):
+        self._save_edit()
 
     def _save_edit(self):
         # Получаем новые данные
@@ -88,11 +91,3 @@ class Edit_Password(QDialog):
         self.data_edit_password.emit(data) #send new data
         self.finished.emit()               #finish thread
         super().accept()
-        
-
-    
-    def accept(self):
-        self._save_edit()
-    
-    # def edit_password(self, service, login, password):
-    #     ...

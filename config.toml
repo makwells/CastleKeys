@@ -1,0 +1,26 @@
+[view]
+theme = "dark.toml"
+animations = true
+background = "solid"
+background_opacity = 0.1
+language = "en"
+
+[database]
+autoSave = true
+auto-hide-passwords = true
+database_dir = "Passwords/"
+download_dir = ""
+
+[notification]
+new_version_notification = true
+
+[hotkeys]
+new_password = ""
+del_password = ""
+edit_password = ""
+hide_password = ""
+hide_tree = ""
+up = ""
+down = ""
+left = ""
+right = ""

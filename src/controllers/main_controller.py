@@ -24,6 +24,7 @@ class MainController():
         self.url_ = None
         self.password_ = None
         self.current_password = None
+        self._view.hide_password_btn_state = not self._view.hide_password_btn_state
 
         self._connect_signals() #Signals
 
@@ -48,12 +49,12 @@ class MainController():
         
 
         if self.item == self._view.root_item: # если выбран заголовок в пункте меню, то скрывать значения сервиса логина и пароля, вызвав функцию для просмотра информации о бд
-            self._view.service_label.hide()
+            self._view.service_lb.hide()
             self._view.url_lb.hide()
-            self._view.login_label.hide()
-            self._view.password_label.hide()
-            self._view.creation_date_label.hide()
-            self._view.description_label.hide()
+            self._view.login_lb.hide()
+            self._view.password_lb.hide()
+            self._view.creation_date_lb.hide()
+            self._view.description_lb.hide()
             self._view.description.hide()
             self._view.hide_password_btn.hide()
             self._view.edit_password_btn.hide()
@@ -64,12 +65,12 @@ class MainController():
 
         else: # если выбрано что-то иное то показывать
             logger.debug(f"Tree element selected: {item_name}")
-            self._view.service_label.show()
+            self._view.service_lb.show()
             self._view.url_lb.show()
-            self._view.login_label.show()
-            self._view.password_label.show()
-            self._view.creation_date_label.show()
-            self._view.description_label.show()
+            self._view.login_lb.show()
+            self._view.password_lb.show()
+            self._view.creation_date_lb.show()
+            self._view.description_lb.show()
             self._view.description.show()
             self._view.hide_password_btn.show()
             self._view.edit_password_btn.show()
@@ -90,13 +91,13 @@ class MainController():
         self.date_ = self.item.data(Qt.ItemDataRole.UserRole + 4)
         self.description_ = self.item.data(Qt.ItemDataRole.UserRole + 5)
 
-        self._view.service_label.setText(f"Service: {self.service_name_}")
-        self._view.login_label.setText(f"Login: {self.login_}")
+        self._view.service_lb.setText(f"Service: {self.service_name_}")
+        self._view.login_lb.setText(f"Login: {self.login_}")
         self._view.url_lb.setText(f"URL: {self.url_}")
-        self._view.password_label.setText(f"Password: {self.password_}")
-        self._view.creation_date_label.setText(f"Creation date: {self.date_}")
+        self._view.password_lb.setText(f"Password: {self.password_}")
+        self._view.creation_date_lb.setText(f"Creation date: {self.date_}")
 
-        self.current_password = self._view.password_label.text()
+        self.current_password = self._view.password_lb.text()
         self.password_length = len(self.current_password)
         self.hide_password = "*" * self.password_length
             
@@ -151,10 +152,10 @@ class MainController():
         )
         if success:
             #change in ui
-            self._view.service_label.setText(f"Service: {new_service}") 
+            self._view.service_lb.setText(f"Service: {new_service}") 
             self._view.url_lb.setText(f"URL: {new_url}")
-            self._view.login_label.setText(f"Login: {new_login}")
-            self._view.password_label.setText(f"Password: {new_password}")
+            self._view.login_lb.setText(f"Login: {new_login}")
+            self._view.password_lb.setText(f"Password: {new_password}")
 
             self.service_name_ = new_service
             self.url_ = new_url
@@ -164,8 +165,6 @@ class MainController():
             self.item.setText(self.service_name_)                     # заголовок в дереве
             self._view.title.setText(f"{self.service_name_}".upper()) #заголовок в right_workspace
             
-
-        
     def _del_password_clicked(self, tree_view):
         logger.debug("Del button clicked")
         # Получаем индекс выбранного элемента
@@ -217,7 +216,7 @@ class MainController():
         icon_size = QSize(24, 24)
     
         if not self._view.hide_password_btn_state:
-            self._view.password_label.setText("Password: " + self.hide_password) 
+            self._view.password_lb.setText("Password: " + self.hide_password) 
             self._view.hide_password_btn.setText("")
             self._view.hide_password_icon = icons_set_color("hide.svg", "#D3D3D3", icon_size)
             self._view.hide_password_btn.setIcon(self._view.hide_password_icon)
@@ -226,7 +225,7 @@ class MainController():
             self._view.hide_password_btn_state = True
             logger.debug("Password hidden")
         else:
-            self._view.password_label.setText(self.current_password)
+            self._view.password_lb.setText(self.current_password)
             self._view.hide_password_btn.setText("")
             self._view.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
             self._view.hide_password_btn.setIcon(self._view.hide_password_icon)
