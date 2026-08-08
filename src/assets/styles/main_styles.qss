@@ -31,7 +31,7 @@ QMainWindow{
 
 
 #ToolBarTitle{
-    border: 1px solid #111111;
+    border: 1px solid @tool_border;
     font-size: 24pt;
     font-weight: bold;
 }
@@ -56,10 +56,10 @@ QMainWindow{
 
 #RightWorkspaceTitle{
     font-size: 24pt;
-    background-color: #333;
-    border: 1px solid #222222;
+    background-color: @r_workspace_background;
+    border: 1px solid @r_workspace_border;
     border-radius: 8px;
-    color: #D3D3D3
+    color: @r_workspace_text
 }
 
 #RightWorkspaceButtons{
@@ -75,7 +75,7 @@ QMainWindow{
 
 #RightWorkspaceLabel {
     font-size: 20pt;
-    border: 0px solid #111111;
+    border: 0px solid @r_workspace_background;
 }
 
 

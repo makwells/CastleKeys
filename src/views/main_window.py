@@ -107,8 +107,12 @@ class MainWindow(QMainWindow):
     def tool_bar(self): #tool_bar widgets
         logger.debug("Tool bar successfully loaded! ✅")
 
-        icon_size = QSize(24, 24)
+        self.tool_container = QWidget()
+        self.tool_container.setObjectName("ToolBar")
+        self.tool_layout = QHBoxLayout()
 
+        icon_size = QSize(24, 24)
+          
         self.app_title = QLabel("CastleKeys")
         self.app_title.setObjectName("ToolBarTitle")
 
@@ -124,7 +128,6 @@ class MainWindow(QMainWindow):
         self.search_btn.setIconSize(icon_size)
         self.search_btn.setObjectName("ToolBarButtons")
 
-        
         self.new_password_btn = QPushButton("")
         self.new_password_btn.setFixedSize(40, 30)
         self.new_password_icon = icons_set_color("add.svg", "#D3D3D3", icon_size)
@@ -139,11 +142,6 @@ class MainWindow(QMainWindow):
         self.settings_btn.setIconSize(icon_size)
         self.settings_btn.setObjectName("ToolBarButtons")
 
-        self.tool_container = QWidget()
-        self.tool_container.setObjectName("ToolBar")
-        self.tool_layout = QHBoxLayout()
-
-        self.tool_layout = QHBoxLayout()
         self.tool_layout.addWidget(self.app_title)
         self.tool_layout.addStretch()
         self.tool_layout.addWidget(self.search)
@@ -167,8 +165,12 @@ class MainWindow(QMainWindow):
 
     def workspace_r(self): #right workspace widgets
         logger.debug("Right workspace successfully loaded! ✅")
+
+        self.right_container = QWidget()
+        self.right_container.setObjectName("RightWorkspace")
+        self.right_layout = QVBoxLayout()
+
         self.db_information()
-         # NOTE Заголовок пароля(название). Необходимо для визуального понимания того, какой пароль просматривает пользователь.
         self.title = QLabel()
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label_font = self.title.font()
@@ -246,12 +248,23 @@ class MainWindow(QMainWindow):
         self.del_password_btn.setIconSize(icon_size)
         self.del_password_btn.setObjectName("RightWorkspaceButtons")
 
-        self.right_layout = QVBoxLayout()
+        self.welcome_logo = QLabel()
+        self.welcome_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        pixmap = QPixmap(self.config["view"]["welcome_logo"])
+        
+        if not pixmap.isNull():
+            # Масштабируем до 200x200 с сохранением пропорций и сглаживанием
+            scaled_pixmap = pixmap.scaled(
+                300, 300, 
+                Qt.AspectRatioMode.KeepAspectRatio, 
+                Qt.TransformationMode.SmoothTransformation
+            )
+            self.welcome_logo.setPixmap(scaled_pixmap)
+        else:
+            logger.warning("Logo image not found! Showing placeholder text.")
+
         self.under_title_layout = QHBoxLayout()
-
-
-        self.right_container = QWidget()
-        self.right_container.setObjectName("RightWorkspace")
 
         # Right Workspace elements
         right_under_title_workspace_elements = [
@@ -280,28 +293,42 @@ class MainWindow(QMainWindow):
 
         ]
 
-        #Добавление элементов right_under_title_workspace_elements
-        for under_title_element in right_under_title_workspace_elements:
-            self.under_title_layout.addWidget(under_title_element)
 
+        self.under_title_layout.addStretch()
+        self.under_title_layout.addWidget(self.hide_password_btn)
+        self.under_title_layout.addWidget(self.edit_password_btn)
+        self.under_title_layout.addWidget(self.del_password_btn)
+
+        self.title.hide()
+        self.welcome_logo.show()
         self.hide_password_btn.hide()
         self.edit_password_btn.hide()
         self.del_password_btn.hide()
 
-        # Добавление элементов right_workspace
-        for index, right_layout_element in enumerate(right_workspace_elements):
-            self.right_layout.addWidget(right_layout_element)
-            right_layout_element.hide()
-            if index == 0: self.right_layout.addLayout(self.under_title_layout)
+        self.right_layout.addWidget(self.title)
+        self.right_layout.addWidget(self.welcome_logo)
+        self.right_layout.addLayout(self.under_title_layout)
+        self.right_layout.addWidget(self.service_lb)
+        self.right_layout.addWidget(self.url_lb)
+        self.right_layout.addWidget(self.login_lb)
+        self.right_layout.addWidget(self.password_lb)
+        self.right_layout.addWidget(self.creation_date_lb)
+        self.right_layout.addWidget(self.description_lb)
+        self.right_layout.addWidget(self.description)
+
+        self.title.hide()
+        self.service_lb.hide()
+        self.url_lb.hide()
+        self.login_lb.hide()
+        self.password_lb.hide()
+        self.creation_date_lb.hide()
+        self.description_lb.hide()
+        self.description.hide()
 
         # Добавление элементов database_infromation
         for db_information_elements in right_workspace_db_information_elements:
             self.right_layout.addWidget(db_information_elements)
             db_information_elements.hide()
-        
-        self.title.show()
-
-        self.right_layout.addStretch()
 
         self.right_container.setLayout(self.right_layout)
 

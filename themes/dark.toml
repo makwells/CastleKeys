@@ -34,5 +34,9 @@ serach_border = "#222222"
 r_workspace_background = "#111111"
 r_workspace_border = "#222222"
 
+[right_workspace_title]
+r_workspace_title_background = "#333333"
+r_workspace_titile_border = "#222222"
+
 [dialogs]
 dialog_background = "#151515"

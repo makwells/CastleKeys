@@ -1,38 +1,38 @@
 [main]
-background = "#151515"
-foreground = "#111111"
-text       = "#C7C7C7"
-border     = "#222222"
-icons      = "#D3D3D3"
+background = "#B7B7B7" #151515
+text       = "#222"
+border     = "#EEE"
+icons      = "#222"
 
 [buttons]
-btn_background = "#111111"
-btn_border     = "#222222"
+btn_background = "#D3D3D3"
+btn_border     = "#EEE"
 btn_icons      = "#D3D3D3"
 btn_background_hover = "#222222"
 btn_border_hover = "#626262"
 
 [toolbar]
-tool_background = "#111111"
-tool_border = "#222222"
+tool_background = "#D3D3D3"
+tool_border = "#EEE"
 
 [tree]
-tree_background = "#111111"
-tree_text       = "#D3D3D3"
-tree_border     = "#222222"
+tree_background = "#D3D3D3"
+tree_text       = "#222222"
+tree_border     = "#EEE"
 tree_selection  = "#333333"
 tree_selection_text = "#C7C7C7"
 
 [search]
-search_backgorund = "#111111"
+search_backgorund = "#D3D3D3"
 serach_background_pressed = ""
 serach_backgorund_focus = ""
-search_text = "#D3D3D3"
-serach_border = "#222222"
+search_text = "#111"
+serach_border = "#EEE"
 
 [right_workspace]
-r_workspace_background = "#111111"
-r_workspace_border = "#222222"
+r_workspace_background = "#D3D3D3"
+r_workspace_text = "#eee"
+r_workspace_border = "#EEE"
 
 [dialogs]
 background = "#151515"

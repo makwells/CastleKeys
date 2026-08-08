@@ -4,6 +4,7 @@ animations = true
 background = "solid"
 background_opacity = 0.1
 language = "en"
+welcome_logo = "src/assets/images/knight.png"
 
 [database]
 autoSave = true

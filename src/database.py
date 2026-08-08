@@ -38,15 +38,47 @@ def init_db():
         """)
     password_db.commit()
     logger.success("The database is connected.")
+
     
 # Функция добавления пароля. 
-def add_password(service: str, url: str, login: str, password: str) -> bool:
+# def add_password(password_id: int, service: str, url: str, login: str, password: str) -> bool:
 
+#     global password_db
+        
+#     if password_db is None:
+#         logger.error("Database not initialized! Call init_db() first")
+#         return False
+        
+#     try:
+#         cursor = password_db.cursor()
+#         cursor.execute(
+#                 "INSERT INTO passwords (Service, URL, Login, Password) VALUES (?, ?, ?, ?)", 
+#                 (service, url, login, password)
+#         )
+#         password_db.commit()
+#         logger.success(f"Password for '{service}' ({login}) saved successfully")
+#         return True
+            
+#     except sqlite3.IntegrityError as e:
+#         password_db.rollback()
+#         logger.error(f"Integrity error (duplicate?): {e}")
+#         return False
+#     except sqlite3.OperationalError as e:
+#         password_db.rollback()
+#         logger.error(f"Operational error: {e}")
+#         return False
+#     except sqlite3.Error as e:
+#         password_db.rollback()
+#         logger.error(f"Unexpected database error: {e}")
+#         return False
+
+# database.py
+def add_password(service: str, url: str, login: str, password: str) -> int:
     global password_db
         
     if password_db is None:
         logger.error("Database not initialized! Call init_db() first")
-        return False
+        return -1
         
     try:
         cursor = password_db.cursor()
@@ -55,21 +87,20 @@ def add_password(service: str, url: str, login: str, password: str) -> bool:
                 (service, url, login, password)
         )
         password_db.commit()
-        logger.success(f"Password for '{service}' ({login}) saved successfully")
-        return True
+        
+        # Получаем ID только что созданной записи
+        new_id = cursor.lastrowid 
+        logger.success(f"Password for '{service}' ({login}) saved successfully with ID {new_id}")
+        return new_id
             
     except sqlite3.IntegrityError as e:
         password_db.rollback()
         logger.error(f"Integrity error (duplicate?): {e}")
-        return False
-    except sqlite3.OperationalError as e:
-        password_db.rollback()
-        logger.error(f"Operational error: {e}")
-        return False
+        return -1
     except sqlite3.Error as e:
         password_db.rollback()
-        logger.error(f"Unexpected database error: {e}")
-        return False
+        logger.error(f"Database error: {e}")
+        return -1
 
 def delete_password(password_id: int) -> bool:
 

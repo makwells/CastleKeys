@@ -52,6 +52,7 @@ class MainController():
         
 
         if self.item == self._view.root_item: # если выбран заголовок в пункте меню, то скрывать значения сервиса логина и пароля, вызвав функцию для просмотра информации о бд
+            self._view.title.hide()
             self._view.service_lb.hide()
             self._view.url_lb.hide()
             self._view.login_lb.hide()
@@ -68,6 +69,7 @@ class MainController():
 
         else: # если выбрано что-то иное то показывать
             logger.debug(f"Tree element selected: {item_name}")
+            self._view.title.show()
             self._view.service_lb.show()
             self._view.url_lb.show()
             self._view.login_lb.show()
@@ -78,6 +80,8 @@ class MainController():
             self._view.hide_password_btn.show()
             self._view.edit_password_btn.show()
             self._view.del_password_btn.show()
+            self._view.welcome_logo.hide()
+
 
             self._view.db_size_lb.hide()
             self._view.db_creation_date.hide()
@@ -104,12 +108,68 @@ class MainController():
         self.password_length = len(self.current_password)
         self.hide_password = "*" * self.password_length
             
+
     def _new_password_clicked(self): #add new password
-        #open the child window to create a new password
         logger.debug("New button clicked")
 
-        CreateNewPassword(self._view)
-    
+        self.new_menu = CreateNewPassword(self._view)
+
+        self._new_password_saved = False 
+        self._new_tree_item = None
+        self._current_new_id = None
+
+        self.new_menu.data_created_password.connect(self._update_ui_new_password_realtime)
+
+    def _update_ui_new_password_realtime(self, data: dict):
+        get_service = data.get("service", "")
+        get_url = data.get("url", "")
+        get_login = data.get("login", "")
+        get_password = data.get("password", "")
+
+        if not self._new_password_saved:
+            new_id = add_password(
+                service=get_service,
+                url=get_url,
+                login=get_login,
+                password=get_password
+            )
+
+            if new_id and new_id != -1:
+                self._new_password_saved = True
+                self._current_new_id = new_id
+                
+                from datetime import datetime
+                current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+                # Создаем элемент в дереве
+                service_item = QStandardItem(get_service or "New Entry")
+                service_item.setData(self._current_new_id, Qt.ItemDataRole.UserRole)
+                service_item.setData(get_login, Qt.ItemDataRole.UserRole + 1)
+                service_item.setData(get_url, Qt.ItemDataRole.UserRole + 2)
+                service_item.setData(get_password, Qt.ItemDataRole.UserRole + 3)
+                service_item.setData(current_date, Qt.ItemDataRole.UserRole + 4) # Ставим текущую дату
+                service_item.setData("", Qt.ItemDataRole.UserRole + 5)           # Пустое описание
+
+                self._view.root_item.appendRow(service_item)
+                self._new_tree_item = service_item
+                logger.debug(f"New password created in DB with ID {self._current_new_id}")
+
+        elif self._new_password_saved and self._current_new_id is not None:
+            success = update_password(
+                password_id=self._current_new_id,
+                service=get_service,
+                url=get_url,
+                login=get_login,
+                password=get_password
+            )
+            
+            if success and self._new_tree_item:
+                self._new_tree_item.setText(get_service or "New Entry")
+                self._new_tree_item.setData(get_login, Qt.ItemDataRole.UserRole + 1)
+                self._new_tree_item.setData(get_url, Qt.ItemDataRole.UserRole + 2)
+                self._new_tree_item.setData(get_password, Qt.ItemDataRole.UserRole + 3)
+                logger.debug(f"Password ID {self._current_new_id} updated in DB and UI") 
+ 
     def _edit_password_clicked(self): #edit password
         #open the child window to edit a password
         logger.debug("Edit button clicked")
@@ -240,7 +300,7 @@ class MainController():
             "edit_password": self.config["hotkeys"].get("edit_password", "Ctrl+E"),
             "del_password": self.config["hotkeys"].get("del_password", "Ctrl+Backspace"),
             "hide_password": self.config["hotkeys"].get("hide_password", "Ctrl+G"),
-            "settings": self.config["hotkeys"].get("settings", "Ctrl+I"),
+            "settings": self.config["hotkeys"].get("settings", "Ctrl+I")
         }
 
         if hotkeys["new_password"]:
@@ -257,9 +317,9 @@ class MainController():
 
         if hotkeys["hide_password"]:
             self.shortcut_hide = QShortcut(QKeySequence(hotkeys["hide_password"]), self._view)
-            self.shortcut_edit.activated.connect(self.hide)
+            self.shortcut_hide.activated.connect(self.hide)
 
         if hotkeys["settings"]:
             self.shortcut_settings = QShortcut(QKeySequence(hotkeys["settings"]), self._view)
-            self.shortcut_edit.activated.connect(self._setting_clicked)
+            self.shortcut_settings.activated.connect(self._setting_clicked)
 
