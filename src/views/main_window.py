@@ -5,7 +5,6 @@ from PyQt6.QtCore import *
 
 import toml
 
-# from .Dialogs.create_new_password import CreateNewPassword
 from ..database import *
 from ..setuplogger import setup_logger
 from .icons import icons_set_color

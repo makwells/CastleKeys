@@ -31,6 +31,7 @@ class MainController():
         self._connect_signals() #Signals
         self.HotKeys()
 
+
     def _connect_signals(self):
         
         self._view.tree_view.clicked.connect(self._on_category_clicked)               #tree select category
@@ -44,6 +45,7 @@ class MainController():
         # TODO Нужно блокировать окно программы, когда открыто диалоговое окно, чтобы нельзя было открыть одновремено несколько окон добавления пароля или окон редактрирования. 
 
     def _on_category_clicked(self, index): #select category
+
 
         self.item = self._view.tree_model.itemFromIndex(index)
         item_name = self.item.text()                                          #get text
@@ -91,6 +93,10 @@ class MainController():
             self._view.db_login.hide()
             self._view.db_password.hide()
 
+            if self.config["privacy"]["auto_hide_passwords"]:
+                self._view.hide_password_btn_state = False
+            
+
         self.service_name_ = self.item.text()
         self.login_ = self.item.data(Qt.ItemDataRole.UserRole + 1)
         self.url_ = self.item.data(Qt.ItemDataRole.UserRole + 2)
@@ -104,10 +110,17 @@ class MainController():
         self._view.password_lb.setText(f"Password: {self.password_}")
         self._view.creation_date_lb.setText(f"Creation date: {self.date_}")
 
+        
         self.current_password = self._view.password_lb.text()
         self.password_length = len(self.current_password)
         self.hide_password = "*" * self.password_length
+
+        if self.config["privacy"]["auto_hide_passwords"]:
+            self.hide()
+        else:
+            ...
             
+
 
     def _new_password_clicked(self): #add new password
         logger.debug("New button clicked")
@@ -273,7 +286,7 @@ class MainController():
         self._view.db_password.show()
     
     def hide(self, checked=None): #hide passwords
-
+        #FIXME сделать так, чтобы когда кнопка нажималась один раз скрытие не спадала и на других паролях тоже
         icon_size = QSize(24, 24)
     
         if not self._view.hide_password_btn_state:
