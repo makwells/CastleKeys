@@ -1,18 +1,15 @@
 # main.py
 from PyQt6.QtWidgets import QApplication
 
-from src.views.main_window import MainWindow
-from src.views.Dialogs.settings import Settings
+from src.views import MainWindow
+from src.views import Settings
 
-from src.controllers.main_controller import MainController
-from src.controllers.Dialogs.settings_controller import SettingsController
+from src.controllers import MainController
+from src.controllers import SettingsController
 
-from src.views.Dialogs.create_new_password import CreateNewPassword
-from src.views.Dialogs.edit_password import Edit_Password
+from src import database
+from src.setuplogger import logger
 
-
-from src.database import *
-from src.setuplogger import setup_logger
 import sys
 
 class CastleKeys:

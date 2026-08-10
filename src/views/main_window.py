@@ -5,17 +5,19 @@ from PyQt6.QtCore import *
 
 import toml
 
-from ..database import *
-from ..setuplogger import setup_logger
+from src.database import *
+from src.setuplogger import *
+from src.config_manager import ConfigManager
+
 from .icons import icons_set_color
-from .theme_manager import ConfigManager
 
 class MainWindow(QMainWindow):
     def __init__(self): #start
         super().__init__()
 
         # Config
-        with open("config.toml", "r", encoding="utf-8") as config_file:
+        config_path = ConfigManager.get_resource_path("config.toml")
+        with open(config_path, "r", encoding="utf-8") as config_file:
             logger.success("Config successfully loaded ✅")
             self.config = toml.load(config_file)
 
@@ -154,6 +156,11 @@ class MainWindow(QMainWindow):
 
     def workspace_l(self): #left workspace widgets
         logger.debug("Left workspace successfully loaded! ✅")
+
+        self.left_container = QWidget()
+        # self.right_container.setObjectName("RightWorkspace")
+        self.left_layout = QVBoxLayout()
+
         self.tree_view = QTreeView()         # Tree
         self.tree_view.setObjectName("LeftWorkspace")
         self.tree_view.setHeaderHidden(True) # Hide header 
@@ -164,6 +171,12 @@ class MainWindow(QMainWindow):
 
         # Привязываем созданную модель к отображению
         self.tree_view.setModel(self.tree_model)
+
+
+        self.left_layout.addWidget(self.tree_view)
+
+
+
 
     def workspace_r(self): #right workspace widgets
         logger.debug("Right workspace successfully loaded! ✅")
@@ -341,7 +354,7 @@ class MainWindow(QMainWindow):
             self.setWindowOpacity(self.config["view"]["window_opacity"])
             if self.config["view"]["window_startup_animations"]:
                 self.startup_anim = QPropertyAnimation(self, b"windowOpacity")
-                self.startup_anim.setDuration(800)          # Длительность в миллисекундах (0.8 сек)
+                self.startup_anim.setDuration(self.config["view"]["window_startup_animations_duration"])          # Длительность в миллисекундах (0.8 сек)
                 self.startup_anim.setStartValue(0.0)        # Начальное значение
                 self.startup_anim.setEndValue(self.config["view"]["window_opacity"])          # Конечное значение
                 self.startup_anim.setEasingCurve(QEasingCurve.Type.InOutQuad) # Плавность сглаживания

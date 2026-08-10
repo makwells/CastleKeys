@@ -1,3 +1,4 @@
+# config.toml
 [view]
 theme = "dark.toml"
 font_family = ""
@@ -6,11 +7,12 @@ animations = false
 language = "en"
 notifications = true
 welcome_logo = "src/assets/images/knight.png"
-welcome_logo_width =300
+welcome_logo_width = 300
 welcome_logo_height = 300
 
 window_opacity = 1.0
-window_startup_animations = false
+window_startup_animations_duration = 300 #ms
+window_startup_animations = true
 
 [database]
 autoSave = true

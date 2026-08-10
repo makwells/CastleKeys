@@ -3,6 +3,9 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from src.database import *
 
+from src.config_manager import ConfigManager
+
+
 class Settings(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -10,7 +13,8 @@ class Settings(QDialog):
         with open("src/assets/styles/settings_styles.qss", "r") as styles_file:
             style = styles_file.read()
 
-        with open("config.toml", "r", encoding="utf-8") as config_file:
+        config_path = ConfigManager.get_resource_path("config.toml")
+        with open(config_path, "r", encoding="utf-8") as config_file:
             logger.success("Config successfully loaded ✅")
             self.config = toml.load(config_file)
 

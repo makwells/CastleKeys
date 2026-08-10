@@ -1,0 +1,1 @@
+([('main', '/Users/mkws/dev/python/CastleKeys/dist/main', 'EXECUTABLE')],)

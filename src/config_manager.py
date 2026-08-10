@@ -1,5 +1,6 @@
 #theme_manager
 import os
+import sys
 import toml
 
 class ConfigManager:
@@ -42,3 +43,9 @@ class ConfigManager:
 
         return qss_template
 
+    def get_resource_path(relative_path):
+        if hasattr(sys, '_MEIPASS'):
+            # Путь внутри временной папки запущенного .app / .exe
+            return os.path.join(sys._MEIPASS, relative_path)
+        # Путь при обычном запуске скрипта во время разработки
+        return os.path.abspath(relative_path)

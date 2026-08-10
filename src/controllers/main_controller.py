@@ -1,23 +1,30 @@
 #main_controller.py
-from ..views.Dialogs.create_new_password import CreateNewPassword
-from ..views.Dialogs.settings import Settings
-from ..views.Dialogs.edit_password import Edit_Password
-
-from ..models.db_info import Database_info
-from src.views.icons import icons_set_color
-
-
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
-from ..database import *
-from ..setuplogger import setup_logger
+from src.views import CreateNewPassword
+from src.views import Settings
+from src.views import Edit_Password
+from src.views import icons_set_color
+
+from src.models import Database_info
+
+from src import database
+from src.setuplogger import logger
+from src import ConfigManager
+
+import toml
+
+
 
 
 class MainController():
     def __init__(self, view):
-        with open("config.toml", "r", encoding="utf-8") as config_file:
+
+        config_path = ConfigManager.get_resource_path("config.toml")
+        with open(config_path, "r", encoding="utf-8") as config_file:
+            logger.success("Config successfully loaded ✅")
             self.config = toml.load(config_file)
 
         self._view  = view      #MainWindow

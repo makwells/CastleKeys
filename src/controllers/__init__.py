@@ -1,0 +1,2 @@
+from .main_controller import MainController
+from .Dialogs.settings_controller import SettingsController

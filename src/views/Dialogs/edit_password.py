@@ -3,8 +3,8 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
-from src.database import *
-from src.setuplogger import setup_logger
+from src.setuplogger import logger
+
 
 class Edit_Password(QDialog):
 
