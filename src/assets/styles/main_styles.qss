@@ -78,4 +78,10 @@ QMainWindow{
     border: 0px solid @r_workspace_background;
 }
 
+#RightWorkspaceTitle{
+    background-color: @r_workspace_title_background;
+    border-color: @r_workspace_titile_border;
+    font-size: 20pt;
+}
+
 

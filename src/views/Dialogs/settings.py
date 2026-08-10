@@ -7,89 +7,89 @@ class Settings(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         
-        with open("src/assets/styles/dialog_styles.qss", "r") as styles_file:
+        with open("src/assets/styles/settings_styles.qss", "r") as styles_file:
             style = styles_file.read()
+
+        with open("config.toml", "r", encoding="utf-8") as config_file:
+            logger.success("Config successfully loaded ✅")
+            self.config = toml.load(config_file)
 
         self.setStyleSheet(style)
         self.settings_ui()
     
     def settings_ui(self):
+        def add_separator():
+            line = QFrame()
+            line.setFrameShape(QFrame.Shape.HLine)
+            line.setFrameShadow(QFrame.Shadow.Sunken)
+            form_layout.addRow(line)
+
         self.setWindowTitle("Settings")
         self.resize(800, 600)
 
-        self.main_block = QVBoxLayout()
+        main_layout = QVBoxLayout(self)
 
-        self.app_block = QFormLayout()
-
-        # Language
-        self.language_combo = QComboBox()
-        languages = ["en", "ru"]
-        self.language_combo.addItems(languages)
-
-        # self.language_combo.currentIndexChanged.connect(self.language_change)
-
-        # Theme
-        self.theme_combo = QComboBox()
-        themes = ["Dark", "Light"]
-        self.theme_combo.addItems(themes)
+        content_widget = QWidget()
+        form_layout = QFormLayout(content_widget)
 
 
-        # Font-Family
-        self.font_family_combo = QComboBox()
-        fonts = []
-        self.font_family_combo.addItems(fonts)
+        view_lb = QLabel("View")
+        theme_combo = QComboBox()
+        font_family_lb = QLineEdit()
+        animations_cb = QCheckBox()
+        self.startup_animations_cb = QCheckBox()
+        self.startup_animations_cb.setChecked(self.config["view"]["window_startup_animations"])
+        language_combo = QComboBox()
+        notifications_cb = QCheckBox()
+        welcome_logo_le = QLineEdit()
+        welcome_logo_width_le = QLineEdit()
+        welcome_logo_height_le = QLineEdit()
 
 
-        # Font-Size
-        self.font_size_le = QLineEdit()
-        self.font_size_le.setPlaceholderText("12pt")
+        storage_lb = QLabel("Storage")
+        autosave_combo = QCheckBox()
+        database_dir_le = QLineEdit()
+        backup_dir_le = QLineEdit()
+        backup_cb = QCheckBox()
+        backup_time_combo = QComboBox()
+
+        privacy_lb = QLabel("Privacy")
+        auto_hide_passwords_combo = QCheckBox()
+        confirm_password_cb = QCheckBox()
 
 
-        # Animations 
-        self.animations_cb = QCheckBox()
-        self.animations_cb.setChecked(True)
+        form_layout.addWidget(view_lb)
+        form_layout.addRow(QLabel(f"Theme:"), theme_combo)
+        form_layout.addRow(QLabel(f"Font Family:"), font_family_lb)
+        form_layout.addRow(QLabel(f"Animations:"), animations_cb)
+        form_layout.addRow(QLabel(f"Start animations:"), self.startup_animations_cb)
+        form_layout.addRow(QLabel(f"Language:"), language_combo)
+        form_layout.addRow(QLabel(f"Notifications:"), notifications_cb)
+        form_layout.addRow(QLabel(f"Welcome logo:"), welcome_logo_le)
+        form_layout.addRow(QLabel(f"Welcome logo width:"), welcome_logo_width_le)
+        form_layout.addRow(QLabel(f"Welcome logo height:"), welcome_logo_height_le)
+        add_separator()
+        form_layout.addWidget(storage_lb)
+        form_layout.addRow(QLabel("AutoSave"), autosave_combo)
+        form_layout.addRow(QLabel("Database dir"), database_dir_le)
+        form_layout.addRow(QLabel("Download dir"), backup_dir_le)
+        form_layout.addRow(QLabel("Backup"), backup_cb)
+        form_layout.addRow(QLabel("Backup time"), backup_time_combo)
+        add_separator()
+        form_layout.addWidget(privacy_lb)
+        form_layout.addRow(QLabel("Auto hide passwords"), auto_hide_passwords_combo)
+        form_layout.addRow(QLabel("Confirm password"), confirm_password_cb)
 
-        app_block_parameters = {
-            "Language:":self.language_combo, 
-            "Theme:":self.theme_combo,
-            "Font-Family:":self.font_family_combo,
-            "Font-Size:":self.font_size_le,
-            "Animations:":self.animations_cb
-        }
-        for app_block_name, app_block_element in app_block_parameters.items():
-            self.app_block.addRow(QLabel(app_block_name), app_block_element) 
 
 
-        self.storage_block = QFormLayout()
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(content_widget)
 
+        main_layout.addWidget(scroll)
+        
+        close_btn = QPushButton("Сохранить и закрыть")
+        close_btn.clicked.connect(self.accept)
+        main_layout.addWidget(close_btn)
 
-        #Path to passwords
-        self.path_to_passwords_le = QLineEdit()
-        self.path_to_passwords_le.setPlaceholderText(".Passwords")
-
-
-        # AutoSave
-        self.auto_save_cb = QCheckBox()
-        self.auto_save_cb.setChecked(True)
-
-        storage_block_parameters = {
-            "Path to passwords:":self.path_to_passwords_le,
-            "AutoSave:":self.auto_save_cb
-        }
-
-        for storage_block_name, storage_block_element in storage_block_parameters.items():
-            self.storage_block.addRow(QLabel(storage_block_name), storage_block_element)
-
-            
-        self.main_block.addLayout(self.app_block)
-        self.main_block.addLayout(self.storage_block)
-        self.setLayout(self.main_block)
         self.show()
-
-
-    # def language_change(self, index):
-    #         # Получаем выбранный текст
-    #         selected_text = self.language_combo.currentText()
-    #         # Обновляем текст на экране
-    #         self.label_result.setText(f"Текущий выбор: {selected_text} (индекс: {index})")
-    #         print(f"Пользователь выбрал параметр: {selected_text}")

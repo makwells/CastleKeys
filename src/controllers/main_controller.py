@@ -27,7 +27,6 @@ class MainController():
         self.url_ = None
         self.password_ = None
         self.current_password = None
-        self._view.hide_password_btn_state = not self._view.hide_password_btn_state
 
         self._connect_signals() #Signals
         self.HotKeys()
@@ -63,6 +62,7 @@ class MainController():
             self._view.hide_password_btn.hide()
             self._view.edit_password_btn.hide()
             self._view.del_password_btn.hide()
+            self._view.welcome_logo.hide()
 
             self.db_information()
             return

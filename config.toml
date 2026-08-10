@@ -1,19 +1,27 @@
 [view]
 theme = "dark.toml"
-animations = true
-background = "solid"
-background_opacity = 0.1
+font_family = ""
+font_family_text = ""
+animations = false
 language = "en"
+notifications = true
 welcome_logo = "src/assets/images/knight.png"
+welcome_logo_width =300
+welcome_logo_height = 300
+
+window_opacity = 1.0
+window_startup_animations = false
 
 [database]
 autoSave = true
-auto_hide_passwords = true
 database_dir = "Passwords/"
-download_dir = ""
+backup_dir = "Backups/"
+backup = true
+backup_time = "1d"
 
-[notification]
-new_version_notification = true
+[privacy]
+auto_hide_passwords = true
+confirm_password = true
 
 [hotkeys]
 new_password = "Ctrl+N"
@@ -22,7 +30,3 @@ del_password = "Ctrl+Backspace"
 hide_password = "Ctrl+G"
 settings = "Ctrl+I"
 hide_tree = ""
-up = ""
-down = ""
-left = ""
-right = ""

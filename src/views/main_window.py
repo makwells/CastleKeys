@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
         self.tool_bar()                       # Tool bar
         self.workspace_l()                    # Left workspace
         self.workspace_r()                    # Right workspace
-            
+        self.animations()
         # Window and startup settings
         self.setWindowTitle("CastleKeys")     # title
         self.resize(900, 700)                 # start window size
@@ -51,6 +51,7 @@ class MainWindow(QMainWindow):
 
         self.central_widget = QWidget()       # Central widget
         self.workspace_container = QWidget()
+
 
         self.setCentralWidget(self.central_widget)
 
@@ -149,6 +150,8 @@ class MainWindow(QMainWindow):
         self.tool_layout.addStretch()
         self.tool_layout.addWidget(self.new_password_btn)
         self.tool_layout.addWidget(self.settings_btn)
+
+        self.settings_btn.hide()
 
     def workspace_l(self): #left workspace widgets
         logger.debug("Left workspace successfully loaded! ✅")
@@ -256,7 +259,7 @@ class MainWindow(QMainWindow):
         if not pixmap.isNull():
             # Масштабируем до 200x200 с сохранением пропорций и сглаживанием
             scaled_pixmap = pixmap.scaled(
-                300, 300, 
+                self.config["view"]["welcome_logo_width"], self.config["view"]["welcome_logo_height"], 
                 Qt.AspectRatioMode.KeepAspectRatio, 
                 Qt.TransformationMode.SmoothTransformation
             )
@@ -266,22 +269,6 @@ class MainWindow(QMainWindow):
 
         self.under_title_layout = QHBoxLayout()
 
-        # Right Workspace elements
-        right_under_title_workspace_elements = [
-            self.under_title_layout.addStretch(),
-            self.hide_password_btn,
-            self.edit_password_btn,
-            self.del_password_btn
-        ]
-        right_workspace_elements = [
-            self.title,
-            self.service_lb,
-            self.url_lb,
-            self.login_lb,
-            self.password_lb,
-            self.creation_date_lb,
-            self.description_lb,
-            self.description]
         right_workspace_db_information_elements = [
             self.db_size_lb,
             self.db_creation_date,
@@ -348,3 +335,19 @@ class MainWindow(QMainWindow):
         self.db_login.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
         self.db_password = QLabel("Password for database: ")
         self.db_password.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
+
+    def animations(self):
+        
+        def startup_animation(): #startup animations
+            self.setWindowOpacity(self.config["view"]["window_opacity"])
+            if self.config["view"]["window_startup_animations"]:
+                self.startup_anim = QPropertyAnimation(self, b"windowOpacity")
+                self.startup_anim.setDuration(800)          # Длительность в миллисекундах (0.8 сек)
+                self.startup_anim.setStartValue(0.0)        # Начальное значение
+                self.startup_anim.setEndValue(self.config["view"]["window_opacity"])          # Конечное значение
+                self.startup_anim.setEasingCurve(QEasingCurve.Type.InOutQuad) # Плавность сглаживания
+                self.startup_anim.start()
+            else:
+                return
+
+        startup_animation()
