@@ -1,12 +1,16 @@
 #icons.py
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
-from PyQt6.QtCore import *
-# from PyQt6.QtWidgets import QPushButton
+from PySide6.QtWidgets import *
+from PySide6.QtGui import *
+from PySide6.QtCore import *
+from src.config_manager import ConfigManager
+import os
 
 
 def icons_set_color(icon_name: str, color_hex: str, size: QSize) -> QIcon:
-    pixmap = QPixmap(f"src/assets/icons/{icon_name}").scaled(
+    relative_path = os.path.join("src", "assets", "icons", icon_name)
+    icon_path = ConfigManager.get_resource_path(relative_path)
+
+    pixmap = QPixmap(icon_path).scaled(
     size, 
     Qt.AspectRatioMode.KeepAspectRatio, 
     Qt.TransformationMode.SmoothTransformation

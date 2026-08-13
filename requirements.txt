@@ -4,8 +4,5 @@ macholib==1.16.4
 packaging==26.3
 pyinstaller==6.22.0
 pyinstaller-hooks-contrib==2026.6
-PyQt6==6.11.0
-PyQt6-Qt6==6.11.1
-PyQt6_sip==13.12.0
 setuptools==84.0.0
 toml==0.10.2

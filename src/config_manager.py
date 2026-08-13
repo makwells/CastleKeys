@@ -5,15 +5,19 @@ import toml
 
 class ConfigManager:
     @staticmethod
+    @staticmethod
     def get_style():
-
-        with open("config.toml", "r", encoding="utf-8") as config_file:
+        # 1. Читаем конфиг
+        config_path = ConfigManager.get_resource_path("config.toml")
+        with open(config_path, "r", encoding="utf-8") as config_file:
             config = toml.load(config_file)
 
         theme_filename = config["view"]["theme"]
 
-
-        theme_path = os.path.join("themes", theme_filename)
+        # 2. Путь к темам
+        themes_dir = ConfigManager.get_resource_path("themes")
+        theme_path = os.path.join(themes_dir, theme_filename)
+        
         with open(theme_path, "r", encoding="utf-8") as theme_file:
             theme_data = toml.load(theme_file)
 
@@ -24,13 +28,16 @@ class ConfigManager:
                     replacements[f"@{key}"] = value
 
         if "main" in theme_data:
-            replacements["@background"] = theme_data["main"].get(
-                "background", ""
-            )
+            replacements["@background"] = theme_data["main"].get("background", "")
             replacements["@text"] = theme_data["main"].get("text", "")
 
+        # 3. ИСПРАВЛЕНИЕ: Убираем "src" из пути, так как папка assets лежит внутри распакованной "src"
+        qss_path = ConfigManager.get_resource_path(os.path.join("src", "assets", "styles", "main_styles.qss"))
+        
+        # Если код выше всё равно выдает пустой стиль, попробуйте альтернативный путь без первого "src":
+        if not os.path.exists(qss_path):
+            qss_path = ConfigManager.get_resource_path(os.path.join("assets", "styles", "main_styles.qss"))
 
-        qss_path = os.path.join("src", "assets", "styles", "main_styles.qss")
         with open(qss_path, "r", encoding="utf-8") as styles_file:
             qss_template = styles_file.read()
 
@@ -42,6 +49,7 @@ class ConfigManager:
                 qss_template = qss_template.replace(marker, color)
 
         return qss_template
+
 
     def get_resource_path(relative_path):
         if hasattr(sys, '_MEIPASS'):

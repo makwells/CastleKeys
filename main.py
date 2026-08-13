@@ -1,5 +1,6 @@
 # main.py
-from PyQt6.QtWidgets import QApplication
+# from PyQt6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 
 from src.views import MainWindow
 from src.views import Settings
@@ -20,13 +21,17 @@ class CastleKeys:
     project = "https://github.com/makwells/CastleKeys"
 
     def __init__(self):
+
         logger.success("The application has started.")
 
         self.castlekeys()
 
     def castlekeys(self):
 
-        app = QApplication(sys.argv)
+        cleaned_args = [arg for arg in sys.argv if not arg.startswith("-psn")]
+
+
+        app = QApplication(cleaned_args)
         
         view = MainWindow()
         settings = Settings()

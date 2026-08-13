@@ -1,24 +1,25 @@
 #edit_passwords.py
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
-from PyQt6.QtCore import *
+from PySide6.QtWidgets import *
+from PySide6.QtGui import *
+from PySide6.QtCore import *
 
 from src.setuplogger import logger
+from src.config_manager import ConfigManager
 
 
 class Edit_Password(QDialog):
 
-    data_edit_password = pyqtSignal(object)
-    finished = pyqtSignal()
+    data_edit_password = Signal(object)
+    finished = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        with open("src/assets/styles/dialog_styles.qss", "r") as styles_file:
-            style = styles_file.read()
+        styles_path = ConfigManager.get_resource_path("src/assets/styles/dialog_styles.qss")
+        with open(styles_path, "r", encoding="utf-8") as styles_file:
+            self.setStyleSheet(styles_file.read())
             logger.success(f"Styles for the {__name__} window have been loaded")
 
-        self.setStyleSheet(style)
         styles_file.close()
 
         self.setWindowTitle("Edit password")

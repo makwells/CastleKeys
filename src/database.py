@@ -6,6 +6,7 @@ import toml
 import os
 
 from src.setuplogger import setup_logger
+from src.config_manager import ConfigManager
 
 # TODO нужно сделать хеширование паролей
 
@@ -18,17 +19,29 @@ def init_db():
         
     # Path("logs").mkdir(exist_ok=True)
 
+
     #config
-    with open("config.toml", "r", encoding="utf-8") as config_file:
+    config_path = ConfigManager.get_resource_path("config.toml")
+    with open(config_path, "r", encoding="utf-8") as config_file:
         logger.success("Config successfully loaded ✅")
         config = toml.load(config_file)
 
     db_dir = config["database"]["database_dir"]
+    
+    # ИСПРАВЛЕНИЕ ДЛЯ MAC: Если в конфиге указан относительный путь вроде "data/" или "./", 
+    # Finder не поймет его. Сделаем его абсолютным относительно домашней папки, если он относительный.
+    if db_dir.startswith(".") or not db_dir.startswith("/"):
+        home_dir = os.path.expanduser("~")
+        db_dir = os.path.join(home_dir, ".castlekeys", db_dir.replace("./", ""))
+
+    # 3. Создаем структуру папок
+    os.makedirs(db_dir, exist_ok=True)
+    
+    # 4. Формируем единый чистый путь к файлу базы данных
     db_path = os.path.join(db_dir, "passwords.db")
 
-    os.makedirs(db_dir, exist_ok=True)
-
-    password_db = sqlite3.connect(f"{config["database"]["database_dir"]}passwords.db") #database dir
+    # ИСПРАВЛЕНИЕ: Подключаемся строго по созданному db_path
+    password_db = sqlite3.connect(db_path) 
     cursor = password_db.cursor()
         
     cursor.execute("""

@@ -1,7 +1,7 @@
 #main_controller.py
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
-from PyQt6.QtCore import *
+from PySide6.QtWidgets import *
+from PySide6.QtGui import *
+from PySide6.QtCore import *
 
 from src.views import CreateNewPassword
 from src.views import Settings
@@ -15,7 +15,7 @@ from src.setuplogger import logger
 from src import ConfigManager
 
 import toml
-
+from datetime import datetime
 
 
 
@@ -147,7 +147,7 @@ class MainController():
         get_password = data.get("password", "")
 
         if not self._new_password_saved:
-            new_id = add_password(
+            new_id = database.add_password(
                 service=get_service,
                 url=get_url,
                 login=get_login,
@@ -158,7 +158,6 @@ class MainController():
                 self._new_password_saved = True
                 self._current_new_id = new_id
                 
-                from datetime import datetime
                 current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
                 # Создаем элемент в дереве
@@ -175,7 +174,7 @@ class MainController():
                 logger.debug(f"New password created in DB with ID {self._current_new_id}")
 
         elif self._new_password_saved and self._current_new_id is not None:
-            success = update_password(
+            success = database.update_password(
                 password_id=self._current_new_id,
                 service=get_service,
                 url=get_url,
@@ -224,7 +223,7 @@ class MainController():
 
 
         #change in db
-        success = update_password(
+        success = database.update_password(
             password_id=self._view.entry_id,
             service=new_service,
             url=new_url,
@@ -269,7 +268,7 @@ class MainController():
             return
 
         # Удаления из базы данных
-        if delete_password(db_id):
+        if database.delete_password(db_id):
             # Если из файла базы данных удалено, удаляем строку из интерфейса
             model.removeRow(row, parent_index)
             logger.success(f"The row with ID {db_id} has been removed from the interface.")

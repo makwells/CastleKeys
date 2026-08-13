@@ -1,22 +1,24 @@
 # create_new_password.py
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
-from PyQt6.QtCore import *
+from PySide6.QtWidgets import *
+from PySide6.QtGui import *
+from PySide6.QtCore import *
 
 from src.setuplogger import logger
+from src.config_manager import ConfigManager
 
 
 class CreateNewPassword(QDialog):
-    password_created = pyqtSignal(object)
-    data_created_password = pyqtSignal(dict)
-    finished = pyqtSignal()
+    password_created = Signal(object)
+    data_created_password = Signal(dict)
+    finished = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        with open("src/assets/styles/dialog_styles.qss", "r", encoding="utf-8") as styles_file:
-            style = styles_file.read()
-            self.setStyleSheet(style)
+        styles_path = ConfigManager.get_resource_path("src/assets/styles/dialog_styles.qss")
+        with open(styles_path, "r", encoding="utf-8") as styles_file:
+            self.setStyleSheet(styles_file.read())
+            logger.success(f"Styles for the {__name__} window have been loaded")
 
         self.setWindowTitle("New password")
         self.setFixedSize(400, 400)

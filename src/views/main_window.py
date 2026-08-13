@@ -1,7 +1,7 @@
 #main_wondow.py
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
-from PyQt6.QtCore import *
+from PySide6.QtWidgets import *
+from PySide6.QtGui import *
+from PySide6.QtCore import *
 
 import toml
 
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
             self.config = toml.load(config_file)
 
 
-        self.themes_dir = "themes/"
+        self.themes_dir = ConfigManager.get_resource_path("themes/")
         self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
 
         self.apply_theme()                    # load theme
@@ -31,8 +31,8 @@ class MainWindow(QMainWindow):
 
     def apply_theme(self): #init theme
         try:
-            style = ConfigManager.get_style()
-            self.setStyleSheet(style)
+            qss_styles = ConfigManager.get_style()
+            self.setStyleSheet(qss_styles)  
             logger.success(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
         except Exception as e:
             logger.error(f"Failed to apply theme {self.current_theme}: {e}")
@@ -265,8 +265,10 @@ class MainWindow(QMainWindow):
 
         self.welcome_logo = QLabel()
         self.welcome_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        welcome_logo_path = self.config["view"]["welcome_logo"]
+        pixmap = QPixmap(ConfigManager.get_resource_path(welcome_logo_path))
         
-        pixmap = QPixmap(self.config["view"]["welcome_logo"])
         
         if not pixmap.isNull():
             # Масштабируем до 200x200 с сохранением пропорций и сглаживанием
