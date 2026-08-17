@@ -69,8 +69,6 @@ class Edit_Password(QDialog):
 
         self.setLayout(self.edit_password_layout)
         
-        self.show()
-        
     def accept(self):
         self._save_edit()
 

@@ -1,11 +1,11 @@
 # main.py
-# from PyQt6.QtWidgets import QApplication
 from PySide6.QtWidgets import QApplication
 
 from src.views import MainWindow
 from src.views import Settings
 
 from src.controllers import MainController
+from src.controllers import Search
 from src.controllers import SettingsController
 
 from src import database
@@ -32,8 +32,9 @@ class CastleKeys:
 
 
         app = QApplication(cleaned_args)
-        
+
         view = MainWindow()
+        search = Search(view)
         settings = Settings()
 
         controller = MainController(view)

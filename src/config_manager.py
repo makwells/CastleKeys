@@ -5,9 +5,7 @@ import toml
 
 class ConfigManager:
     @staticmethod
-    @staticmethod
     def get_style():
-        # 1. Читаем конфиг
         config_path = ConfigManager.get_resource_path("config.toml")
         with open(config_path, "r", encoding="utf-8") as config_file:
             config = toml.load(config_file)
@@ -57,3 +55,8 @@ class ConfigManager:
             return os.path.join(sys._MEIPASS, relative_path)
         # Путь при обычном запуске скрипта во время разработки
         return os.path.abspath(relative_path)
+
+    def load_config():
+        config_path = ConfigManager.get_resource_path("config.toml")
+        with open(config_path, "r", encoding="utf-8") as config_file:
+            config = toml.load(config_file)

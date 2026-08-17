@@ -8,42 +8,38 @@ import toml
 from src.database import *
 from src.setuplogger import *
 from src.config_manager import ConfigManager
+from src.views.ui.animations.animations import Animations
 
-from .icons import icons_set_color
+from src.views.ui.icons import icons_set_color
 
 class MainWindow(QMainWindow):
     def __init__(self): #start
         super().__init__()
 
-        # Config
+        #config
         config_path = ConfigManager.get_resource_path("config.toml")
         with open(config_path, "r", encoding="utf-8") as config_file:
             logger.success("Config successfully loaded ✅")
             self.config = toml.load(config_file)
 
-
+        #themes dir
         self.themes_dir = ConfigManager.get_resource_path("themes/")
         self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
 
-        self.apply_theme()                    # load theme
-        self.init_ui()                        # load ui
+
+        self.ui()                             # load ui
         self.load_db()                        # load db
+        self.apply_theme()                    # load theme
 
-    def apply_theme(self): #init theme
-        try:
-            qss_styles = ConfigManager.get_style()
-            self.setStyleSheet(qss_styles)  
-            logger.success(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
-        except Exception as e:
-            logger.error(f"Failed to apply theme {self.current_theme}: {e}")
-
-    def init_ui(self): #init ui
+    def ui(self): #ui
         logger.debug("Main Window successfully loaded! ✅")
 
-        self.tool_bar()                       # Tool bar
-        self.workspace_l()                    # Left workspace
-        self.workspace_r()                    # Right workspace
-        self.animations()
+        self.workspace_top()   # top workspace(tool bar)
+        self.workspace_left()  # left workspace
+        self.workspace_right() # right workspace
+        self._animations()     # animations
+        self.menubar()         # menu bar
+        
         # Window and startup settings
         self.setWindowTitle("CastleKeys")     # title
         self.resize(900, 700)                 # start window size
@@ -53,10 +49,8 @@ class MainWindow(QMainWindow):
         self.central_widget = QWidget()       # Central widget
         self.workspace_container = QWidget()
 
-
         self.setCentralWidget(self.central_widget)
 
-        
         self.workspace_layout = QHBoxLayout()
         main_layout = QVBoxLayout()
 
@@ -70,7 +64,7 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(self.workspace_layout)
         self.central_widget.setLayout(main_layout)
     
-    def load_db(self): #init database
+    def load_db(self):
         init_db()                             
         data = get_all_passwords()
         
@@ -106,7 +100,52 @@ class MainWindow(QMainWindow):
             
         self.tree_view.expandAll()
 
-    def tool_bar(self): #tool_bar widgets
+    def apply_theme(self): #theme
+        try:
+            qss_styles = ConfigManager.get_style()
+            self.setStyleSheet(qss_styles)  
+            logger.success(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
+        except Exception as e:
+            logger.error(f"Failed to apply theme {self.current_theme}: {e}")
+
+    def menubar(self): #menu bar
+        self.menu = QMenuBar() #widget menu bar
+
+        #file menu
+        file_menu = self.menu.addMenu("File") 
+        #file menu elements
+        self.new_password_menu = QAction("New password", self)
+        self.new_tag_menu = QAction("New tag", self)
+        self.new_database_menu = QAction("New database", self)
+
+        self.edit_password_menu = QAction("Edit menu", self)
+        self.edit_database_menu = QAction("Edit database", self)
+
+        self.import_database_menu = QAction("Import database", self)
+        self.export_database_menu = QAction("Export database", self)
+        self.settings_menu = QAction("Settings", self)
+        #file menu add elements
+        file_menu.addAction(self.new_password_menu)
+        file_menu.addAction(self.new_tag_menu)
+        file_menu.addAction(self.new_database_menu)
+        file_menu.addSeparator()
+        file_menu.addAction(self.edit_password_menu)
+        file_menu.addAction(self.edit_database_menu)
+        file_menu.addSeparator()
+        file_menu.addAction(self.import_database_menu)
+        file_menu.addAction(self.export_database_menu)
+        file_menu.addSeparator()
+        file_menu.addAction(self.settings_menu)
+
+
+        #view menu 
+        view_menu = self.menu.addMenu("View")
+        #view menu elements
+        change_theme = QAction("Change theme", self)
+        #view menu add elemets
+        view_menu.addAction(change_theme)
+
+    def workspace_top(self): #tool_bar widgets
         logger.debug("Tool bar successfully loaded! ✅")
 
         self.tool_container = QWidget()
@@ -118,17 +157,17 @@ class MainWindow(QMainWindow):
         self.app_title = QLabel("CastleKeys")
         self.app_title.setObjectName("ToolBarTitle")
 
-        self.search = QLineEdit()
-        self.search.setPlaceholderText("Search")
-        self.search.setFixedSize(500, 30)
-        self.search.setObjectName("ToolBarSearch")
+        self.search_le = QLineEdit()
+        self.search_le.setPlaceholderText("Search")
+        self.search_le.setFixedSize(500, 30)
+        self.search_le.setObjectName("ToolBarSearch")
 
-        self.search_btn = QPushButton()
-        self.search_btn.setFixedSize(40, 30)
-        self.search_icon = icons_set_color("search.svg", "#D3D3D3", icon_size)
-        self.search_btn.setIcon(self.search_icon)
-        self.search_btn.setIconSize(icon_size)
-        self.search_btn.setObjectName("ToolBarButtons")
+        # self.search_btn = QPushButton()
+        # self.search_btn.setFixedSize(40, 30)
+        # self.search_icon = icons_set_color("search.svg", "#D3D3D3", icon_size)
+        # self.search_btn.setIcon(self.search_icon)
+        # self.search_btn.setIconSize(icon_size)
+        # self.search_btn.setObjectName("ToolBarButtons")
 
         self.new_password_btn = QPushButton("")
         self.new_password_btn.setFixedSize(40, 30)
@@ -146,15 +185,15 @@ class MainWindow(QMainWindow):
 
         self.tool_layout.addWidget(self.app_title)
         self.tool_layout.addStretch()
-        self.tool_layout.addWidget(self.search)
-        self.tool_layout.addWidget(self.search_btn)
+        self.tool_layout.addWidget(self.search_le)
+        # self.tool_layout.addWidget(self.search_btn)
         self.tool_layout.addStretch()
         self.tool_layout.addWidget(self.new_password_btn)
         self.tool_layout.addWidget(self.settings_btn)
 
         self.settings_btn.hide()
 
-    def workspace_l(self): #left workspace widgets
+    def workspace_left(self): #left workspace widgets
         logger.debug("Left workspace successfully loaded! ✅")
 
         self.left_container = QWidget()
@@ -175,10 +214,7 @@ class MainWindow(QMainWindow):
 
         self.left_layout.addWidget(self.tree_view)
 
-
-
-
-    def workspace_r(self): #right workspace widgets
+    def workspace_right(self): #right workspace widgets
         logger.debug("Right workspace successfully loaded! ✅")
 
         self.right_container = QWidget()
@@ -350,18 +386,13 @@ class MainWindow(QMainWindow):
         self.db_password = QLabel("Password for database: ")
         self.db_password.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
 
-    def animations(self):
-        
-        def startup_animation(): #startup animations
-            self.setWindowOpacity(self.config["view"]["window_opacity"])
-            if self.config["view"]["window_startup_animations"]:
-                self.startup_anim = QPropertyAnimation(self, b"windowOpacity")
-                self.startup_anim.setDuration(self.config["view"]["window_startup_animations_duration"])          # Длительность в миллисекундах (0.8 сек)
-                self.startup_anim.setStartValue(0.0)        # Начальное значение
-                self.startup_anim.setEndValue(self.config["view"]["window_opacity"])          # Конечное значение
-                self.startup_anim.setEasingCurve(QEasingCurve.Type.InOutQuad) # Плавность сглаживания
-                self.startup_anim.start()
-            else:
-                return
+    def _animations(self):
 
-        startup_animation()
+        #startup window opening animation 
+        self.setWindowOpacity(self.config["view"]["window_opacity"])
+        start_window_opening_animation = Animations.startup_window_opening_animation(
+            self,
+            start_value=0.0,
+            end_value=self.config["view"]["window_opacity"],
+            duration=self.config["view"]["window_startup_animations_duration"]
+            )

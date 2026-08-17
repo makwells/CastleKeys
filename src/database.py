@@ -137,7 +137,7 @@ def update_password(password_id: int, service: str, url: str, login: str, passwo
         )
         password_db.commit()
         cursor.close()
-        logger.success(f"Password ID {password_id} ('{service}') updated successfully")
+        # logger.success(f"Password ID {password_id} ('{service}') updated successfully")
         return True
             
     except sqlite3.Error as e:
