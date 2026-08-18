@@ -34,7 +34,6 @@ class CastleKeys:
         app = QApplication(cleaned_args)
 
         view = MainWindow()
-        search = Search(view)
         settings = Settings()
 
         controller = MainController(view)

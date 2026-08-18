@@ -15,12 +15,8 @@ class Edit_Password(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        styles_path = ConfigManager.get_resource_path("src/assets/styles/dialog_styles.qss")
-        with open(styles_path, "r", encoding="utf-8") as styles_file:
-            self.setStyleSheet(styles_file.read())
-            logger.success(f"Styles for the {__name__} window have been loaded")
-
-        styles_file.close()
+        dialog_style = ConfigManager.get_dialog_style()
+        self.setStyleSheet(dialog_style)
 
         self.setWindowTitle("Edit password")
         self.setFixedSize(400, 400)
@@ -39,7 +35,6 @@ class Edit_Password(QDialog):
         message = QLabel(f"Edit password")
         message.setStyleSheet("font-weight: bold;")
         message.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
         
         self.edit_input_service = QLineEdit()
         self.edit_input_url = QLineEdit()

@@ -4,17 +4,19 @@ QDialog{
 
 QLabel{
     font-size: 18pt;
-    color: #c7c7c7;
+    color: #D3D3D3;
 }
 
 QLineEdit{
     font-size: 16pt;
     color: #c7c7c7;
     border: 1px solid #222;
+    border-radius: 8px;
 }
 
 QPushButton{
     background-color: #111;
     border: 1px solid #222;
     border-radius: 8px;
+    height: auto;
 }

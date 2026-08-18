@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         with open(config_path, "r", encoding="utf-8") as config_file:
             logger.success("Config successfully loaded ✅")
             self.config = toml.load(config_file)
-
+        
         #themes dir
         self.themes_dir = ConfigManager.get_resource_path("themes/")
         self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
@@ -44,7 +44,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("CastleKeys")     # title
         self.resize(900, 700)                 # start window size
         self.setMinimumSize(900, 700)         # minimum window size
-
 
         self.central_widget = QWidget()       # Central widget
         self.workspace_container = QWidget()
@@ -87,22 +86,23 @@ class MainWindow(QMainWindow):
             self.date_text = row[5] if len(row) > 4 else "Unknown"
             self.description_text = row[6]
 
-            service_item = QStandardItem(self.service_text)
+            self.service_item = QStandardItem(self.service_text)
 
-            service_item.setData(self.entry_id, Qt.ItemDataRole.UserRole)
-            service_item.setData(self.login_text, Qt.ItemDataRole.UserRole + 1)
-            service_item.setData(self.url_text, Qt.ItemDataRole.UserRole + 2)
-            service_item.setData(self.password_text, Qt.ItemDataRole.UserRole + 3)
-            service_item.setData(self.date_text, Qt.ItemDataRole.UserRole + 4)
-            service_item.setData(self.description_text, Qt.ItemDataRole.UserRole + 5)
+            self.service_item.setData(self.entry_id, Qt.ItemDataRole.UserRole)
+            self.service_item.setData(self.login_text, Qt.ItemDataRole.UserRole + 1)
+            self.service_item.setData(self.url_text, Qt.ItemDataRole.UserRole + 2)
+            self.service_item.setData(self.password_text, Qt.ItemDataRole.UserRole + 3)
+            self.service_item.setData(self.date_text, Qt.ItemDataRole.UserRole + 4)
+            self.service_item.setData(self.description_text, Qt.ItemDataRole.UserRole + 5)
 
-            self.root_item.appendRow(service_item)
+            self.root_item.appendRow(self.service_item)
             
         self.tree_view.expandAll()
+        self.tree_view.isSortingEnabled()
 
     def apply_theme(self): #theme
         try:
-            qss_styles = ConfigManager.get_style()
+            qss_styles = ConfigManager.get_main_style()
             self.setStyleSheet(qss_styles)  
             logger.success(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
         except Exception as e:
@@ -136,7 +136,6 @@ class MainWindow(QMainWindow):
         file_menu.addAction(self.export_database_menu)
         file_menu.addSeparator()
         file_menu.addAction(self.settings_menu)
-
 
         #view menu 
         view_menu = self.menu.addMenu("View")
@@ -202,6 +201,7 @@ class MainWindow(QMainWindow):
 
         self.tree_view = QTreeView()         # Tree
         self.tree_view.setObjectName("LeftWorkspace")
+        self.tree_view.setAnimated(True) # opening animation
         self.tree_view.setHeaderHidden(True) # Hide header 
         self.tree_view.setFixedWidth(250)    # Width
         self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
@@ -210,7 +210,6 @@ class MainWindow(QMainWindow):
 
         # Привязываем созданную модель к отображению
         self.tree_view.setModel(self.tree_model)
-
 
         self.left_layout.addWidget(self.tree_view)
 

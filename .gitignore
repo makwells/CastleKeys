@@ -13,8 +13,8 @@ __pycache__
 __pycache__/
 *.pyc
 tests/
-
+*.dmg
 notes/
 notes
-
+Backups
 *Passwords

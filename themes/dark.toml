@@ -25,10 +25,10 @@ tree_selection_text = "#C7C7C7"
 
 [search]
 search_backgorund = "#111111"
-serach_background_pressed = ""
-serach_backgorund_focus = ""
+search_background_pressed = ""
+search_backgorund_focus = ""
 search_text = "#D3D3D3"
-serach_border = "#222222"
+search_border = "#222222"
 
 [right_workspace]
 r_workspace_background = "#111111"

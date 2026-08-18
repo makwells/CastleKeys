@@ -3,7 +3,6 @@
 theme = "dark.toml"
 font_family = ""
 font_family_text = ""
-animations = false
 language = "en"
 notifications = true
 welcome_logo = "src/assets/images/knight.png"
@@ -13,6 +12,10 @@ welcome_logo_height = 300
 window_opacity = 1.0
 window_startup_animations_duration = 300 #ms
 window_startup_animations = true
+
+[animations]
+animations = false
+tree_animations = true
 
 [database]
 autoSave = true

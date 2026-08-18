@@ -24,7 +24,7 @@ QMainWindow{
 #ToolBarSearch{
     background-color: @search_backgorund;
     color: @search_text;
-    border: 1px solid @serach_border;
+    border: 1px solid @search_border;
     border-radius: 8px;
     font-size: 16pt;
 }

@@ -15,11 +15,9 @@ class CreateNewPassword(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        #Dialog styles 
-        styles_path = ConfigManager.get_resource_path("src/assets/styles/dialog_styles.qss")
-        with open(styles_path, "r", encoding="utf-8") as styles_file:
-            self.setStyleSheet(styles_file.read())
-            logger.success(f"Styles for the {__name__} window have been loaded")
+        #styles
+        dialog_style = ConfigManager.get_dialog_style()
+        self.setStyleSheet(dialog_style)
 
         self.new_password_ui() #start ui
         
@@ -61,6 +59,7 @@ class CreateNewPassword(QDialog):
         self.input_login.textChanged.connect(self._on_realtime_save)
         self.input_password.textChanged.connect(self._on_realtime_save)
 
+        generate_password = QPushButton("Generate random password")
 
         # buttons
         buttons = QDialogButtonBox(
@@ -82,6 +81,7 @@ class CreateNewPassword(QDialog):
         
         self.new_password_layout.addWidget(message)
         self.new_password_layout.addLayout(self.new_password_input_layout)
+        self.new_password_layout.addWidget(generate_password)
         self.new_password_layout.addWidget(buttons)
         self.setLayout(self.new_password_layout)
 

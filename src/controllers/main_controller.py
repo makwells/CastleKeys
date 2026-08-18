@@ -17,16 +17,15 @@ from src import ConfigManager
 import toml
 from datetime import datetime
 
-
-# FIXME когда удаляешь последний пароль, меню с ним должно автоматически закрываться, а не оставаться висеть, до тех пор пока не переключить на другой пароль. Из-за это не скрываются кнопки взаимодействия с паролем. А бд удалить или изменить нельзя через основное окно программы. Нужно после удаления пароля возвращать пользователя на стартовое меню. 
 # FIXME Изменить логику редактирования пароля. Нужно сделать редактирование в реальном времени, также как и создание нового пароля.
-# FIXME если пароль изменить, а после пару раз скрыть и открыть пароль, то пароль в интерфейсе заменяется на пустое значение, при этом он меняется только в интерфейсе, в базе данных он не изменяется. Дело в функции скрытия пароля.
+# FIXME если пароль изменить, а после пару раз скрыть и открыть пароль, то пароль в интерфейсе заменяется на пустое значение, при этом он меняется только в интерфейсе, в базе данных он не изменяется. Дело в функции редактирования пароля или в скрытии.
 
 # TODO Добавление стилей для диалоговых окон. 
 # TODO Создать подтверждения пароля от базы данных.  
 # TODO добавить окно с информацией о бд. Чтобы зайти в это окно, нужно будет ввести логин и пароль от базы данных. Там же их можно будет и поменять. 
-# TODO Сделать уведомления, которые будут всплывать, когда пользователь будет взаимодействовать с программой: "Пароль успешно создан", "Пароль успешно удален". Но эти уведомления должны быть всплывающими в интерфейсе самой программы, а не системно. Перекрывая часть интерфейса(пример vscode). 
+# TODO Сделать уведомления, которые будут всплывать, когда пользователь будет взаимодействовать с программой: "Пароль успешно создан", "Пароль успешно удален". Но эти уведомления должны быть всплывающими в интерфейсе самой программы, а не системно. Перекрывая часть интерфейса(пример vscode). Добавить возможность менять углы(левый верхний, правый нижний итд)
 # TODO Сделать поиск
+# TODO Сделать настройки
 
 class MainController():
     def __init__(self, view):
@@ -58,8 +57,9 @@ class MainController():
         self._view.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
         self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
 
+
         self._view.new_password_menu.triggered.connect(self._new_password_clicked)    #new password menu(menubar)
-        self._view.edit_password_menu.triggered.connect(self._edit_password_clicked)
+        self._view.edit_password_menu.triggered.connect(self._edit_password_clicked) #edit password(menu)
 
 
         # TODO Нужно блокировать окно программы, когда открыто диалоговое окно, чтобы нельзя было открыть одновремено несколько окон добавления пароля или окон редактрирования. 
@@ -118,6 +118,8 @@ class MainController():
             #unblock signals
             self._view.edit_password_menu.blockSignals(False)
             self._view.del_password_btn.setEnabled(True)
+
+            self._view.service_item.setSelectable(True)
 
 
             if self.config["privacy"]["auto_hide_passwords"]:
@@ -304,6 +306,8 @@ class MainController():
             if database.delete_password(db_id):
                 model.removeRow(row, parent_index)
                 logger.success(f"The row with ID {db_id} has been removed from the interface.")
+
+            self.main_menu()
         else:
             logger.debug("Deletion cancelled.")
             return      
