@@ -18,10 +18,12 @@ class CreateNewPassword(QDialog):
         #styles
         dialog_style = ConfigManager.get_dialog_style()
         self.setStyleSheet(dialog_style)
+        logger.debug(f"Styles for {__name__} has been loaded")
 
         self.new_password_ui() #start ui
         
     def new_password_ui(self): #ui
+        logger.success("The new password creation dialog box has been loaded")
         self.setWindowTitle("New password") #title
         self.setFixedSize(400, 400)         #window size
 
@@ -59,7 +61,9 @@ class CreateNewPassword(QDialog):
         self.input_login.textChanged.connect(self._on_realtime_save)
         self.input_password.textChanged.connect(self._on_realtime_save)
 
-        generate_password = QPushButton("Generate random password")
+        self.generate_password = QPushButton("Generate random password")
+        self.generate_password.setFixedSize(300, 30)
+
 
         # buttons
         buttons = QDialogButtonBox(
@@ -81,7 +85,7 @@ class CreateNewPassword(QDialog):
         
         self.new_password_layout.addWidget(message)
         self.new_password_layout.addLayout(self.new_password_input_layout)
-        self.new_password_layout.addWidget(generate_password)
+        self.new_password_layout.addWidget(self.generate_password)
         self.new_password_layout.addWidget(buttons)
         self.setLayout(self.new_password_layout)
 
@@ -95,11 +99,14 @@ class CreateNewPassword(QDialog):
         }
         #send data
         if any(data.values()):
+            logger.debug("data sent to main_controller.py")
             self.data_created_password.emit(data)
 
     def accept(self):
         #close window 
+        logger.debug("Password")
         super().accept() 
+        
 
     #close the window without entering a new password
     def reject(self):

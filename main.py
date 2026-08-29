@@ -8,7 +8,7 @@ from src.controllers import MainController
 from src.controllers import Search
 from src.controllers import SettingsController
 
-from src import database
+from src.models.database import database
 from src.setuplogger import logger
 
 import sys

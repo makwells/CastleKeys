@@ -5,27 +5,30 @@ from PySide6.QtCore import *
 
 import toml
 
-from src.database import *
+from src.models.database.database import *
 from src.setuplogger import *
 from src.config_manager import ConfigManager
 from src.views.ui.animations.animations import Animations
 
 from src.views.ui.icons import icons_set_color
 
+from src.views.ui.notifications.notifications_window import *
+
+
 class MainWindow(QMainWindow):
     def __init__(self): #start
         super().__init__()
 
         #config
-        config_path = ConfigManager.get_resource_path("config.toml")
-        with open(config_path, "r", encoding="utf-8") as config_file:
-            logger.success("Config successfully loaded ✅")
-            self.config = toml.load(config_file)
+        self.config_manager = ConfigManager()
+        self.config = self.config_manager.load_config()
+        logger.debug("Config successfully loaded ✅")
+
+
         
         #themes dir
         self.themes_dir = ConfigManager.get_resource_path("themes/")
         self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
-
 
         self.ui()                             # load ui
         self.load_db()                        # load db
@@ -104,7 +107,7 @@ class MainWindow(QMainWindow):
         try:
             qss_styles = ConfigManager.get_main_style()
             self.setStyleSheet(qss_styles)  
-            logger.success(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
+            logger.debug(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
         except Exception as e:
             logger.error(f"Failed to apply theme {self.current_theme}: {e}")
 
@@ -160,13 +163,6 @@ class MainWindow(QMainWindow):
         self.search_le.setPlaceholderText("Search")
         self.search_le.setFixedSize(500, 30)
         self.search_le.setObjectName("ToolBarSearch")
-
-        # self.search_btn = QPushButton()
-        # self.search_btn.setFixedSize(40, 30)
-        # self.search_icon = icons_set_color("search.svg", "#D3D3D3", icon_size)
-        # self.search_btn.setIcon(self.search_icon)
-        # self.search_btn.setIconSize(icon_size)
-        # self.search_btn.setObjectName("ToolBarButtons")
 
         self.new_password_btn = QPushButton("")
         self.new_password_btn.setFixedSize(40, 30)
@@ -370,23 +366,22 @@ class MainWindow(QMainWindow):
 
     def db_information(self): #database information widgets
         logger.debug("Database information successfully loaded! ✅")
-        self.db_size_lb = QLabel("Size database: ")
+        self.db_size_lb = QLabel()
         self.db_size_lb.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_creation_date = QLabel("Creation date: ")
+        self.db_creation_date = QLabel()
         self.db_creation_date.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.path_to_db = QLabel("Path to database: ")
+        self.path_to_db = QLabel()
         self.path_to_db.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_count_passwords = QLabel("Database count passwords: ")
+        self.db_count_passwords = QLabel()
         self.db_count_passwords.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_count_dublicate = QLabel("Database cound dublicate: ")
+        self.db_count_dublicate = QLabel()
         self.db_count_dublicate.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_login = QLabel("Login for database: ")
+        self.db_login = QLabel()
         self.db_login.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_password = QLabel("Password for database: ")
+        self.db_password = QLabel()
         self.db_password.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
 
     def _animations(self):
-
         #startup window opening animation 
         self.setWindowOpacity(self.config["view"]["window_opacity"])
         start_window_opening_animation = Animations.startup_window_opening_animation(
@@ -395,3 +390,6 @@ class MainWindow(QMainWindow):
             end_value=self.config["view"]["window_opacity"],
             duration=self.config["view"]["window_startup_animations_duration"]
             )
+
+        #TODO switch windows
+        #Сделать анимацию при переходе между паролями, вкладками итд.

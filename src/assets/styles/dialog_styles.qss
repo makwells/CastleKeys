@@ -10,13 +10,23 @@ QLabel{
 QLineEdit{
     font-size: 16pt;
     color: #c7c7c7;
+    background-color: #111111;
     border: 1px solid #222;
     border-radius: 8px;
 }
 
+QLineEdit:hover{
+    background-color: #222222;
+    border-color: #626262;
+}
+
 QPushButton{
-    background-color: #111;
+    background-color: #111111;
     border: 1px solid #222;
     border-radius: 8px;
-    height: auto;
+}
+
+QPushButton:hover{
+    background-color: #222222;
+    border-color: #626262;
 }

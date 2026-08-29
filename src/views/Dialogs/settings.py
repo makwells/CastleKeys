@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import *
-from src.database import *
+from src.models.database.database import *
 
 from src.config_manager import ConfigManager
 

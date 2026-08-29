@@ -19,11 +19,10 @@ def init_db():
         
     # Path("logs").mkdir(exist_ok=True)
 
-
     #config
     config_path = ConfigManager.get_resource_path("config.toml")
     with open(config_path, "r", encoding="utf-8") as config_file:
-        logger.success("Config successfully loaded ✅")
+        # logger.debug("Config successfully loaded ✅")
         config = toml.load(config_file)
 
     db_dir = config["database"]["database_dir"]
@@ -56,7 +55,7 @@ def init_db():
             )
         """)
     password_db.commit()
-    logger.success("The database is connected.")
+    logger.success("The database is connected ✅")
 
 
 def add_password(service: str, url: str, login: str, password: str) -> int:

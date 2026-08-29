@@ -8,9 +8,9 @@ from src.views import Settings
 from src.views import Edit_Password
 from src.views import icons_set_color
 
+from src.models.database import database
 from src.models import Database_info
 
-from src import database
 from src.setuplogger import logger
 from src import ConfigManager
 
@@ -32,9 +32,9 @@ class MainController():
 
         config_path = ConfigManager.get_resource_path("config.toml")
         with open(config_path, "r", encoding="utf-8") as config_file:
-            logger.success("Config successfully loaded ✅")
+            logger.debug("Config successfully loaded")
             self.config = toml.load(config_file)
-
+            
         self._view = view #MainWindow
 
         self.service_name_ = None
@@ -46,7 +46,6 @@ class MainController():
         self._connect_signals() #Connects
         self.HotKeys() # HotKeys
 
-
     # connect signals
     def _connect_signals(self):
         
@@ -57,12 +56,8 @@ class MainController():
         self._view.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
         self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
 
-
         self._view.new_password_menu.triggered.connect(self._new_password_clicked)    #new password menu(menubar)
         self._view.edit_password_menu.triggered.connect(self._edit_password_clicked) #edit password(menu)
-
-
-        # TODO Нужно блокировать окно программы, когда открыто диалоговое окно, чтобы нельзя было открыть одновремено несколько окон добавления пароля или окон редактрирования. 
 
     # select category
     def _on_category_clicked(self, index): 
@@ -104,9 +99,8 @@ class MainController():
             self._view.hide_password_btn.show()
             self._view.edit_password_btn.show()
             self._view.del_password_btn.show()
+
             self._view.welcome_logo.hide()
-
-
             self._view.db_size_lb.hide()
             self._view.db_creation_date.hide()
             self._view.path_to_db.hide()
@@ -151,7 +145,7 @@ class MainController():
 
     # add new password
     def _new_password_clicked(self):
-        logger.debug("New button clicked")
+        logger.success("Run new password window form")
 
         self.new_window = CreateNewPassword(self._view)
 
@@ -212,7 +206,7 @@ class MainController():
 
     # edit password
     def _edit_password_clicked(self):
-        logger.debug("Edit button clicked")
+        logger.debug("Run edit password window form")
         
         self.edit_window = Edit_Password()
         
@@ -271,7 +265,7 @@ class MainController():
 
     # delete password
     def _del_password_clicked(self, tree_view): 
-        logger.debug("Del button clicked")
+        logger.debug("Run delete confirmation window")
 
         reply = QMessageBox.question(
             None, 
@@ -281,7 +275,7 @@ class MainController():
         )
         
         if reply == QMessageBox.Yes:
-            logger.debug("Password deleted.")
+            logger.success("Password deleted.")
             #Get current index element
             current_index = self._view.tree_view.currentIndex()
     
@@ -329,7 +323,7 @@ class MainController():
 
     # database information
     def db_information(self):
-        logger.debug("db_infromation clicked")
+        logger.debug("Run database info window")
         self._view.db_size_lb.show()
         self._view.db_creation_date.show()
         self._view.path_to_db.show()
@@ -337,6 +331,9 @@ class MainController():
         self._view.db_count_dublicate.show()
         self._view.db_login.show()
         self._view.db_password.show()
+        
+        self._view.db_size_lb.setText(f"Database size: {Database_info.db_size(self, "Passwords/passwords.db")}") #database size
+
 
     # hide/show passwords
     def hide(self, checked=None): 
@@ -396,7 +393,8 @@ class MainController():
             self.shortcut_main_menu.activated.connect(self.main_menu)
 
     def main_menu(self):
-
+        logger.debug("Run main menu")
+        
         # hide all elements right workspace
         self._view.title.hide()
         self._view.service_lb.hide()
@@ -409,5 +407,14 @@ class MainController():
         self._view.hide_password_btn.hide()
         self._view.edit_password_btn.hide()
         self._view.del_password_btn.hide()
+        self._view.db_size_lb.hide()
+        self._view.db_creation_date.hide()
+        self._view.path_to_db.hide()
+        self._view.db_count_passwords.hide()
+        self._view.db_count_dublicate.hide()
+        self._view.db_login.hide()
+        self._view.db_password.hide()
+
         # show logo
         self._view.welcome_logo.show()
+

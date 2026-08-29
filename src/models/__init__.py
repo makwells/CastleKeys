@@ -1,1 +1,2 @@
-from .db_info import Database_info
+from .database.database import *
+from .database.database_info import Database_info
