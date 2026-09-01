@@ -4,7 +4,13 @@ QDialog{
 }
 
 QScrollArea{
-    
+    border: 1px solid #d3d3d3;
+    border-radius: 4px;
+    background-color: #18181b;
+}
+
+QLabel{
+    font-size: 16pt;
 }
 
 QCheckBox{
@@ -14,6 +20,9 @@ QCheckBox::indicator{
     background-color: #111111;
     border: 1px solid #222222;
     border-radius: 4px;
+    width: 16px;
+    height: 16px;
+    
 }
 
 QCheckBox::indicator:hover{
@@ -23,5 +32,7 @@ QCheckBox::indicator:hover{
 
 QCheckBox::indicator:checked{
     background-color: #111111;
-    border-color: #626262
+    border-color: #626262;
+     /* Можно задать кастомную иконку галочки */
+    /* image: url(:/images/check.png);  */
 }

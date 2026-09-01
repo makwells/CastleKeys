@@ -5,30 +5,34 @@ from src.models.database.database import *
 
 from src.config_manager import ConfigManager
 
-
+#TODO добавить стили 
 class Settings(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        
+
+        #init config
+        self.config_manager = ConfigManager()
+        self.config = self.config_manager.load_config()
+
+        #init theme
         styles_path = ConfigManager.get_resource_path("src/assets/styles/settings_styles.qss")
         with open(styles_path, "r", encoding="utf-8") as styles_file:
             self.setStyleSheet(styles_file.read())
 
-        config_path = ConfigManager.get_resource_path("config.toml")
-        with open(config_path, "r", encoding="utf-8") as config_file:
-            self.config = toml.load(config_file)
+        self.window_width = 800
+        self.window_height = 600
 
         self.settings_ui()
     
     def settings_ui(self):
-        def add_separator():
+        def add_separator(): #separator
             line = QFrame()
             line.setFrameShape(QFrame.Shape.HLine)
             line.setFrameShadow(QFrame.Shadow.Sunken)
             form_layout.addRow(line)
 
         self.setWindowTitle("Settings")
-        self.resize(800, 600)
+        self.resize(self.window_width, self.window_height)
 
         main_layout = QVBoxLayout(self)
 
@@ -83,8 +87,6 @@ class Settings(QDialog):
         form_layout.addRow(QLabel("Auto hide passwords"), auto_hide_passwords_combo)
         form_layout.addRow(QLabel("Confirm password"), confirm_password_cb)
 
-
-
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setWidget(content_widget)
@@ -94,5 +96,3 @@ class Settings(QDialog):
         close_btn = QPushButton("Сохранить и закрыть")
         close_btn.clicked.connect(self.accept)
         main_layout.addWidget(close_btn)
-
-        self.show()

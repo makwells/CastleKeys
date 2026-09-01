@@ -10,12 +10,15 @@ from src.views import icons_set_color
 
 from src.models.database import database
 from src.models import Database_info
+from src.models import delete_password
 
 from src.setuplogger import logger
 from src import ConfigManager
 
-import toml
 from datetime import datetime
+
+from src.models import hotkeys
+
 
 # FIXME Изменить логику редактирования пароля. Нужно сделать редактирование в реальном времени, также как и создание нового пароля.
 # FIXME если пароль изменить, а после пару раз скрыть и открыть пароль, то пароль в интерфейсе заменяется на пустое значение, при этом он меняется только в интерфейсе, в базе данных он не изменяется. Дело в функции редактирования пароля или в скрытии.
@@ -30,11 +33,9 @@ from datetime import datetime
 class MainController():
     def __init__(self, view):
 
-        config_path = ConfigManager.get_resource_path("config.toml")
-        with open(config_path, "r", encoding="utf-8") as config_file:
-            logger.debug("Config successfully loaded")
-            self.config = toml.load(config_file)
-            
+        self.config_manager = ConfigManager()
+        self.config = self.config_manager.load_config()
+
         self._view = view #MainWindow
 
         self.service_name_ = None
@@ -44,7 +45,7 @@ class MainController():
         self.current_password = None
 
         self._connect_signals() #Connects
-        self.HotKeys() # HotKeys
+
 
     # connect signals
     def _connect_signals(self):
@@ -57,7 +58,11 @@ class MainController():
         self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
 
         self._view.new_password_menu.triggered.connect(self._new_password_clicked)    #new password menu(menubar)
-        self._view.edit_password_menu.triggered.connect(self._edit_password_clicked) #edit password(menu)
+        self._view.edit_password_menu.triggered.connect(self._edit_password_clicked)  #edit password(menu)
+        self._view.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
+
+        hotkeys.HotKeys(self)   # Connect hotkeys
+
 
     # select category
     def _on_category_clicked(self, index): 
@@ -113,8 +118,7 @@ class MainController():
             self._view.edit_password_menu.blockSignals(False)
             self._view.del_password_btn.setEnabled(True)
 
-            self._view.service_item.setSelectable(True)
-
+            # self._view.service_item.setSelectable(True)
 
             if self.config["privacy"]["auto_hide_passwords"]:
                 self._view.hide_password_btn_state = False
@@ -146,6 +150,8 @@ class MainController():
     # add new password
     def _new_password_clicked(self):
         logger.success("Run new password window form")
+
+        #FIXME если написать сервис, а потом стереть его и отменить, то последний символ все равно сохранится.
 
         self.new_window = CreateNewPassword(self._view)
 
@@ -309,12 +315,11 @@ class MainController():
     # settings
     def _setting_clicked(self): 
         #open the child window for application settings
-        logger.debug("Settings button clicked")
-        Settings(self._view)
+        logger.debug("Run settings menu")
+        Settings(self._view).exec()
 
     # seach
     def _search(self, data):
-        # logger.debug("Search button clicked")
         search_input_field = data.get("text", "")
 
         print(search_input_field)
@@ -333,7 +338,6 @@ class MainController():
         self._view.db_password.show()
         
         self._view.db_size_lb.setText(f"Database size: {Database_info.db_size(self, "Passwords/passwords.db")}") #database size
-
 
     # hide/show passwords
     def hide(self, checked=None): 
@@ -356,41 +360,6 @@ class MainController():
             self._view.hide_password_btn.setIconSize(icon_size)
             self._view.hide_password_btn_state = False
             logger.debug("Password is shown")
-
-    # hotkeys
-    def HotKeys(self): 
-        hotkeys = {
-            "new_password":  self.config["hotkeys"].get("new_password", "Ctrl+N"),
-            "edit_password": self.config["hotkeys"].get("edit_password", "Ctrl+E"),
-            "del_password": self.config["hotkeys"].get("del_password", "Ctrl+Backspace"),
-            "hide_password": self.config["hotkeys"].get("hide_password", "Ctrl+G"),
-            "settings": self.config["hotkeys"].get("settings", "Ctrl+I"),
-            "main_menu": self.config["hotkeys"].get("main_menu", "Escape")
-        }
-
-        if hotkeys["new_password"]:
-            self.shortcut_new = QShortcut(QKeySequence(hotkeys["new_password"]), self._view)
-            self.shortcut_new.activated.connect(self._new_password_clicked)
-
-        if hotkeys["edit_password"]:
-            self.shortcut_edit = QShortcut(QKeySequence(hotkeys["edit_password"]), self._view)
-            self.shortcut_edit.activated.connect(self._edit_password_clicked)
-        
-        if hotkeys["del_password"]:
-            self.shortcut_del = QShortcut(QKeySequence(hotkeys["del_password"]), self._view)
-            self.shortcut_del.activated.connect(lambda: self._del_password_clicked(self._view.tree_view))
-
-        if hotkeys["hide_password"]:
-            self.shortcut_hide = QShortcut(QKeySequence(hotkeys["hide_password"]), self._view)
-            self.shortcut_hide.activated.connect(self.hide)
-
-        if hotkeys["settings"]:
-            self.shortcut_settings = QShortcut(QKeySequence(hotkeys["settings"]), self._view)
-            self.shortcut_settings.activated.connect(self._setting_clicked)
-
-        if hotkeys["main_menu"]:
-            self.shortcut_main_menu = QShortcut(QKeySequence(hotkeys["main_menu"]), self._view)
-            self.shortcut_main_menu.activated.connect(self.main_menu)
 
     def main_menu(self):
         logger.debug("Run main menu")

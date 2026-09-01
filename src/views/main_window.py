@@ -3,8 +3,6 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 
-import toml
-
 from src.models.database.database import *
 from src.setuplogger import *
 from src.config_manager import ConfigManager
@@ -23,8 +21,6 @@ class MainWindow(QMainWindow):
         self.config_manager = ConfigManager()
         self.config = self.config_manager.load_config()
         logger.debug("Config successfully loaded ✅")
-
-
         
         #themes dir
         self.themes_dir = ConfigManager.get_resource_path("themes/")
@@ -55,7 +51,6 @@ class MainWindow(QMainWindow):
 
         self.workspace_layout = QHBoxLayout()
         main_layout = QVBoxLayout()
-
 
         self.tool_container.setLayout(self.tool_layout)
 
@@ -242,18 +237,15 @@ class MainWindow(QMainWindow):
         self.password_lb = QLabel(f"Password: ")
         self.password_lb.setObjectName("RightWorkspaceLabel")
 
-
-        # CREATION DATE
-        # NOTE Логика в том, что у пользователя может быть несколько аккаунтов одного сервиса и дата создания пароля служит ориентиром. 
+        # CREATION DATE 
         self.creation_date_lb = QLabel(f"Creation date: ")
         self.creation_date_lb.setObjectName("RightWorkspaceLabel")
-
 
         # DESCRIPTION
         self.description_lb = QLabel("Description:")
         self.description_lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.description_lb.setObjectName("RightWorkspaceLabel")
-        # NOTE Описание к паролю
+        # FIXME Описание к паролю
         # Логика в том, что у пользователя может быть несколько аккаунто одного сервиса, быть аунтефикатор, чей-то аккаунт итд, описание служит ориетиром. Нужно при любом действии пользователя единожды сохранить описание.
         # Описание должно храниться в памяти компьютера при нажатии на другой пароль. При нажатии на другой пароль оно сохраняется в базу данных и при следующем заходе в программу считывает ее уже с базы данных.
         self.description = QTextEdit()
@@ -262,12 +254,8 @@ class MainWindow(QMainWindow):
 
 
         # FIXME кнопка скрытия информации
-        # Необходимо для людных мест и если рядом кто-то посторонний.
-        # Логика в том, что при нажатии кнопки пароли мнгновенно скрываются, а для того, чтобы показать пароли нужно будет ввести пароль. В ИДЕАЛЕ СКРЫВАТЬ ПАРОЛИ ПОУМОЛЧАНИЮ И НЕ МЕНЯТЬ ПАРАМЕТР ВИДИМОСТИ. иконка глазика
-        # Нужно сделать автоматическое скрытие при запуске программы
         # Нужно сделать поле ввода пароля при показе его снова.
         icon_size = QSize(24, 24)
-
 
         self.hide_password_btn = QPushButton("")
         self.hide_password_btn.setFixedSize(40, 40)
@@ -324,7 +312,6 @@ class MainWindow(QMainWindow):
             self.db_password
 
         ]
-
 
         self.under_title_layout.addStretch()
         self.under_title_layout.addWidget(self.hide_password_btn)
