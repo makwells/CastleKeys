@@ -20,18 +20,16 @@ def init_db():
     # Path("logs").mkdir(exist_ok=True)
 
     #config
-    config_path = ConfigManager.get_resource_path("config.toml")
-    with open(config_path, "r", encoding="utf-8") as config_file:
-        # logger.debug("Config successfully loaded ✅")
-        config = toml.load(config_file)
+    config_manager = ConfigManager()
+    config = config_manager.load_config()
 
     db_dir = config["database"]["database_dir"]
     
-    # ИСПРАВЛЕНИЕ ДЛЯ MAC: Если в конфиге указан относительный путь вроде "data/" или "./", 
-    # Finder не поймет его. Сделаем его абсолютным относительно домашней папки, если он относительный.
-    if db_dir.startswith(".") or not db_dir.startswith("/"):
-        home_dir = os.path.expanduser("~")
-        db_dir = os.path.join(home_dir, ".castlekeys", db_dir.replace("./", ""))
+    # if db_dir.startswith(".") or not db_dir.startswith("/"):
+    #     home_dir = os.path.expanduser("~")
+    #     db_dir = os.path.join(home_dir, ".castlekeys", db_dir.replace("./", ""))
+    if not os.path.isabs(db_dir):
+        db_dir = os.path.abspath(db_dir)
 
     # 3. Создаем структуру папок
     os.makedirs(db_dir, exist_ok=True)

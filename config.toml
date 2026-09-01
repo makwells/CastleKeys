@@ -22,7 +22,7 @@ autoSave = true
 database_dir = "Passwords/"
 backup_dir = "Backups/"
 backup = true
-backup_time = "1d"
+backup_day = "1"
 
 [privacy]
 auto_hide_passwords = true

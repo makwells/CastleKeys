@@ -68,7 +68,6 @@ class Edit_Password(QDialog):
         self.edit_password_layout.addWidget(buttons)
         self.edit_password_layout.addWidget(self.generate_password, alignment=Qt.AlignHCenter)
 
-
         self.setLayout(self.edit_password_layout)
         
     def accept(self):

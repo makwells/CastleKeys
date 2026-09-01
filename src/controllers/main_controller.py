@@ -12,6 +12,8 @@ from src.models.database import database
 from src.models import Database_info
 from src.models import hotkeys
 
+from src.models import backups
+
 from src.setuplogger import *
 from src import ConfigManager
 
@@ -61,8 +63,7 @@ class MainController():
         self._view.edit_password_menu.triggered.connect(self._edit_password_clicked)  #edit password(menu)
         self._view.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
 
-        hotkeys.HotKeys(self)   # Connect hotkeys
-        
+        hotkeys.HotKeys(self)      # Connect hotkeys
 
 
     # select category

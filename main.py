@@ -1,35 +1,34 @@
 # main.py
 from PySide6.QtWidgets import QApplication
 
+from src.setuplogger import logger
+
 from src.views import MainWindow
 from src.views import Settings
 
 from src.controllers import MainController
-from src.controllers import Search
 from src.controllers import SettingsController
 
-from src.models.database import database
-from src.setuplogger import logger
+from src.models import backups
 
 import sys
 
 class CastleKeys:
-    
-    version = 0.1
     program_name = "CastleKeys"
     author = "makwells"
     project = "https://github.com/makwells/CastleKeys"
 
     def __init__(self):
 
-        logger.success("The application has started.")
+        logger.success("The application has started")
 
         self.castlekeys()
 
     def castlekeys(self):
+        backups.backup_timer() # Run backup timer
+        logger.debug("Backup timer is running!")
 
         cleaned_args = [arg for arg in sys.argv if not arg.startswith("-psn")]
-
 
         app = QApplication(cleaned_args)
 
