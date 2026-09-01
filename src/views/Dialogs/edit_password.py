@@ -5,7 +5,7 @@ from PySide6.QtCore import *
 
 from src.setuplogger import logger
 from src.config_manager import ConfigManager
-
+from src.models import generate_password
 
 class Edit_Password(QDialog):
 
@@ -48,6 +48,11 @@ class Edit_Password(QDialog):
         buttons.rejected.connect(self.reject) # Triggers QDialog built-in reject state
 
 
+        #generate_random_password button 
+        self.generate_password = QPushButton("Generate random password")
+        self.generate_password.setFixedSize(300, 30)
+        self.generate_password.clicked.connect(self.generator_random_password)
+
         edit_input_layout_elements = {
             "Rename service:":self.edit_input_service,
             "Rename URL:":self.edit_input_url,
@@ -61,11 +66,17 @@ class Edit_Password(QDialog):
         self.edit_password_layout.addWidget(message)
         self.edit_password_layout.addLayout(self.edit_input_layout)
         self.edit_password_layout.addWidget(buttons)
+        self.edit_password_layout.addWidget(self.generate_password, alignment=Qt.AlignHCenter)
+
 
         self.setLayout(self.edit_password_layout)
         
     def accept(self):
         self._save_edit()
+
+    def generator_random_password(self):
+        _gen_password = generate_password.generate_random_password(15)
+        self.edit_input_password.setText(_gen_password)
 
     def _save_edit(self):
         # Получаем новые данные

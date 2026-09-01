@@ -5,6 +5,7 @@ from PySide6.QtCore import *
 
 from src.setuplogger import logger
 from src.config_manager import ConfigManager
+from src.models import generate_password
 
 class CreateNewPassword(QDialog):
     #signals
@@ -61,8 +62,10 @@ class CreateNewPassword(QDialog):
         self.input_login.textChanged.connect(self._on_realtime_save)
         self.input_password.textChanged.connect(self._on_realtime_save)
 
+        #generate_random_password button 
         self.generate_password = QPushButton("Generate random password")
         self.generate_password.setFixedSize(300, 30)
+        self.generate_password.clicked.connect(self.generator_random_password)
 
 
         # buttons
@@ -85,26 +88,36 @@ class CreateNewPassword(QDialog):
         
         self.new_password_layout.addWidget(message)
         self.new_password_layout.addLayout(self.new_password_input_layout)
-        self.new_password_layout.addWidget(self.generate_password)
+        self.new_password_layout.addWidget(self.generate_password, alignment=Qt.AlignHCenter)
         self.new_password_layout.addWidget(buttons)
         self.setLayout(self.new_password_layout)
 
+
+    def generator_random_password(self):
+        _gen_password = generate_password.generate_random_password()
+        self.input_password.setText(_gen_password)
+
     def _on_realtime_save(self):
         #send data to the controller whenever the text changes
-        data = {
+        self.data = {
             "service": self.input_service.text().strip(),
             "url": self.input_url.text().strip(),
             "login": self.input_login.text().strip(),
             "password": self.input_password.text().strip(),
         }
-        #send data
-        if any(data.values()):
-            logger.debug("data sent to main_controller.py")
-            self.data_created_password.emit(data)
+
+        # if any(self.data.values()):
+        #     logger.debug("data sent to main_controller.py")
+        #     self.data_created_password.emit(self.data)
+
 
     def accept(self):
         #close window 
         logger.debug("Password")
+        #send data
+        if any(self.data.values()):
+            logger.debug("data sent to main_controller.py")
+            self.data_created_password.emit(self.data)
         super().accept() 
         
 

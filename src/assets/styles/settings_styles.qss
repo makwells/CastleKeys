@@ -36,3 +36,19 @@ QCheckBox::indicator:checked{
      /* Можно задать кастомную иконку галочки */
     /* image: url(:/images/check.png);  */
 }
+
+QComboBox{
+    background-color: #111111;
+    border: 1px solid #D3D3D3;
+    border-radius: 4px;
+    width: 150px;
+    height: 20px;
+}
+
+QLineEdit{
+    background-color: #171717;
+    border: 1px solid #D3D3D3;
+    border-radius: 8px;
+    width: 150px;
+    height: 20px;
+}

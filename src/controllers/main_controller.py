@@ -10,14 +10,14 @@ from src.views import icons_set_color
 
 from src.models.database import database
 from src.models import Database_info
-from src.models import delete_password
+from src.models import hotkeys
 
-from src.setuplogger import logger
+from src.setuplogger import *
 from src import ConfigManager
 
 from datetime import datetime
 
-from src.models import hotkeys
+
 
 
 # FIXME Изменить логику редактирования пароля. Нужно сделать редактирование в реальном времени, также как и создание нового пароля.
@@ -62,6 +62,7 @@ class MainController():
         self._view.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
 
         hotkeys.HotKeys(self)   # Connect hotkeys
+        
 
 
     # select category
