@@ -17,5 +17,4 @@ class Search(QObject):
         data = {"text": self._view.search_le.text().strip()}
 
         #send data
-        if any(data.values()):
-            self.search_text.emit(data)
+        self.search_text.emit(data)

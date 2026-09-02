@@ -326,22 +326,15 @@ class MainController():
         Settings(self._view).exec()
 
     # seach
-    #TODO нужно разделить искомое слово на отдельные символы и сравнивать их с service, url, login или #tag. Скрывать неподходящие под поиск пароли и оставлять в дереве, только то, что подходит. 
     def find_password(self, data: dict):
         search_text = data.get("text", "")
 
-        print(search_text)
-
-        #Нужно скрывать все не подходящие под условие search пароли. 
         self._view.proxy_model.setRecursiveFilteringEnabled(True)
-        self._view.proxy_model.setFilterKeyColumn(0)  # Фильтр по названию сервиса
+        self._view.proxy_model.setFilterKeyColumn(0)  # Filter by service name
         self._view.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
 
-        # 3. ГЛАВНОЕ: Передаем текст в прокси-модель. 
-        # Она сама скроет всё лишнее и оставит только подходящие пароли.
+        # We pass the text to the proxy models. 
         self._view.proxy_model.setFilterFixedString(search_text)
-        
-        # 4. Опционально: автоматически раскрываем дерево, чтобы увидеть результаты
 
 
 

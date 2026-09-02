@@ -116,9 +116,9 @@ class CreateNewPassword(QDialog):
         #close window 
         logger.debug("Password")
         #send data
-        if any(self.data.values()):
-            logger.debug("data sent to main_controller.py")
-            self.data_created_password.emit(self.data)
+        # if any(self.data.values()):
+        logger.debug("data sent to main_controller.py")
+        self.data_created_password.emit(self.data)
         super().accept() 
         
 
