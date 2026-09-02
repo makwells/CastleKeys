@@ -1,6 +1,9 @@
+#backups.py
 import zipfile
 from datetime import datetime
+
 from src.config_manager import ConfigManager
+from src.setuplogger import *
 
 def backup():
     current_date = datetime.now().strftime("%Y-%m-%d|%H:%M")
@@ -8,6 +11,8 @@ def backup():
         backup_archive.write("config.toml")
         backup_archive.write("Passwords/passwords.db")
         backup_archive.write("themes/dark.toml")
+
+    logger.info(f"Backup {current_date}")
 
 
 def backup_timer():

@@ -1,11 +1,12 @@
 from PySide6.QtCore import *
 
-class Search:
+class Search(QObject):
     #Signals
     search_text = Signal(dict)
     finished = Signal()
 
-    def __init__(self, view):
+    def __init__(self, view, parent=None):
+        super().__init__(parent)
         self._view = view #MainWindow
         self.search()
 

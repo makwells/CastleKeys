@@ -61,43 +61,6 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(self.workspace_layout)
         self.central_widget.setLayout(main_layout)
     
-    def load_db(self):
-        init_db()                             
-        data = get_all_passwords()
-        
-        self.tree_model.clear()
-        
-        # TODO нужно писать при нажатии на корень дерева информацию о базе данных: объем базы данных, количество паролей итд. Нужно создать невидимые объекты QLabel и при нажатии на корень они стали видимыми, а если нажать на пароль, то снова невидимыми. 
-        self.root_item = QStandardItem("Passwords")
-        root_item_font = self.root_item.font()
-        root_item_font.setBold(True)
-        self.root_item.setFont(root_item_font)
-        
-        self.tree_model.appendRow(self.root_item)
-        
-        for row in data:
-            self.entry_id = row[0]
-            self.service_text = row[1]
-            self.url_text = row[2]
-            self.login_text = row[3]
-            self.password_text = row[4]
-            self.date_text = row[5] if len(row) > 4 else "Unknown"
-            self.description_text = row[6]
-
-            self.service_item = QStandardItem(self.service_text)
-
-            self.service_item.setData(self.entry_id, Qt.ItemDataRole.UserRole)
-            self.service_item.setData(self.login_text, Qt.ItemDataRole.UserRole + 1)
-            self.service_item.setData(self.url_text, Qt.ItemDataRole.UserRole + 2)
-            self.service_item.setData(self.password_text, Qt.ItemDataRole.UserRole + 3)
-            self.service_item.setData(self.date_text, Qt.ItemDataRole.UserRole + 4)
-            self.service_item.setData(self.description_text, Qt.ItemDataRole.UserRole + 5)
-
-            self.root_item.appendRow(self.service_item)
-            
-        self.tree_view.expandAll()
-        self.tree_view.isSortingEnabled()
-
     def apply_theme(self): #theme
         try:
             qss_styles = ConfigManager.get_main_style()
@@ -196,13 +159,16 @@ class MainWindow(QMainWindow):
         self.tree_view.setHeaderHidden(True) # Hide header 
         self.tree_view.setFixedWidth(250)    # Width
         self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
-        
+
         self.tree_model = QStandardItemModel()
 
-        # Привязываем созданную модель к отображению
-        self.tree_view.setModel(self.tree_model)
+        self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.tree_model)
+        
+        self.tree_view.setModel(self.proxy_model)
 
         self.left_layout.addWidget(self.tree_view)
+
 
     def workspace_right(self): #right workspace widgets
         logger.debug("Right workspace successfully loaded! ✅")
@@ -380,3 +346,39 @@ class MainWindow(QMainWindow):
 
         #TODO switch windows
         #Сделать анимацию при переходе между паролями, вкладками итд.
+   
+    def load_db(self):
+        init_db()                             
+        data = get_all_passwords()
+        
+        self.tree_model.clear()
+        
+        self.root_item = QStandardItem("Passwords")
+        root_item_font = self.root_item.font()
+        root_item_font.setBold(True)
+        self.root_item.setFont(root_item_font)
+        
+        self.tree_model.appendRow(self.root_item)
+        
+        for row in data:
+            self.entry_id = row[0]
+            self.service_text = row[1]
+            self.url_text = row[2]
+            self.login_text = row[3]
+            self.password_text = row[4]
+            self.date_text = row[5] if len(row) > 4 else "Unknown"
+            self.description_text = row[6]
+
+            self.service_item = QStandardItem(self.service_text)
+
+            self.service_item.setData(self.entry_id, Qt.ItemDataRole.UserRole)
+            self.service_item.setData(self.login_text, Qt.ItemDataRole.UserRole + 1)
+            self.service_item.setData(self.url_text, Qt.ItemDataRole.UserRole + 2)
+            self.service_item.setData(self.password_text, Qt.ItemDataRole.UserRole + 3)
+            self.service_item.setData(self.date_text, Qt.ItemDataRole.UserRole + 4)
+            self.service_item.setData(self.description_text, Qt.ItemDataRole.UserRole + 5)
+
+            self.root_item.appendRow(self.service_item)
+            
+        self.tree_view.expandAll()
+        self.tree_view.setSortingEnabled(True)

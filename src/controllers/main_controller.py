@@ -12,10 +12,10 @@ from src.models.database import database
 from src.models import Database_info
 from src.models import hotkeys
 
-from src.models import backups
-
 from src.setuplogger import *
 from src import ConfigManager
+
+from . import search
 
 from datetime import datetime
 
@@ -39,6 +39,9 @@ class MainController():
         self.config = self.config_manager.load_config()
 
         self._view = view #MainWindow
+        self.search_field = search.Search(self._view)
+
+        self.search_field.search_text.connect(self.find_password)
 
         self.service_name_ = None
         self.login_ = None
@@ -63,15 +66,17 @@ class MainController():
         self._view.edit_password_menu.triggered.connect(self._edit_password_clicked)  #edit password(menu)
         self._view.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
 
+        # self._view.search_le.textChanged.connect(self._search)
+
         hotkeys.HotKeys(self)      # Connect hotkeys
 
 
     # select category
     def _on_category_clicked(self, index): 
-
-        self.item = self._view.tree_model.itemFromIndex(index) #current element
-        item_name = self.item.text() #get text
-        self._view.title.setText(f"{item_name}".upper()) #change title
+        real_index = self._view.proxy_model.mapToSource(index)
+        self.item = self._view.tree_model.itemFromIndex(real_index) #current element
+        item_name = self.item.text()                           #get text
+        self._view.title.setText(f"{item_name}".upper())       #change title
         
 
         if self.item == self._view.root_item: # если выбран заголовок в пункте меню, то скрывать значения сервиса логина и пароля, вызвав функцию для просмотра информации о бд
@@ -144,6 +149,7 @@ class MainController():
         self.password_length = len(self.current_password)
         self.hide_password = "*" * self.password_length
 
+        #auto hide passwords
         if self.config["privacy"]["auto_hide_passwords"]:
             self.hide()
         else:
@@ -247,7 +253,6 @@ class MainController():
         if new_login != "": logger.debug(f"Received updated login data: {new_login}") # if login = Null return old data
         if new_password != "": logger.debug(f"Received updated password data: {new_password}")# if password = Null return old data
 
-
         # change in db
         success = database.update_password(
             password_id=self._view.entry_id,
@@ -321,12 +326,24 @@ class MainController():
         Settings(self._view).exec()
 
     # seach
-    def _search(self, data):
-        search_input_field = data.get("text", "")
+    #TODO нужно разделить искомое слово на отдельные символы и сравнивать их с service, url, login или #tag. Скрывать неподходящие под поиск пароли и оставлять в дереве, только то, что подходит. 
+    def find_password(self, data: dict):
+        search_text = data.get("text", "")
 
-        print(search_input_field)
+        print(search_text)
 
-        #TODO нужно разделить искомое слово на отдельные символы и сравнивать их с service, url, login или #tag. Скрывать неподходящие под поиск пароли и оставлять в дереве, только то, что подходит. 
+        #Нужно скрывать все не подходящие под условие search пароли. 
+        self._view.proxy_model.setRecursiveFilteringEnabled(True)
+        self._view.proxy_model.setFilterKeyColumn(0)  # Фильтр по названию сервиса
+        self._view.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+
+        # 3. ГЛАВНОЕ: Передаем текст в прокси-модель. 
+        # Она сама скроет всё лишнее и оставит только подходящие пароли.
+        self._view.proxy_model.setFilterFixedString(search_text)
+        
+        # 4. Опционально: автоматически раскрываем дерево, чтобы увидеть результаты
+
+
 
     # database information
     def db_information(self):

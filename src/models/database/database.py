@@ -1,11 +1,8 @@
 #database.py
 import sqlite3
-from loguru import logger
-from pathlib import Path
-import toml
 import os
 
-from src.setuplogger import setup_logger
+from src.setuplogger import *
 from src.config_manager import ConfigManager
 
 # TODO нужно сделать хеширование паролей
@@ -134,17 +131,9 @@ def update_password(password_id: int, service: str, url: str, login: str, passwo
         )
         password_db.commit()
         cursor.close()
-        # logger.success(f"Password ID {password_id} ('{service}') updated successfully")
         return True
             
     except sqlite3.Error as e:
         password_db.rollback()
         logger.error(f"Error updating password ID {password_id}: {e}")
         return False
-
-
-# def close_db():
-#     global password_db
-#     if password_db:
-#         password_db.close()
-#         logger.success("The database has been successfully closed")
