@@ -22,6 +22,7 @@ tree_text       = "#D3D3D3"
 tree_border     = "#222222"
 tree_selection  = "#333333"
 tree_selection_text = "#C7C7C7"
+tree_separator = ""
 
 [search]
 search_backgorund = "#111111"

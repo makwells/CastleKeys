@@ -67,26 +67,19 @@ class CreateNewPassword(QDialog):
         self.generate_password.setFixedSize(300, 30)
         self.generate_password.clicked.connect(self.generator_random_password)
 
-
         # buttons
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self.accept) 
         buttons.rejected.connect(self.reject) 
-
-        #interface elements for the second layout
-        new_password_input_layout_elements = {
-            "Service:": self.input_service,
-            "URL:": self.input_url,
-            "Login:": self.input_login,
-            "Password:": self.input_password
-        }
-
-        for new_input_name, new_input_elements in new_password_input_layout_elements.items():
-            self.new_password_input_layout.addRow(new_input_name, new_input_elements)
         
         self.new_password_layout.addWidget(message)
+        self.new_password_input_layout.addRow("Service:", self.input_service)
+        self.new_password_input_layout.addRow("URL:", self.input_url)
+        self.new_password_input_layout.addRow("Login:", self.input_login)
+        self.new_password_input_layout.addRow("Password:", self.input_password)
+
         self.new_password_layout.addLayout(self.new_password_input_layout)
         self.new_password_layout.addWidget(self.generate_password, alignment=Qt.AlignHCenter)
         self.new_password_layout.addWidget(buttons)
@@ -106,20 +99,15 @@ class CreateNewPassword(QDialog):
             "password": self.input_password.text().strip(),
         }
 
-        #real-time update
-        # if any(self.data.values()):
-        #     logger.debug("data sent to main_controller.py")
-        #     self.data_created_password.emit(self.data)
-
-
     def accept(self):
         #close window 
         logger.debug("Password")
-        #send data
-        # if any(self.data.values()):
+
+        #data sent to main controller 
         logger.debug("data sent to main_controller.py")
         self.data_created_password.emit(self.data)
-        super().accept() 
+        #close window and save password
+        super().accept()  
         
 
     #close the window without entering a new password

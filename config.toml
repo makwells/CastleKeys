@@ -3,7 +3,7 @@
 theme = "dark.toml"
 font_family = ""
 font_family_text = ""
-language = "en"
+language = ""
 notifications = true
 welcome_logo = "src/assets/images/knight.png"
 welcome_logo_width = 300

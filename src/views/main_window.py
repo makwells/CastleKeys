@@ -377,7 +377,7 @@ class MainWindow(QMainWindow):
             self.service_item.setData(self.password_text, Qt.ItemDataRole.UserRole + 3)
             self.service_item.setData(self.date_text, Qt.ItemDataRole.UserRole + 4)
             self.service_item.setData(self.description_text, Qt.ItemDataRole.UserRole + 5)
-
+            
             self.root_item.appendRow(self.service_item)
             
         self.tree_view.expandAll()

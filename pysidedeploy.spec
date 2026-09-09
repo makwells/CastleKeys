@@ -4,10 +4,10 @@
 title = CastleKeys
 
 # project root directory. default = The parent directory of input_file
-project_dir = .
+project_dir = /Users/mkws/dev/python/CastleKeys
 
 # source file entry point path. default = main.py
-input_file = main.py
+input_file = pysidedeploy.spec
 
 # directory where the executable output is generated
 exec_directory = .

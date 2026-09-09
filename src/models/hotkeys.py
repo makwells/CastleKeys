@@ -8,7 +8,8 @@ def HotKeys(self):
         "del_password": self.config["hotkeys"].get("del_password", "Ctrl+Backspace"),
         "hide_password": self.config["hotkeys"].get("hide_password", "Ctrl+G"),
         "settings": self.config["hotkeys"].get("settings", "Ctrl+I"),
-        "main_menu": self.config["hotkeys"].get("main_menu", "Escape")
+        "main_menu": self.config["hotkeys"].get("main_menu", "Escape"),
+        "search": self.config["hotkeys"].get("search", "Ctrl+F")
     }
 
     if hotkeys["new_password"]:
@@ -34,3 +35,9 @@ def HotKeys(self):
     if hotkeys["main_menu"]:
         self.shortcut_main_menu = QShortcut(QKeySequence(hotkeys["main_menu"]), self._view)
         self.shortcut_main_menu.activated.connect(self.main_menu)
+
+    if hotkeys["search"]:
+        self.shortcut_search = QShortcut(QKeySequence(hotkeys["search"]), self._view)
+        self._view.search_le.setFocus()
+
+        

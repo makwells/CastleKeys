@@ -48,6 +48,11 @@ QMainWindow{
 }
 
 
+#LeftWorkspace::item:hover{
+    background-color: #656565;
+
+}
+
 #RightWorkspace{
     background-color: @r_workspace_background;
     border: 1px solid @r_workspace_border;

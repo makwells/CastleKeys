@@ -8,8 +8,8 @@ from src.config_manager import ConfigManager
 from src.models import generate_password
 
 class Edit_Password(QDialog):
-
-    data_edit_password = Signal(object)
+    password_edited = Signal(object)
+    data_edit_password = Signal(dict)
     finished = Signal()
 
     def __init__(self, parent=None):
@@ -17,41 +17,43 @@ class Edit_Password(QDialog):
 
         dialog_style = ConfigManager.get_dialog_style()
         self.setStyleSheet(dialog_style)
-
-        self.setWindowTitle("Edit password")
-        self.setFixedSize(400, 400)
+        logger.debug(f"Styles for {__name__} has been loaded")
 
         self.edit_password_ui()
     
     def edit_password_ui(self):
-        self.edit_password_layout = QVBoxLayout()
+        logger.success("The edit password dialog box has been loaded")
+        self.setWindowTitle("Edit password") #title
+        self.setFixedSize(400, 400)          #window size 
 
-        self.edit_input_layout = QFormLayout() 
-        self.edit_input_layout.setFormAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        self.edit_password_layout = QVBoxLayout() #main window lahyout 
+        self.edit_input_layout = QFormLayout()    #second window layout 
+        #settings second window layout
+        self.edit_input_layout.setFormAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop) 
         self.edit_input_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
         self.edit_input_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
-
+        #message
         message = QLabel(f"Edit password")
-        message.setStyleSheet("font-weight: bold;")
-        message.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        message.setStyleSheet("font-weight: bold;") #message font bold paramenter
+        message.setAlignment(Qt.AlignmentFlag.AlignCenter) #message aligment
         
-        self.edit_input_service = QLineEdit()
-        self.edit_input_url = QLineEdit()
-        self.edit_input_login = QLineEdit()
-        self.edit_input_password = QLineEdit()
-        
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
-        buttons.accepted.connect(self.accept) # Triggers QDialog built-in accept state
-        buttons.rejected.connect(self.reject) # Triggers QDialog built-in reject state
-
+        self.edit_input_service = QLineEdit()  #service input field
+        self.edit_input_url = QLineEdit()      #url input field
+        self.edit_input_login = QLineEdit()    #login input field
+        self.edit_input_password = QLineEdit() #password input field
 
         #generate_random_password button 
         self.generate_password = QPushButton("Generate random password")
         self.generate_password.setFixedSize(300, 30)
         self.generate_password.clicked.connect(self.generator_random_password)
+        
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
 
         edit_input_layout_elements = {
             "Rename service:":self.edit_input_service,
@@ -64,6 +66,11 @@ class Edit_Password(QDialog):
             self.edit_input_layout.addRow(edit_input_name, edit_input_elements)
 
         self.edit_password_layout.addWidget(message)
+        self.edit_input_layout.addRow("Service:", self.edit_input_service)
+        self.edit_input_layout.addRow("URL:", self.edit_input_url)
+        self.edit_input_layout.addRow("Login:", self.edit_input_login)
+        self.edit_input_layout.addRow("Password:", self.edit_input_password)
+
         self.edit_password_layout.addLayout(self.edit_input_layout)
         self.edit_password_layout.addWidget(buttons)
         self.edit_password_layout.addWidget(self.generate_password, alignment=Qt.AlignHCenter)
