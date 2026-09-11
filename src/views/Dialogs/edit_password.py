@@ -55,15 +55,15 @@ class Edit_Password(QDialog):
         buttons.rejected.connect(self.reject)
 
 
-        edit_input_layout_elements = {
-            "Rename service:":self.edit_input_service,
-            "Rename URL:":self.edit_input_url,
-            "Rename login:":self.edit_input_login,
-            "Rename password:":self.edit_input_password
-        }
+        # edit_input_layout_elements = {
+        #     "Rename service:":self.edit_input_service,
+        #     "Rename URL:":self.edit_input_url,
+        #     "Rename login:":self.edit_input_login,
+        #     "Rename password:":self.edit_input_password
+        # }
 
-        for edit_input_name, edit_input_elements in edit_input_layout_elements.items():
-            self.edit_input_layout.addRow(edit_input_name, edit_input_elements)
+        # for edit_input_name, edit_input_elements in edit_input_layout_elements.items():
+        #     self.edit_input_layout.addRow(edit_input_name, edit_input_elements)
 
         self.edit_password_layout.addWidget(message)
         self.edit_input_layout.addRow("Service:", self.edit_input_service)

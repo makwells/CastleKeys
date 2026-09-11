@@ -13,56 +13,55 @@ class ConfigManager:
     def config_path(self):
         is_frozen = getattr(sys, "frozen", False)
         # если приложение скомпилировано
-        if is_frozen:
-            # если приложение запущено на windows
-            if sys.platform == "win32":
-                # path to base dir for windows
-                base_dir = Path(os.environ.get("APPDATA", Path.home())) / app_name 
-            # если приложение запущено на mac или linux
+        # if is_frozen:
+        if sys.platform == "win32": # path for windows
+            base_dir = Path(os.environ.get("APPDATA", Path.home())) / "CastleKeys"
+        else: # path for macos or linux system
+            base_dir = Path.home() / ".config" / "CastleKeys" 
+            source_dir = Path.home() / "Library/" / "Application Support" / "CastleKeys"
+
+        themes_dir = base_dir / "themes"               # path to themes dir
+
+        # create config/themes dir in ~/.config/CastleKeys
+        base_dir.mkdir(parents=True, exist_ok=True)    
+
+        # create dir ~/.config/CastleKeys/themes/
+        themes_dir.mkdir(parents=True, exist_ok=True)
+        # create dir ~/Library/Application Support/CastleKeys
+        source_dir.mkdir(parents=True, exist_ok=True)  
+
+        user_config = base_dir / "config.toml"         # path for user config.toml
+        # user_database = source_dir / "passwords.db"    # path for user passwords.db
+        user_dark_theme = themes_dir / "dark.toml"     # path for user dark.toml theme
+        user_light_theme = themes_dir / "light.toml"   # path for user light.toml theme
+
+        bundle_dir = Path(getattr(sys, "_MEIPASS", os.path.dirname(sys.argv[0])))
+
+        if not user_config.exists():      # copy default config from project dir
+            logger.success("Config.toml has been successfully created")
+            default_config = bundle_dir / "config.toml"
+
+            if default_config.exists():
+                # если дефолтный кофиг создан, то копировать его в папку с ~/.config
+                shutil.copy(default_config, user_config)
             else:
-                base_dir = Path.home() / ".config" / "CastleKeys" # path to base dir for macos or linux system
+                user_config.touch()
+        if not user_dark_theme.exists():  # copy default dark theme from project dir
+            logger.success("dark.toml has been successfully created")
+            default_themes = bundle_dir / "themes" / "dark.toml"
 
-            logger.debug(f"OS: {sys.platform}") 
+            if default_themes.exists():
+                # copy default dark theme from project dir
+                shutil.copy(default_themes, user_dark_theme) 
+        if not user_light_theme.exists(): # copy default light theme from project dir
+            logger.success("light.toml has been successfully created")
+            default_themes = bundle_dir / "themes" / "light.toml"
 
-            themes_dir = base_dir / "themes"               # path to themes dir
+            if default_themes.exists():
+                # copy default light theme from project dir
+                shutil.copy(default_themes, user_light_theme)
 
-            base_dir.mkdir(parents=True, exist_ok=True)    # create config/themes dir in ~/.config/CastleKeys
-            themes_dir.mkdir(parents=True, exist_ok=True)  # create dir ~/.config/CastleKeys/themes/
-
-            user_config = base_dir / "config.toml"         # path for user config.toml
-            
-            user_dark_theme = themes_dir / "dark.toml"     # path for user dark theme
-            user_light_theme = themes_dir / "light.toml"   # path for user light theme
-
-
-            # создание конфига, если он еще не создан
-            if not user_config.exists():  
-                bundle_dir = Path(getattr(sys, "_MEIPASS", os.path.dirname(sys.argv[0])))
-                default_config = bundle_dir / "config.toml"
-
-                if default_config.exists():
-                    # если дефолтный кофиг создан, то копировать его в папку с ~/.config
-                    shutil.copy(default_config, user_config)
-                else:
-                    user_config.touch()
-
-            if not user_dark_theme.exists():
-                bundle_dir = Path(getattr(sys, "_MEIPASS", os.path.dirname(sys.argv[0])))
-                default_themes = bundle_dir / "themes" / "dark.toml"
-
-                if default_themes.exists():
-                    # copy default dark theme from project dir
-                    shutil.copy(default_themes, user_dark_theme) 
-
-            if not user_light_theme.exists():
-                bundle_dir = Path(getattr(sys, "_MEIPASS", os.path.dirname(sys.argv[0])))
-                default_themes = bundle_dir / "themes" / "light.toml"
-
-                if default_themes.exists():
-                    # copy default light theme from project dir
-                    shutil.copy(default_themes, user_light_theme)
-
-            return user_config
+        return user_config
         
         # если приложение не скомпилировано, то конфиг будет читаться с корневой папки проекта. Режим разработки
         project_root = Path(sys.argv[0]).resolve().parent
