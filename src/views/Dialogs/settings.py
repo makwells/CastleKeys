@@ -15,7 +15,7 @@ class Settings(QDialog):
         self.config = self.config_manager.load_config()
 
         #init theme
-        styles_path = ConfigManager.get_resource_path("src/assets/styles/settings_styles.qss")
+        styles_path = self.config_manager.get_resource_path("src/assets/styles/settings_styles.qss")
         with open(styles_path, "r", encoding="utf-8") as styles_file:
             self.setStyleSheet(styles_file.read())
 

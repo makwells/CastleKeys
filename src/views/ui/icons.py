@@ -7,8 +7,9 @@ import os
 
 
 def icons_set_color(icon_name: str, color_hex: str, size: QSize) -> QIcon:
+    config_manager = ConfigManager()
     relative_path = os.path.join("src", "assets", "icons", icon_name)
-    icon_path = ConfigManager.get_resource_path(relative_path)
+    icon_path = config_manager.get_resource_path(relative_path)
 
     pixmap = QPixmap(icon_path).scaled(
     size, 

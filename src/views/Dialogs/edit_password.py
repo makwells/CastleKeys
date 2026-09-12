@@ -54,26 +54,17 @@ class Edit_Password(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 
-
-        # edit_input_layout_elements = {
-        #     "Rename service:":self.edit_input_service,
-        #     "Rename URL:":self.edit_input_url,
-        #     "Rename login:":self.edit_input_login,
-        #     "Rename password:":self.edit_input_password
-        # }
-
-        # for edit_input_name, edit_input_elements in edit_input_layout_elements.items():
-        #     self.edit_input_layout.addRow(edit_input_name, edit_input_elements)
+        buttons.setFixedSize(300, 30)
 
         self.edit_password_layout.addWidget(message)
-        self.edit_input_layout.addRow("Service:", self.edit_input_service)
-        self.edit_input_layout.addRow("URL:", self.edit_input_url)
-        self.edit_input_layout.addRow("Login:", self.edit_input_login)
-        self.edit_input_layout.addRow("Password:", self.edit_input_password)
+        self.edit_input_layout.addRow("Rename Service:", self.edit_input_service)
+        self.edit_input_layout.addRow("Rename URL:", self.edit_input_url)
+        self.edit_input_layout.addRow("Rename Login:", self.edit_input_login)
+        self.edit_input_layout.addRow("Rename Password:", self.edit_input_password)
 
         self.edit_password_layout.addLayout(self.edit_input_layout)
-        self.edit_password_layout.addWidget(buttons)
         self.edit_password_layout.addWidget(self.generate_password, alignment=Qt.AlignHCenter)
+        self.edit_password_layout.addWidget(buttons)
 
         self.setLayout(self.edit_password_layout)
         

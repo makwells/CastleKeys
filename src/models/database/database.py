@@ -13,29 +13,14 @@ def init_db():
     setup_logger()
     global password_db
     global config
-        
-    # Path("logs").mkdir(exist_ok=True)
 
     #config
     config_manager = ConfigManager()
     config = config_manager.load_config()
-
-    db_dir = config["database"]["database_dir"]
     
-    # if db_dir.startswith(".") or not db_dir.startswith("/"):
-    #     home_dir = os.path.expanduser("~")
-    #     db_dir = os.path.join(home_dir, ".castlekeys", db_dir.replace("./", ""))
-    if not os.path.isabs(db_dir):
-        db_dir = os.path.abspath(db_dir)
+    db_path = config_manager.database_get_path() # path for database
 
-    # 3. Создаем структуру папок
-    os.makedirs(db_dir, exist_ok=True)
-    
-    # 4. Формируем единый чистый путь к файлу базы данных
-    db_path = os.path.join(db_dir, "passwords.db")
-
-    # ИСПРАВЛЕНИЕ: Подключаемся строго по созданному db_path
-    password_db = sqlite3.connect(db_path) 
+    password_db = sqlite3.connect(db_path) # create and connect to a database
     cursor = password_db.cursor()
         
     cursor.execute("""
@@ -50,7 +35,7 @@ def init_db():
             )
         """)
     password_db.commit()
-    logger.success("The database is connected ✅")
+    # logger.success("The database is connected ✅")
 
 
 def add_password(service: str, url: str, login: str, password: str) -> int:

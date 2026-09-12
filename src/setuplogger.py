@@ -4,17 +4,17 @@ import sys
 
 def setup_logger():
 
-    # Очищаем дефотные настройки
+    # clear settings 
     logger.remove()
 
-    # Вывод в консоль
+    # output console
     logger.add(
         sys.stdout,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <red>{file}</red>:<cyan>{function}</cyan>:<blue>{line}</blue> - <level>{message}</level>",
         level="DEBUG"
     )
 
-    # Запись логов в файл
+    # write file 
     logger.add(
         "logs/CastleKeys.log",             # Путь к файлу (папка logs создастся сама)
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {file}:{function}:{line} - {message}",

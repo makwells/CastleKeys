@@ -22,3 +22,7 @@ class Animations:
         else: return 
 
     #TODO Добавить анимацию при переходе между менюшками, переход на главный экран итд. 
+    def windows_transitions(self):
+        ... 
+
+    

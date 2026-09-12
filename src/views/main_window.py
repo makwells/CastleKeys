@@ -11,6 +11,7 @@ from src.views.ui.animations.animations import Animations
 from src.views.ui.icons import icons_set_color
 
 from src.views.ui.notifications.notifications_window import *
+from pathlib import Path
 
 
 class MainWindow(QMainWindow):
@@ -23,7 +24,7 @@ class MainWindow(QMainWindow):
         logger.debug("Config successfully loaded ✅")
         
         #themes dir
-        self.themes_dir = ConfigManager.get_resource_path("themes/")
+        self.themes_dir = self.config_manager.get_resource_path("themes/")
         self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
 
         self.ui()                             # load ui
@@ -63,8 +64,8 @@ class MainWindow(QMainWindow):
     
     def apply_theme(self): #theme
         try:
-            qss_styles = ConfigManager.get_main_style()
-            self.setStyleSheet(qss_styles)  
+            style = self.config_manager.get_main_style()
+            self.setStyleSheet(style)  
             logger.debug(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
         except Exception as e:
             logger.error(f"Failed to apply theme {self.current_theme}: {e}")
@@ -252,7 +253,7 @@ class MainWindow(QMainWindow):
         self.welcome_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         welcome_logo_path = self.config["view"]["welcome_logo"]
-        pixmap = QPixmap(ConfigManager.get_resource_path(welcome_logo_path))
+        pixmap = QPixmap(self.config_manager.get_resource_path(welcome_logo_path))
         
         
         if not pixmap.isNull():
