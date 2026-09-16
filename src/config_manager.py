@@ -7,10 +7,21 @@ from src.setuplogger import logger
 
 class ConfigManager:
     def __init__(self):
-        self.bundle_dir = Path(getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(sys.argv[0]))))
+        # Универсальное определение корня приложения для Разработки, PyInstaller и Nuitka
+        if getattr(sys, 'frozen', False) or '__compiled__' in globals():
+            # В скомпилированном бандле sys.argv[0] указывает на бинарник в Contents/MacOS/
+            self.bundle_dir = Path(sys.argv[0]).parent
+        else:
+            # В режиме разработки — корень проекта (на один уровень выше папки src)
+            self.bundle_dir = Path(__file__).resolve().parent.parent
+
         self.config = self._get_config_path()
         self.theme_path = self._get_theme_path()
         self.database_path = self.database_get_path()
+
+    def get_resource_path(self, relative_path):
+        """Возвращает гарантированный абсолютный путь к ресурсу внутри бандла приложения."""
+        return str(self.bundle_dir / relative_path)
 
     def _get_config_path(self):
         # 1. Определяем базовые директории в зависимости от ОС
@@ -23,7 +34,6 @@ class ConfigManager:
             
         self.source_dir = self.base_dir  # БД и конфиг храним в одной базовой директории
 
-        # 2. Создаем директории
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.source_dir.mkdir(parents=True, exist_ok=True)
 
@@ -31,19 +41,13 @@ class ConfigManager:
         user_config = self.base_dir / "config.toml"
         
         if not user_config.exists():
-            default_config = self.bundle_dir / "config.toml"
+            default_config = Path(self.get_resource_path("config.toml"))
             if default_config.exists():
                 shutil.copy(default_config, user_config)
                 logger.success("Config.toml has been successfully created from bundle")
             else:
-                # Fallback для режима разработки, если в bundle нет
-                dev_config = Path(__file__).resolve().parent.parent / "config.toml"
-                if dev_config.exists():
-                    shutil.copy(dev_config, user_config)
-                    logger.success("Config.toml has been successfully created from dev folder")
-                else:
-                    user_config.touch()
-                    logger.warning("Created empty config.toml")
+                user_config.touch()
+                logger.warning("Created empty config.toml")
                     
         return user_config
 
@@ -51,8 +55,6 @@ class ConfigManager:
         user_database = self.source_dir / "passwords.db"
         if not user_database.exists():
             logger.success("Database will be created on first use")
-        # else:
-        #     logger.info("Database already exists")
         return user_database
 
     def _get_theme_path(self):
@@ -62,13 +64,10 @@ class ConfigManager:
         user_dark_theme = themes_dir / "dark.toml"
         user_light_theme = themes_dir / "light.toml"
 
-        # Копируем темы из bundle или dev-окружения, если их нет
+        # Копируем темы из bundle, если их нет у пользователя
         for theme_name, user_theme_path in [("dark.toml", user_dark_theme), ("light.toml", user_light_theme)]:
             if not user_theme_path.exists():
-                default_theme = self.bundle_dir / "themes" / theme_name
-                if not default_theme.exists():
-                    # Fallback для разработки
-                    default_theme = Path(__file__).resolve().parent.parent / "themes" / theme_name
+                default_theme = Path(self.get_resource_path(os.path.join("themes", theme_name)))
                 
                 if default_theme.exists():
                     shutil.copy(default_theme, user_theme_path)
@@ -77,8 +76,6 @@ class ConfigManager:
                     user_theme_path.touch()
                     logger.warning(f"Created empty {theme_name}")
 
-        # TODO: В будущем здесь можно читать config["view"]["theme"] и возвращать нужную тему
-        # Пока возвращаем темную по умолчанию
         return user_dark_theme
 
     def load_config(self):
@@ -89,16 +86,8 @@ class ConfigManager:
             logger.error(f"Error reading config: {e}")
             return {}
 
-    def get_resource_path(self, relative_path):
-        """Возвращает абсолютный путь к ресурсу, учитывая сборку PyInstaller."""
-        if hasattr(sys, '_MEIPASS'):
-            return os.path.join(sys._MEIPASS, relative_path)
-        return os.path.abspath(relative_path)
-
     def _get_replacements(self):
         """Приватный метод: читает config и тему, возвращает словарь замен."""
-        config_data = self.load_config()
-        
         try:
             with open(self.theme_path, "r", encoding="utf-8") as theme_file:
                 theme_data = toml.load(theme_file)
@@ -119,8 +108,7 @@ class ConfigManager:
         return replacements
 
     def _apply_replacements(self, template, replacements):
-        """Приватный метод: применяет словарь замен к QSS-шаблону."""
-        # Сортируем по длине, чтобы длинные маркеры заменились раньше коротких
+        """Приватный метод: применяется словарь замен к QSS-шаблону."""
         sorted_markers = sorted(replacements.keys(), key=len, reverse=True)
         for marker in sorted_markers:
             color = replacements[marker]
@@ -147,5 +135,6 @@ class ConfigManager:
     def get_dialog_style(self):
         """Возвращает готовые стили для диалоговых окон."""
         replacements = self._get_replacements()
-        template = self._load_qss(os.path.join("src", "assets", "styles", "dialog_styles.qss"))
+        # В логе падения у вас искался файл settings_styles.qss. Убедитесь, что имя совпадает с dialog_styles.qss
+        template = self._load_qss(os.path.join("src", "assets", "styles", "settings_styles.qss"))
         return self._apply_replacements(template, replacements)
