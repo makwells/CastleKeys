@@ -4,10 +4,10 @@
 title = CastleKeys
 
 # project root directory. default = The parent directory of input_file
-project_dir = /Users/mkws/dev/python/CastleKeys
+project_dir = .
 
 # source file entry point path. default = main.py
-input_file = pysidedeploy.spec
+input_file = main.py
 
 # directory where the executable output is generated
 exec_directory = .
@@ -16,7 +16,7 @@ exec_directory = .
 project_file = 
 
 # application icon
-icon = /Users/mkws/dev/python/CastleKeys/venv/lib/python3.13/site-packages/PySide6/scripts/deploy_lib/pyside_icon.icns
+icon = /Users/mkws/dev/python/CastleKeys/src/assets/icons/CastleKeys.icns
 
 [python]
 
@@ -65,10 +65,10 @@ plugins =
 macos.permissions = 
 
 # mode of using nuitka. accepts standalone or onefile. default = onefile
-mode = standalone
+mode = onefile
 
 # specify any extra nuitka arguments
-extra_args = --quiet --noinclude-qt-translations --include-data-file=config.toml=config.toml --include-data-dir=themes=themes --include-data-dir=src=src --disable-ccache
+extra_args = --quiet --noinclude-qt-translations
 
 [buildozer]
 
