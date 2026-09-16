@@ -47,11 +47,10 @@ class MainWindow(QMainWindow):
 
         self.central_widget = QWidget()       # Central widget
         self.workspace_container = QWidget()
-
-        self.setCentralWidget(self.central_widget)
-
         self.workspace_layout = QHBoxLayout()
         main_layout = QVBoxLayout()
+
+        self.setCentralWidget(self.central_widget)
 
         self.tool_container.setLayout(self.tool_layout)
 
@@ -315,7 +314,7 @@ class MainWindow(QMainWindow):
         for db_information_elements in right_workspace_db_information_elements:
             self.right_layout.addWidget(db_information_elements)
             db_information_elements.hide()
-
+        
         self.right_container.setLayout(self.right_layout)
 
     def db_information(self): #database information widgets

@@ -15,18 +15,18 @@ class CreateNewPassword(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
         #styles
-        dialog_style = ConfigManager.get_dialog_style()
+        config_manager = ConfigManager()
+        dialog_style = config_manager.get_dialog_style()
         self.setStyleSheet(dialog_style)
         logger.debug(f"Styles for {__name__} has been loaded")
 
-        self.new_password_ui() #start ui
+        self.new_password_window() #start ui
         
-    def new_password_ui(self): #ui
+    def new_password_window(self): #ui
         logger.success("The new password creation dialog box has been loaded")
         self.setWindowTitle("New password") #title
-        self.setFixedSize(400, 400)         #window size
+        self.setFixedSize(400, 400) #window size
 
         self.new_password_layout = QVBoxLayout() #main window layout
         self.new_password_input_layout = QFormLayout() #second window layout
@@ -92,7 +92,7 @@ class CreateNewPassword(QDialog):
 
     def _on_realtime_save(self):
         #send data to the controller whenever the text changes
-        self.data = {
+        self.create_new_password_data = {
             "service": self.input_service.text().strip(),
             "url": self.input_url.text().strip(),
             "login": self.input_login.text().strip(),
@@ -105,8 +105,12 @@ class CreateNewPassword(QDialog):
 
         #data sent to main controller 
         logger.debug("data sent to main_controller.py")
-        self.data_created_password.emit(self.data)
-        #close window and save password
+        try:        
+            self.data_created_password.emit(self.create_new_password_data)
+        except Exception as e:
+            logger.warning("Data is empty. The password was not added!")
+    
+        #close windowm
         super().accept()  
         
 

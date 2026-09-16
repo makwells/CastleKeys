@@ -96,6 +96,21 @@ def get_all_passwords() -> list:
         logger.error(f"Error fetching passwords: {e}")
         return []
 
+def get_count_passwords() -> int:
+    global password_db
+    if password_db is None:
+        logger.error("Database not initialized!")
+        return 0
+    try:
+        cursor = password_db.cursor()
+        cursor.execute("SELECT COUNT(*) FROM passwords")
+        result = cursor.fetchone()
+        password_count = result[0] if result else 0
+        return password_count
+    except sqlite3.Error as e:
+        logger.error(f"Error fetching passwords: {e}")
+        return 0
+
 def update_password(password_id: int, service: str, url: str, login: str, password: str) -> bool:
     global password_db
     
@@ -105,7 +120,6 @@ def update_password(password_id: int, service: str, url: str, login: str, passwo
         
     try:
         cursor = password_db.cursor()
-        # Выполняем SQL-запрос UPDATE по конкретному id
         cursor.execute(
             """
             UPDATE passwords 

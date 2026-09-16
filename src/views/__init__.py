@@ -7,4 +7,5 @@ from .ui.notifications.notifications_window import Notifications
 
 from .Dialogs.create_new_password import CreateNewPassword
 from .Dialogs.edit_password import Edit_Password
+from .Dialogs.password_confirmation import Password_Confirmation
 from .Dialogs.settings import Settings

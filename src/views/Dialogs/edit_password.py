@@ -15,7 +15,8 @@ class Edit_Password(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        dialog_style = ConfigManager.get_dialog_style()
+        config_manager = ConfigManager()
+        dialog_style = config_manager.get_dialog_style()
         self.setStyleSheet(dialog_style)
         logger.debug(f"Styles for {__name__} has been loaded")
 
@@ -67,29 +68,25 @@ class Edit_Password(QDialog):
         self.edit_password_layout.addWidget(buttons)
 
         self.setLayout(self.edit_password_layout)
-        
-    def accept(self):
-        self._save_edit()
 
     def generator_random_password(self):
         _gen_password = generate_password.generate_random_password(15)
         self.edit_input_password.setText(_gen_password)
 
     def _save_edit(self):
-        # Получаем новые данные
-        service  = self.edit_input_service.text().strip()
-        url      = self.edit_input_url.text().strip()
-        login    = self.edit_input_login.text().strip()
-        password = self.edit_input_password.text().strip()
-
         # write new data
-        data = {
-            "service": service,
-            "url": url,
-            "login": login,
-            "password": password,
+        self.edit_password_data = {
+            "service":  self.edit_input_service.text().strip(),
+            "url":      self.edit_input_url.text().strip(),
+            "login":    self.edit_input_login.text().strip(),
+            "password": self.edit_input_password.text().strip(),
         }
+        
+    def accept(self):
+        try:
+            self.data_edit_password.emit(self.edit_password_data) #send new data
+            self.finished.emit() #finish thread
+        except Exception as e:
+            logger.warning("Data is empty. The password was not added!")
 
-        self.data_edit_password.emit(data) #send new data
-        self.finished.emit()               #finish thread
         super().accept()

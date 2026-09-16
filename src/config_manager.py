@@ -10,6 +10,7 @@ class ConfigManager:
         self.bundle_dir = Path(getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(sys.argv[0]))))
         self.config = self._get_config_path()
         self.theme_path = self._get_theme_path()
+        self.database_path = self.database_get_path()
 
     def _get_config_path(self):
         # 1. Определяем базовые директории в зависимости от ОС
@@ -50,8 +51,8 @@ class ConfigManager:
         user_database = self.source_dir / "passwords.db"
         if not user_database.exists():
             logger.success("Database will be created on first use")
-        else:
-            logger.info("Database already exists")
+        # else:
+        #     logger.info("Database already exists")
         return user_database
 
     def _get_theme_path(self):

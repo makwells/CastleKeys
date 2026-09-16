@@ -3,7 +3,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 
-from src.views.Dialogs.create_new_password import CreateNewPassword
+from src.views import CreateNewPassword
+from src.views import Password_Confirmation
 from src.views import Settings
 from src.views import Edit_Password
 from src.views import icons_set_color
@@ -20,12 +21,9 @@ from . import search
 from datetime import datetime
 
 
-
-
 # FIXME Изменить логику редактирования пароля. Нужно сделать редактирование в реальном времени, также как и создание нового пароля.
 # FIXME если пароль изменить, а после пару раз скрыть и открыть пароль, то пароль в интерфейсе заменяется на старое значение, при этом он меняется только в интерфейсе, в базе данных он не изменяется. Дело в функции редактирования пароля или в скрытии. После перезапуска создается два экземпляра паролей, с одинаковыми данными, кроме пароля. 
 
-# TODO Добавление стилей для диалоговых окон. 
 # TODO Создать подтверждения пароля от базы данных.  
 # TODO добавить окно с информацией о бд. Чтобы зайти в это окно, нужно будет ввести логин и пароль от базы данных. Там же их можно будет и поменять. 
 # TODO Сделать уведомления, которые будут всплывать, когда пользователь будет взаимодействовать с программой: "Пароль успешно создан", "Пароль успешно удален". Но эти уведомления должны быть всплывающими в интерфейсе самой программы, а не системно. Перекрывая часть интерфейса(пример vscode). Добавить возможность менять углы(левый верхний, правый нижний итд)
@@ -346,13 +344,17 @@ class MainController():
         self._view.db_count_dublicate.show()
         self._view.db_login.show()
         self._view.db_password.show()
+
+        get_database_path = self.config_manager.database_get_path()
         
-        self._view.db_size_lb.setText(f"Database size: {Database_info.db_size(self, "Passwords/passwords.db")}") #database size
+        self._view.db_size_lb.setText(f"Database size: {Database_info.db_size(self, f"{get_database_path}")}") #database size
+        self._view.path_to_db.setText(f"Database path: {get_database_path}") #database path
+        self._view.db_count_passwords.setText(f"Database count passwords: {database.get_count_passwords()}") #database count passwords
 
     # hide/show passwords
     def hide(self, checked=None): 
         icon_size = QSize(24, 24)
-    
+
         if not self._view.hide_password_btn_state:
             self._view.password_lb.setText("Password: " + self.hide_password) 
             self._view.hide_password_btn.setText("")
@@ -363,6 +365,10 @@ class MainController():
             self._view.hide_password_btn_state = True
             logger.debug("Password hidden")
         else:
+            # TODO password confirmation
+            # confirmation = Password_Confirmation()
+            # confirmation.exec()
+
             self._view.password_lb.setText(self.current_password)
             self._view.hide_password_btn.setText("")
             self._view.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
