@@ -7,20 +7,25 @@ from src.setuplogger import logger
 
 class ConfigManager:
     def __init__(self):
-        # Универсальное определение корня приложения для Разработки, PyInstaller и Nuitka
-        if getattr(sys, 'frozen', False) or '__compiled__' in globals():
-            # В скомпилированном бандле sys.argv[0] указывает на бинарник в Contents/MacOS/
-            self.bundle_dir = Path(sys.argv[0]).parent
+        # 1. Находим папку, где физически лежит текущий файл config_manager.py
+        current_file_dir = Path(__file__).resolve().parent
+
+        # 2. Гарантируем, что self.bundle_dir всегда указывает на КОРЕНЬ проекта (где папка src ТОЛЬКО НАЧИНАЕТСЯ)
+        if current_file_dir.name == "src":
+            self.bundle_dir = current_file_dir.parent
+        elif current_file_dir.parent.name == "src":
+            # На случай, если config_manager.py лежит в подпапке, например, src/utils/ или src/core/
+            self.bundle_dir = current_file_dir.parent.parent
         else:
-            # В режиме разработки — корень проекта (на один уровень выше папки src)
-            self.bundle_dir = Path(__file__).resolve().parent.parent
+            self.bundle_dir = current_file_dir
 
         self.config = self._get_config_path()
         self.theme_path = self._get_theme_path()
         self.database_path = self.database_get_path()
+        self.logs_path = self._get_logs_path()
 
     def get_resource_path(self, relative_path):
-        """Возвращает гарантированный абсолютный путь к ресурсу внутри бандла приложения."""
+        """Возвращает гарантированный абсолютный путь к ресурсу внутри проекта или бандла."""
         return str(self.bundle_dir / relative_path)
 
     def _get_config_path(self):
@@ -34,6 +39,7 @@ class ConfigManager:
             
         self.source_dir = self.base_dir  # БД и конфиг храним в одной базовой директории
 
+        # 2. Создаем директории
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.source_dir.mkdir(parents=True, exist_ok=True)
 
@@ -78,6 +84,13 @@ class ConfigManager:
 
         return user_dark_theme
 
+    def _get_logs_path(self):
+        logs_dir = self.base_dir / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        user_logs = logs_dir / "CastleKeys.log"
+        return user_logs
+
+        
     def load_config(self):
         try:
             with open(self.config, "r", encoding="utf-8") as config_file:
@@ -135,6 +148,5 @@ class ConfigManager:
     def get_dialog_style(self):
         """Возвращает готовые стили для диалоговых окон."""
         replacements = self._get_replacements()
-        # В логе падения у вас искался файл settings_styles.qss. Убедитесь, что имя совпадает с dialog_styles.qss
         template = self._load_qss(os.path.join("src", "assets", "styles", "settings_styles.qss"))
         return self._apply_replacements(template, replacements)

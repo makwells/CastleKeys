@@ -68,7 +68,7 @@ macos.permissions =
 mode = onefile
 
 # specify any extra nuitka arguments
-extra_args = --quiet --noinclude-qt-translations
+extra_args = --include-data-dir=src/assets=src/assets --include-data-dir=themes=themes --include-data-files=config.toml=config.toml
 
 [buildozer]
 
