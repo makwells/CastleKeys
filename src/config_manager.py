@@ -145,8 +145,8 @@ class ConfigManager:
         template = self._load_qss(os.path.join("src", "assets", "styles", "main_styles.qss"))
         return self._apply_replacements(template, replacements)
 
-    def get_dialog_style(self):
+    def get_dialog_style(self, file_name):
         """Возвращает готовые стили для диалоговых окон."""
         replacements = self._get_replacements()
-        template = self._load_qss(os.path.join("src", "assets", "styles", "settings_styles.qss"))
+        template = self._load_qss(os.path.join("src", "assets", "styles", f"{file_name}"))
         return self._apply_replacements(template, replacements)

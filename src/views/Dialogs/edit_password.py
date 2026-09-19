@@ -16,7 +16,7 @@ class Edit_Password(QDialog):
         super().__init__(parent)
 
         config_manager = ConfigManager()
-        dialog_style = config_manager.get_dialog_style()
+        dialog_style = config_manager.get_dialog_style("dialog_styles.qss")
         self.setStyleSheet(dialog_style)
         logger.debug(f"Styles for {__name__} has been loaded")
 

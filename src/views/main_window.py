@@ -217,10 +217,6 @@ class MainWindow(QMainWindow):
         self.description = QTextEdit()
         self.description.setObjectName("RightWorkspace")
 
-
-
-        # FIXME кнопка скрытия информации
-        # Нужно сделать поле ввода пароля при показе его снова.
         icon_size = QSize(24, 24)
 
         self.hide_password_btn = QPushButton("")
