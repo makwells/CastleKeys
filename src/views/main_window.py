@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         self.tool_layout.addWidget(self.new_password_btn)
         self.tool_layout.addWidget(self.settings_btn)
 
-        self.settings_btn.hide()
+        # self.settings_btn.hide()
 
     def workspace_left(self): #left workspace widgets
         logger.debug("Left workspace successfully loaded! ✅")
@@ -185,26 +185,37 @@ class MainWindow(QMainWindow):
         self.title.setFont(label_font)
         self.title.setObjectName("RightWorkspaceTitle")
 
+        #TODO Добавить кнопки копирования к каждой строке информации о пароле 
+        # password -> copy
+        # login -> copy  
+
         # SERVICE
-        self.service_lb = QLabel(f"Service: ")
+        self.service_lb = QLabel("Service: ")
         self.service_lb.setObjectName("RightWorkspaceLabel")
+        self.service_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
 
         #URL
         self.url_lb = QLabel("URL: ")
         self.url_lb.setObjectName("RightWorkspaceLabel")
-
+        self.url_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
 
         # LOGIN 
-        self.login_lb = QLabel(f"Login: ")
+        self.login_lb = QLabel("Login: ")
         self.login_lb.setObjectName("RightWorkspaceLabel")
+        self.login_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
 
 
         # PASSWORD
-        self.password_lb = QLabel(f"Password: ")
+        self.password_lb = QLabel("Password: ")
         self.password_lb.setObjectName("RightWorkspaceLabel")
+        self.password_lb.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        #TAG
+        self.tag_lb = QLabel("Tag: ")
+        self.tag_lb.setObjectName("RightWorkspaceLabel")
 
         # CREATION DATE 
-        self.creation_date_lb = QLabel(f"Creation date: ")
+        self.creation_date_lb = QLabel("Creation date: ")
         self.creation_date_lb.setObjectName("RightWorkspaceLabel")
 
         # DESCRIPTION
@@ -293,6 +304,7 @@ class MainWindow(QMainWindow):
         self.right_layout.addWidget(self.url_lb)
         self.right_layout.addWidget(self.login_lb)
         self.right_layout.addWidget(self.password_lb)
+        self.right_layout.addWidget(self.tag_lb)
         self.right_layout.addWidget(self.creation_date_lb)
         self.right_layout.addWidget(self.description_lb)
         self.right_layout.addWidget(self.description)
@@ -302,6 +314,7 @@ class MainWindow(QMainWindow):
         self.url_lb.hide()
         self.login_lb.hide()
         self.password_lb.hide()
+        self.tag_lb.hide()
         self.creation_date_lb.hide()
         self.description_lb.hide()
         self.description.hide()

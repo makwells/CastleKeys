@@ -10,7 +10,7 @@ class Animations:
     def startup_window_opening_animation(self, start_value, end_value, duration): 
 
         #if in config.toml startup_animations = true
-        if self.config["view"]["window_startup_animations"]: 
+        if self.config["view"]["window_startup_animations"] == True: 
             self.startup_anim = QPropertyAnimation(self, b"windowOpacity")
             self.startup_anim.setDuration(duration)                         #duration(ms)
             self.startup_anim.setStartValue(start_value)                    #start value 

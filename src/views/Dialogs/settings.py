@@ -18,7 +18,7 @@ class Settings(QDialog):
         styles_path = self.config_manager.get_resource_path("src/assets/styles/settings_styles.qss")
         with open(styles_path, "r", encoding="utf-8") as styles_file:
             self.setStyleSheet(styles_file.read())
-
+ 
         self.window_width = 800
         self.window_height = 600
 
@@ -96,3 +96,7 @@ class Settings(QDialog):
         close_btn = QPushButton("Сохранить и закрыть")
         close_btn.clicked.connect(self.accept)
         main_layout.addWidget(close_btn)
+
+
+    # Получить все темы, добавлять их в combobox theme_combo
+    # def get_themes_array(self):

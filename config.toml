@@ -11,7 +11,7 @@ welcome_logo_height = 300
 
 window_opacity = 1.0
 window_startup_animations_duration = 300 #ms
-window_startup_animations = true
+window_startup_animations = false
 
 [animations]
 animations = false

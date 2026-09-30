@@ -83,6 +83,7 @@ class MainController():
             self._view.login_lb.hide()
             self._view.password_lb.hide()
             self._view.creation_date_lb.hide()
+            self._view.tag_lb.hide()
             self._view.description_lb.hide()
             self._view.description.hide()
             self._view.hide_password_btn.hide()
@@ -103,6 +104,7 @@ class MainController():
             self._view.login_lb.show()
             self._view.password_lb.show()
             self._view.creation_date_lb.show()
+            self._view.tag_lb.show()
             self._view.description_lb.show()
             self._view.description.show()
             self._view.hide_password_btn.show()
@@ -320,9 +322,9 @@ class MainController():
     def _setting_clicked(self): 
         #open the child window for application settings
         logger.debug("Run settings menu")
-        Settings(self._view).exec()
+        Settings(self._view).exec() 
 
-    # seach
+    # search
     def find_password(self, data: dict):
         search_text = data.get("text", "")
 
@@ -350,6 +352,7 @@ class MainController():
         self._view.db_size_lb.setText(f"Database size: {Database_info.db_size(self, f"{get_database_path}")}") #database size
         self._view.path_to_db.setText(f"Database path: {get_database_path}") #database path
         self._view.db_count_passwords.setText(f"Database count passwords: {database.get_count_passwords()}") #database count passwords
+
 
     # hide/show passwords
     def hide(self, checked=None): 
@@ -399,6 +402,8 @@ class MainController():
         self._view.db_count_dublicate.hide()
         self._view.db_login.hide()
         self._view.db_password.hide()
+        self._view.tag_lb.hide()
+
 
         # show logo
         self._view.welcome_logo.show()

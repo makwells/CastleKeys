@@ -5,48 +5,49 @@
 
 ---
 
-### About App:
-**CastleKeys** - Менедежер паролей для удобного и **безопасного хранения паролей**. 
+### About:
+**CastleKeys** - A password manager for convenient and **secure password storage**. 
 
 ### Features: 
-* Красивый и понятный интерфейс
-* Удобный поиск паролей по названию сервиса
-* Безопасное хранение
+* Beautiful and intuitive interface
+* Convenient password search by service name
+* Safe storage
+* Full customization
 
-### Интерфейс
-**Главное окно программы**. 
-3 рабойчей области: 
-* Верхняя - **toolbar**: поиск, добавление нового пароля и настройки
-* Левая - **Tree**: список всех паролей
-* Правая - **Main Workspace**: информация о пароле, работа с паролем
+### Interface
+**Main widnow**. 
+3 work areas:
+* Top section — **Toolbar**: search, add new password, and settings.
+* Left section — **Tree**: list of all passwords.
+* Right section — **Main workspace**: password details and password management.
 
 <img align="center" width="100%" src="src/assets/images/ui.png" alt="banner.jpg">
 
 ## ToolBar
 #### Create New password
-Чтобы добавить пароль, нужно нажать на плюс в левом верхнем углу и заполнить меню информацией о пароле. 
+To add a password, you need to click the plus sign in the top-left corner and fill in the menu with the password details. 
 <img align="center" width="100%" src="src/assets/images/new_password_ui.png" alt="banner.jpg">
 
-* **Service** - название сервиса(github, google)
-* **URL** - ссылка на ресурс
-* **Login** - логин
-* **Password** - пароль
+* **Service** - name of the service (GitHub, Google)
+* **URL** - link to the resource
+* **Login** - login
+* **Password** - password.
 
 #### Edit Password
 <img align="center" width="100%" src="src/assets/images/edit_password_ui.png" alt="banner.jpg">
 
-Чтобы изменить нужный пароль его нужно выбрать в дереве паролей слева и нажать на иконку карандаша в **right workspace** и заполнить новые данные. 
+To modify a specific password, select it from the password tree on the left, click the pencil icon in the **right workspace**, and enter the new details.
 
 ### Right Workspace
 <img align="center" width="100%" src="src/assets/images/right_workspace.png" alt="banner.jpg">
-Кнопки скрытия, редактировани и удаления пароля. 
+Buttons to hide, edit, and delete the password.
 
+### Configuration and Customization
+Configuring the program via *config.toml*
+Configuring program colors via *themes/theme.toml* (select the theme in the main config).
 
-### Настройка и кастомизация
-Настройка программы через *config.toml*
-Настройка цветов программы themes/*theme.toml*(выбор темы в основном кофиге). 
-
-### Will Be Soon
-* Настройки через интерфейс 
-* Иконка к паролю
-* Теги
+### Coming Soon
+* Interface-based settings
+* Security
+* Password icon
+* Tags

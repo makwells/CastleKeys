@@ -4,20 +4,31 @@ QDialog{
 }
 
 QScrollArea{
-    border: 1px solid #d3d3d3;
+    border: 1px solid #222;
     border-radius: 4px;
-    background-color: #18181b;
+}
+
+QScrollArea QWidget{
+    background-color: #111111;
+}
+
+QScrollBar:vertical{
+    border: none;
+    background: #222;
+    width: 10px;
 }
 
 QLabel{
     font-size: 16pt;
+    border: 1px solid #D3D3D3;
+    border-radius: 4px;
 }
 
 QCheckBox{
     spacing: 5px; 
 }
 QCheckBox::indicator{
-    background-color: #111111;
+    background-color: #333333;
     border: 1px solid #222222;
     border-radius: 4px;
     width: 16px;
@@ -26,7 +37,7 @@ QCheckBox::indicator{
 }
 
 QCheckBox::indicator:hover{
-    background-color: #222222;
+    background-color: #444444;
     border-color: #626262
 }
 
@@ -38,7 +49,7 @@ QCheckBox::indicator:checked{
 }
 
 QComboBox{
-    background-color: #111111;
+    background-color: #333333;
     border: 1px solid #D3D3D3;
     border-radius: 4px;
     width: 150px;
@@ -46,7 +57,7 @@ QComboBox{
 }
 
 QLineEdit{
-    background-color: #171717;
+    background-color: #333333;
     border: 1px solid #D3D3D3;
     border-radius: 8px;
     width: 150px;

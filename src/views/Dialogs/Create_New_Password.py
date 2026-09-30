@@ -17,10 +17,13 @@ class CreateNewPassword(QDialog):
         super().__init__(parent)
         #styles
         config_manager = ConfigManager()
-        dialog_style = config_manager.get_dialog_style("dialog_styles.qss")
-        self.setStyleSheet(dialog_style)
-        logger.debug(f"Styles for {__name__} has been loaded")
-
+        try:
+            dialog_style = config_manager.get_dialog_style("dialog_styles.qss")
+            self.setStyleSheet(dialog_style)
+            logger.debug(f"Styles for {__name__} has been loaded")
+        except Exception as e:
+            logger.error(f"Styles for {__name__} were not loaded!\n{e}")
+ 
         self.new_password_window() #start ui
         
     def new_password_window(self): #ui

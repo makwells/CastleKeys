@@ -16,10 +16,12 @@ class Edit_Password(QDialog):
         super().__init__(parent)
 
         config_manager = ConfigManager()
-        dialog_style = config_manager.get_dialog_style("dialog_styles.qss")
-        self.setStyleSheet(dialog_style)
-        logger.debug(f"Styles for {__name__} has been loaded")
-
+        try:
+            dialog_style = config_manager.get_dialog_style("dialog_styles.qss")
+            self.setStyleSheet(dialog_style)
+            logger.debug(f"Styles for {__name__} has been loaded.")
+        except Exception as e:
+            logger.error(f"Styles for {__name__} were not loaded!\n{e}")
         self.edit_password_ui()
     
     def edit_password_ui(self):
@@ -48,31 +50,34 @@ class Edit_Password(QDialog):
         self.generate_password = QPushButton("Generate random password")
         self.generate_password.setFixedSize(300, 30)
         self.generate_password.clicked.connect(self.generator_random_password)
-        
+
+        #buttons accept(ok) and reject(cancel)
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 
-        buttons.setFixedSize(300, 30)
+        buttons.setFixedSize(300, 30) #size buttons 
 
+        #adding to layout 
         self.edit_password_layout.addWidget(message)
         self.edit_input_layout.addRow("Rename Service:", self.edit_input_service)
         self.edit_input_layout.addRow("Rename URL:", self.edit_input_url)
         self.edit_input_layout.addRow("Rename Login:", self.edit_input_login)
         self.edit_input_layout.addRow("Rename Password:", self.edit_input_password)
-
         self.edit_password_layout.addLayout(self.edit_input_layout)
         self.edit_password_layout.addWidget(self.generate_password, alignment=Qt.AlignHCenter)
         self.edit_password_layout.addWidget(buttons)
 
         self.setLayout(self.edit_password_layout)
 
+    #function generate random password 
     def generator_random_password(self):
         _gen_password = generate_password.generate_random_password(15)
         self.edit_input_password.setText(_gen_password)
 
+    #send input fields data on this function
     def _save_edit(self):
         # write new data
         self.edit_password_data = {
@@ -81,12 +86,13 @@ class Edit_Password(QDialog):
             "login":    self.edit_input_login.text().strip(),
             "password": self.edit_input_password.text().strip(),
         }
-        
+
+    #retrieve data for saving new data 
     def accept(self):
         try:
-            self.data_edit_password.emit(self.edit_password_data) #send new data
+            self.data_edit_password.emit(self.edit_password_data) #send new data to the main controller
             self.finished.emit() #finish thread
         except Exception as e:
-            logger.warning("Data is empty. The password was not added!")
+            logger.warning("No data available. The password was not changed!")
 
         super().accept()
