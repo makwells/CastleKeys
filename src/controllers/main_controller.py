@@ -59,21 +59,24 @@ class MainController():
         self._view.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
         self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
 
+        # self._view.cards_all_passwords_widget.clicked.connect(self.on_card_clicked)
+
         self._view.new_password_menu.triggered.connect(self._new_password_clicked)    #new password menu(menubar)
         self._view.edit_password_menu.triggered.connect(self._edit_password_clicked)  #edit password(menu)
         self._view.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
 
-        # self._view.search_le.textChanged.connect(self._search)
-
         hotkeys.HotKeys(self)      # Connect hotkeys
 
+
+    def on_card_clicked(self):
+        logger.debug("Hello")
 
     # select category
     def _on_category_clicked(self, index): 
         real_index = self._view.proxy_model.mapToSource(index)
         self.item = self._view.tree_model.itemFromIndex(real_index) #current element
-        item_name = self.item.text()                           #get text
-        self._view.title.setText(f"{item_name}".upper())       #change title
+        item_name = self.item.text()                                #get text
+        # self._view.title.setText(f"{item_name}".upper())            #change title
         
 
         if self.item == self._view.root_item: # если выбран заголовок в пункте меню, то скрывать значения сервиса логина и пароля, вызвав функцию для просмотра информации о бд
@@ -158,8 +161,6 @@ class MainController():
     def _new_password_clicked(self):
         logger.success("Run new password window form")
 
-        #FIXME если написать сервис, а потом стереть его и отменить, то последний символ все равно сохранится.
-
         self.new_window = CreateNewPassword(self._view)
 
         self._new_password_saved = False 
@@ -189,17 +190,17 @@ class MainController():
                 self._current_new_id = new_id
                 
                 current_date = datetime.now().strftime("%Y-%m-%d %H:%M") # get current date
-                # Create element on tree
-                service_item = QStandardItem(get_service or "New Entry")
-                service_item.setData(self._current_new_id, Qt.ItemDataRole.UserRole) # current id
-                service_item.setData(get_login, Qt.ItemDataRole.UserRole + 1)    # current login
-                service_item.setData(get_url, Qt.ItemDataRole.UserRole + 2)      # current url 
-                service_item.setData(get_password, Qt.ItemDataRole.UserRole + 3) # current password
-                service_item.setData(current_date, Qt.ItemDataRole.UserRole + 4) # current date 
-                service_item.setData("", Qt.ItemDataRole.UserRole + 5)           
+         
+                self.card = self._view.all_passwords_page_add_section(
+                    service_name=get_service or "new Entry",
+                    url=get_url or "Unknow",
+                    creation_date=current_date or "Unknow",
+                )
 
-                self._view.root_item.appendRow(service_item)
-                self._new_tree_item = service_item
+                self._view.passwords_cards_layout.addWidget(self.card)
+
+                self._view.passwords_cards_layout.addStretch()
+
                 logger.debug(f"New password created in DB with ID {self._current_new_id}")
 
         elif self._new_password_saved and self._current_new_id is not None:

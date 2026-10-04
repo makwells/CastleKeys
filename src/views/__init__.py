@@ -1,8 +1,7 @@
 from .main_window import MainWindow
+
 from .ui.icons import icons_set_color
-
 from .ui.animations.animations import Animations
-
 from .ui.notifications.notifications_window import Notifications
 
 from .Dialogs.create_new_password import CreateNewPassword
