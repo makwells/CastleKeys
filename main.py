@@ -34,7 +34,11 @@ class CastleKeys:
 
         app = QApplication(cleaned_args)
 
-        view = MainWindow(sidebar=None)
+        view = MainWindow(
+            sidebar=None,
+            topbar=None,
+            menubar=None
+        )
         settings = Settings()
 
         controller = MainController(view)

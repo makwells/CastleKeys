@@ -38,6 +38,6 @@ def HotKeys(self):
 
     if hotkeys["search"]:
         self.shortcut_search = QShortcut(QKeySequence(hotkeys["search"]), self._view)
-        self._view.search_le.setFocus()
+        self._view.topbar.search_le.setFocus()
 
         

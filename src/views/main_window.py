@@ -11,211 +11,15 @@ from src.models.database.database import *
 from src.views.ui.animations.animations import Animations
 from src.views.ui.icons import icons_set_color
 from src.views.ui.notifications.notifications_window import *
-from src.views.ui.right_workspace.all_passwords import AllPasswordsPage
 
 from pathlib import Path
 
-class SideBar:
+class TopBar:
     def __init__(self):
-        self.init_sidebar()
+        self.init_topbar()
 
-##########################################################################################
-# All Passwords Page | Right Workspaces
-##########################################################################################
-    def all_passwords_page_add_section(self, entry_id, service_name, url, creation_date):
-        section_widget = QWidget()
-
-        section_widget.setStyleSheet("background-color: #222222; border-radius: 8px")
-
-        self.section_layout = QVBoxLayout(section_widget)
-
-        self.top_section_widget = QWidget()
-        self.top_section_layout = QHBoxLayout(self.top_section_widget)
-        self.top_section_layout.setContentsMargins(20, 0, 0, 0)
-
-        self.bottom_section_widget = QWidget()
-        self.bottom_section_layout = QHBoxLayout(self.bottom_section_widget)
-        self.bottom_section_layout.setContentsMargins(25, 0, 0, 0)
-
-
-        #top section 
-        self.service_icon = ...
-        self.service_name = QLabel(service_name)
-        self.service_name.setStyleSheet("font-size: 18pt;")
-
-        self.favorite_btn = QPushButton("fav")
-
-        self.top_section_layout.addWidget(self.service_name)
-        self.top_section_layout.addStretch()
-        self.top_section_layout.addWidget(self.favorite_btn)
-
-        #bottom section 
-        self.service_url = QLabel(url)
-        self.creation_date = QLabel(creation_date)
-
-        self.bottom_section_layout.addWidget(self.service_url)
-        self.bottom_section_layout.addStretch()
-        self.bottom_section_layout.addWidget(self.creation_date)
-
-        self.section_layout.addWidget(self.top_section_widget)
-        self.section_layout.addWidget(self.bottom_section_widget)
-        return section_widget 
-
-    def all_passwords_page(self):
-       
-        all_passwords_page_widget = QWidget()
-        layout = QVBoxLayout(all_passwords_page_widget)
-
-        title = QLabel("All Passwords")
-        title.setStyleSheet("font-size: 24pt;")
-
-        all_passwords_page_widget.setObjectName("RightWorkspace")
-        layout.setSpacing(8)
-
-        self.scroll_area_all_passwords = QScrollArea()
-        self.scroll_area_all_passwords.setWidgetResizable(True)
-        self.scroll_area_all_passwords.setFrameShape(QFrame.Shape.NoFrame)
-
-        self.cards_all_passwords_widget = QWidget()
-        self.passwords_cards_layout = QVBoxLayout(self.cards_all_passwords_widget)
-        self.passwords_cards_layout.setContentsMargins(0, 0, 0, 0)
-        self.passwords_cards_layout.setSpacing(8)
-        self.passwords_cards_layout.addStretch()
-
-        self.scroll_area_all_passwords.setWidget(self.cards_all_passwords_widget)
-        layout.addWidget(self.scroll_area_all_passwords)
-
-        self.cards_all_passwords_widget.setStyleSheet("background-color: #111")
-
-        return all_passwords_page_widget
-
-    def init_sidebar(self):
-        self.sidebar_widget = QWidget()
-        self.sidebar_widget.setObjectName("LeftWorkspace")
-        self.sidebar_widget.setFixedWidth(250)
-
-        self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
-
-        #Buttons 
-        self.all_passwords_btn = QPushButton("All passwords")
-        self.fav_passwrods_btn = QPushButton("Favorite passwords")
-        self.cards_btn = QPushButton("Cards")
-        self.tokens_btn = QPushButton("Tokens")
-        self.wifi_btn = QPushButton("Wi-Fi")
-
-        self.sidebar_layout.addWidget(self.all_passwords_btn)
-        self.sidebar_layout.addWidget(self.fav_passwrods_btn)
-        self.sidebar_layout.addWidget(self.cards_btn)
-        self.sidebar_layout.addWidget(self.tokens_btn)
-        self.sidebar_layout.addWidget(self.wifi_btn)
-        self.sidebar_layout.addStretch()
-
-        #Pages 
-        self.pages = QStackedWidget()
-        self.pages.addWidget(self.all_passwords_page())
-
-        self.all_passwords_btn.clicked.connect(
-            lambda: self.pages.setCurrentIndex(0)
-        )
-
-        return self.sidebar_widget
-
-class MainWindow(QMainWindow):
-    def __init__(self, sidebar):
-        super().__init__()
-
-        self.sidebar = SideBar()
-
-        #config
-        self.config_manager = ConfigManager()
-        self.config = self.config_manager.load_config()
-        logger.debug("Config successfully loaded ✅")
-        
-        #themes dir
-        self.themes_dir = self.config_manager.get_resource_path("themes/")
-        self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
-
-        self.ui()                             # load ui
-        self.load_db()                        # load db
-        self.apply_theme()                    # load theme
-
-    def ui(self): #ui
-        logger.debug("Main Window successfully loaded! ✅")
-
-        self.workspace_top()   # top workspace(tool bar)
-        self.workspace_left()  # left workspace
-        self.workspace_right() # right workspace
-        self._animations()     # animations
-        self.menubar()         # menu bar
-        # self.sidebar()
-        
-        # Window and startup settings
-        self.setWindowTitle("CastleKeys")     # title
-        self.resize(900, 700)                 # start window size
-        self.setMinimumSize(900, 700)         # minimum window size
-
-        self.central_widget = QWidget()       # Central widget
-        self.workspace_container = QWidget()
-        self.workspace_layout = QHBoxLayout()
-        main_layout = QVBoxLayout()
-
-        self.setCentralWidget(self.central_widget)
-        
-        self.sb = SideBar()
-
-        self.workspace_layout.addWidget(self.sb.init_sidebar())
-        self.workspace_layout.addWidget(self.sidebar.pages)
-        # self.workspace_layout.addWidget(self.right_container)
-        main_layout.addWidget(self.tool_container)
-
-        main_layout.addLayout(self.workspace_layout)
-        self.central_widget.setLayout(main_layout)
-    
-    def apply_theme(self): #theme
-        try:
-            style = self.config_manager.get_main_style()
-            self.setStyleSheet(style)  
-            logger.debug(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
-        except Exception as e:
-            logger.error(f"Failed to apply theme {self.current_theme}: {e}")
-
-    def menubar(self): #menu bar
-        self.menu = QMenuBar() #widget menu bar
-
-        #file menu
-        file_menu = self.menu.addMenu("File") 
-        #file menu elements
-        self.new_password_menu = QAction("New password", self)
-        self.new_tag_menu = QAction("New tag", self)
-        self.new_database_menu = QAction("New database", self)
-
-        self.edit_password_menu = QAction("Edit menu", self)
-        self.edit_database_menu = QAction("Edit database", self)
-
-        self.import_database_menu = QAction("Import database", self)
-        self.export_database_menu = QAction("Export database", self)
-        self.settings_menu = QAction("Settings", self)
-        #file menu add elements
-        file_menu.addAction(self.new_password_menu)
-        file_menu.addAction(self.new_tag_menu)
-        file_menu.addAction(self.new_database_menu)
-        file_menu.addSeparator()
-        file_menu.addAction(self.edit_password_menu)
-        file_menu.addAction(self.edit_database_menu)
-        file_menu.addSeparator()
-        file_menu.addAction(self.import_database_menu)
-        file_menu.addAction(self.export_database_menu)
-        file_menu.addSeparator()
-        file_menu.addAction(self.settings_menu)
-
-        #view menu 
-        view_menu = self.menu.addMenu("View")
-        #view menu elements
-        change_theme = QAction("Change theme", self)
-        #view menu add elemets
-        view_menu.addAction(change_theme)
-
-    def workspace_top(self): #tool_bar widgets
+    def init_topbar(self):
+            # def workspace_top(self): #tool_bar widgets
         logger.debug("Tool bar successfully loaded! ✅")
 
         self.tool_container = QWidget()
@@ -257,36 +61,206 @@ class MainWindow(QMainWindow):
 
         # self.settings_btn.hide()
 
-    def workspace_left(self): #left workspace widgets
-        logger.debug("Left workspace successfully loaded! ✅")
+class MenuBar:
+    def __init__(self):
+        self.init_menubar()
 
-        self.left_container = QWidget()
-        self.left_layout = QVBoxLayout()
+    def init_menubar(self): #menu bar
+        self.menu = QMenuBar() #widget menu bar
 
-        self.tree_view = QTreeView()         # Tree
-        self.tree_view.setObjectName("LeftWorkspace")
-        self.tree_view.setAnimated(True)     # opening animation
-        self.tree_view.setHeaderHidden(True) # Hide header 
-        self.tree_view.setFixedWidth(250)    # Width
-        self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
+        #file menu
+        file_menu = self.menu.addMenu("File") 
+        #file menu elements
+        self.new_password_menu = QAction("New password", self)
+        self.new_tag_menu = QAction("New tag", self)
+        self.new_database_menu = QAction("New database", self)
 
-        #Tree
-        self.tree_model = QStandardItemModel()
-        self.proxy_model = QSortFilterProxyModel()
-        self.proxy_model.setSourceModel(self.tree_model)
-        self.tree_view.setModel(self.proxy_model)
+        self.edit_password_menu = QAction("Edit menu", self)
+        self.edit_database_menu = QAction("Edit database", self)
+
+        self.import_database_menu = QAction("Import database", self)
+        self.export_database_menu = QAction("Export database", self)
+        self.settings_menu = QAction("Settings", self)
+        #file menu add elements
+        file_menu.addAction(self.new_password_menu)
+        file_menu.addAction(self.new_tag_menu)
+        file_menu.addAction(self.new_database_menu)
+        file_menu.addSeparator()
+        file_menu.addAction(self.edit_password_menu)
+        file_menu.addAction(self.edit_database_menu)
+        file_menu.addSeparator()
+        file_menu.addAction(self.import_database_menu)
+        file_menu.addAction(self.export_database_menu)
+        file_menu.addSeparator()
+        file_menu.addAction(self.settings_menu)
+
+        #view menu 
+        view_menu = self.menu.addMenu("View")
+        #view menu elements
+        change_theme = QAction("Change theme", self)
+        #view menu add elemets
+        view_menu.addAction(change_theme)
+
+#SideBar and right workspaces
+class SideBar: 
+    def __init__(self):
+        self.init_sidebar()
 
 
-        self.left_layout.addWidget(self.tree_view)
 
-    def workspace_right(self): #right workspace widgets
-        logger.debug("Right workspace successfully loaded! ✅")
+        
+    #Создание секции пароля
+    def all_passwords_page_add_section(self, entry_id, service_name, url, creation_date):
+        self.section_widget = QWidget()
 
-        self.right_container = QWidget()
-        self.right_container.setObjectName("RightWorkspace")
-        self.right_layout = QVBoxLayout(self.right_container)
+        self.section_widget.setStyleSheet("background-color: #222222; border-radius: 8px")
 
-        self.db_information()
+        self.section_layout = QVBoxLayout(self.section_widget)
+
+        self.top_section_widget = QWidget()
+        self.top_section_layout = QHBoxLayout(self.top_section_widget)
+        self.top_section_layout.setContentsMargins(20, 0, 0, 0)
+
+        self.bottom_section_widget = QWidget()
+        self.bottom_section_layout = QHBoxLayout(self.bottom_section_widget)
+        self.bottom_section_layout.setContentsMargins(25, 0, 0, 0)
+
+        icon_size = QSize(24, 24)
+
+        #top section 
+        self.service_icon = ...
+        self.service_name = QLabel(service_name)
+        self.service_name.setStyleSheet("font-size: 18pt;")
+
+        self.del_password_btn = QPushButton("")
+        self.del_password_btn.setFixedSize(30, 30)
+        self.del_password_icon = icons_set_color("delete.svg", "#D3D3D3", icon_size)
+        self.del_password_btn.setIcon(self.del_password_icon)
+        self.del_password_btn.setIconSize(icon_size)
+        self.del_password_btn.setObjectName("RightWorkspaceButtons")
+
+        self.fav_password_btn = QPushButton("")
+        self.fav_password_btn.setFixedSize(30, 30)
+        self.fav_password_icon = icons_set_color("heart.svg", "#D3D3D3", icon_size)
+        self.fav_password_btn.setIcon(self.fav_password_icon)
+        self.fav_password_btn.setIconSize(icon_size)
+        self.fav_password_btn.setObjectName("RightWorkspaceButtons")
+
+        self.fav_password_btn.clicked.connect(self.show_password_information)
+
+        self.top_section_layout.addWidget(self.service_name)
+        self.top_section_layout.addStretch()
+        self.top_section_layout.addWidget(self.del_password_btn)
+        self.top_section_layout.addWidget(self.fav_password_btn)
+
+        #bottom section 
+        self.service_url = QLabel(url)
+        self.creation_date = QLabel(creation_date)
+
+        self.bottom_section_layout.addWidget(self.service_url)
+        self.bottom_section_layout.addStretch()
+        self.bottom_section_layout.addWidget(self.creation_date)
+
+        self.section_layout.addWidget(self.top_section_widget)
+        self.section_layout.addWidget(self.bottom_section_widget)
+
+        return self.section_widget 
+
+
+
+    #Страница со всеми паролями
+    def all_passwords_page(self):
+        
+        self.all_passwords_page_widget = QWidget()
+        layout = QVBoxLayout(self.all_passwords_page_widget)
+
+        title = QLabel("All Passwords")
+        title.setStyleSheet("font-size: 24pt;")
+
+        self.all_passwords_page_widget.setObjectName("RightWorkspace")
+        layout.setSpacing(8)
+
+        self.scroll_area_all_passwords = QScrollArea()
+        self.scroll_area_all_passwords.setWidgetResizable(True)
+        self.scroll_area_all_passwords.setFrameShape(QFrame.Shape.NoFrame)
+
+        self.cards_all_passwords_widget = QWidget()
+        self.passwords_cards_layout = QVBoxLayout(self.cards_all_passwords_widget)
+        self.passwords_cards_layout.setContentsMargins(0, 0, 0, 0)
+        self.passwords_cards_layout.setSpacing(8)
+        self.passwords_cards_layout.addStretch()
+
+        self.password_information()
+
+
+        self.scroll_area_all_passwords.setWidget(self.cards_all_passwords_widget)
+        layout.addWidget(self.scroll_area_all_passwords)
+        layout.addWidget(self.main_password_information_widget)
+        self.main_password_information_widget.hide()
+
+
+
+        self.cards_all_passwords_widget.setStyleSheet("background-color: #111")
+
+
+
+    #SideBar 
+    def init_sidebar(self):
+        self.sidebar_widget = QWidget()
+        self.sidebar_widget.setObjectName("LeftWorkspace")
+        self.sidebar_widget.setFixedWidth(250)
+
+        self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
+
+        #Buttons 
+        self.all_passwords_btn = QPushButton("All passwords")
+        self.fav_passwrods_btn = QPushButton("Favorite passwords")
+        self.cards_btn = QPushButton("Cards")
+        self.tokens_btn = QPushButton("Tokens")
+        self.wifi_btn = QPushButton("Wi-Fi")
+
+        self.sidebar_layout.addWidget(self.all_passwords_btn)
+        self.sidebar_layout.addWidget(self.fav_passwrods_btn)
+        self.sidebar_layout.addWidget(self.cards_btn)
+        self.sidebar_layout.addWidget(self.tokens_btn)
+        self.sidebar_layout.addWidget(self.wifi_btn)
+        self.sidebar_layout.addStretch()
+
+        #Pages 
+        self.pages = QStackedWidget()
+        self.all_passwords_page() 
+        self.pages.addWidget(self.all_passwords_page_widget)
+
+        self.all_passwords_btn.clicked.connect(
+            lambda: self.pages.setCurrentIndex(0)
+        )
+
+        # return self.sidebar_widget
+
+
+
+
+
+    def show_password_information(self):
+        self.scroll_area_all_passwords.hide()
+        self.main_password_information_widget.show()
+
+
+
+
+
+    #Страрица с информацией о пароле
+    def password_information(self): 
+
+        logger.debug("All Passwords Page hidden. Showing Password Information Page")
+
+        self.main_password_information_widget = QWidget()
+        self.main_password_information_layout = QHBoxLayout(self.main_password_information_widget)
+
+        self.password_information_widget = QWidget()
+        self.password_information_widget.setObjectName("RightWorkspace")
+        self.password_information_layout = QVBoxLayout(self.password_information_widget)
+
         self.title = QLabel()
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label_font = self.title.font()
@@ -294,9 +268,6 @@ class MainWindow(QMainWindow):
         self.title.setFont(label_font)
         self.title.setObjectName("RightWorkspaceTitle")
 
-        #TODO Добавить кнопки копирования к каждой строке информации о пароле 
-        # password -> copy
-        # login -> copy
 
         # SERVICE
         self.service_lb = QLabel("Service: ")
@@ -348,6 +319,187 @@ class MainWindow(QMainWindow):
         self.hide_password_btn.setIconSize(icon_size)
         self.hide_password_btn.setObjectName("RightWorkspaceButtons")
 
+        self.edit_password_btn = QPushButton("")
+        self.edit_password_btn.setFixedSize(40, 40)
+        self.edit_password_icon = icons_set_color("edit.svg", "#D3D3D3", icon_size)
+        self.edit_password_btn.setIcon(self.edit_password_icon)
+        self.edit_password_btn.setIconSize(icon_size)
+        self.edit_password_btn.setObjectName("RightWorkspaceButtons")
+
+
+        self.del_password_btn = QPushButton("")
+        self.del_password_btn.setFixedSize(40, 40)
+        self.del_password_icon = icons_set_color("delete.svg", "#D3D3D3", icon_size)
+        self.del_password_btn.setIcon(self.del_password_icon)
+        self.del_password_btn.setIconSize(icon_size)
+        self.del_password_btn.setObjectName("RightWorkspaceButtons")
+
+        self.under_title_layout = QHBoxLayout()
+
+        self.under_title_layout.addStretch()
+        self.under_title_layout.addWidget(self.hide_password_btn)
+        self.under_title_layout.addWidget(self.edit_password_btn)
+        self.under_title_layout.addWidget(self.del_password_btn)
+        self.password_information_layout.addWidget(self.title)
+        self.password_information_layout.addLayout(self.under_title_layout)
+        self.password_information_layout.addWidget(self.service_lb)
+        self.password_information_layout.addWidget(self.url_lb)
+        self.password_information_layout.addWidget(self.login_lb)
+        self.password_information_layout.addWidget(self.password_lb)
+        self.password_information_layout.addWidget(self.tag_lb)
+        self.password_information_layout.addWidget(self.creation_date_lb)
+        self.password_information_layout.addWidget(self.description_lb)
+        self.password_information_layout.addWidget(self.description)
+
+        self.main_password_information_layout.addWidget(self.password_information_widget)
+
+
+
+
+
+class MainWindow(QMainWindow):
+    def __init__(self, sidebar, topbar, menubar):
+        super().__init__()
+
+        self.sidebar = SideBar()
+        self.topbar = TopBar()
+        # self.menubar = MenuBar_()
+
+        #config
+        self.config_manager = ConfigManager()
+        self.config = self.config_manager.load_config()
+        logger.debug("Config successfully loaded ✅")
+        
+        #themes dir
+        self.themes_dir = self.config_manager.get_resource_path("themes/")
+        self.current_theme = f"{self.themes_dir}{self.config["view"]["theme"]}"
+
+        self.ui()                             # load ui
+        self.load_db()                        # load db
+        self.apply_theme()                    # load theme
+
+    def ui(self): #ui
+        logger.debug("Main Window successfully loaded! ✅")
+
+        self.topbar.init_topbar()   # top workspace(tool bar)
+        self.workspace_left()  # left workspace
+        self.workspace_right() # right workspace
+        self._animations()     # animations
+        
+        # Window and startup settings
+        self.setWindowTitle("CastleKeys")     # title
+        self.resize(900, 700)                 # start window size
+        self.setMinimumSize(900, 700)         # minimum window size
+
+        self.central_widget = QWidget()       # Central widget
+        self.workspace_container = QWidget()
+        self.workspace_layout = QHBoxLayout()
+        main_layout = QVBoxLayout()
+
+        self.setCentralWidget(self.central_widget)
+
+        self.workspace_layout.addWidget(self.sidebar.sidebar_widget)
+        self.workspace_layout.addWidget(self.sidebar.pages)
+        # self.workspace_layout.addWidget(self.right_container)
+        main_layout.addWidget(self.topbar.tool_container)
+
+        main_layout.addLayout(self.workspace_layout)
+        self.central_widget.setLayout(main_layout)
+    
+    def apply_theme(self): #theme
+        try:
+            style = self.config_manager.get_main_style()
+            self.setStyleSheet(style)  
+            logger.debug(f"Theme {self.current_theme} successfully applied to MainWindow ✅")
+        except Exception as e:
+            logger.error(f"Failed to apply theme {self.current_theme}: {e}")
+
+    def workspace_left(self): #left workspace widgets
+        logger.debug("Left workspace successfully loaded! ✅")
+
+        self.left_container = QWidget()
+        self.left_layout = QVBoxLayout()
+
+        self.tree_view = QTreeView()         # Tree
+        self.tree_view.setObjectName("LeftWorkspace")
+        self.tree_view.setAnimated(True)     # opening animation
+        self.tree_view.setHeaderHidden(True) # Hide header 
+        self.tree_view.setFixedWidth(250)    # Width
+        self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
+
+        #Tree
+        self.tree_model = QStandardItemModel()
+        self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.tree_model)
+        self.tree_view.setModel(self.proxy_model)
+
+
+        self.left_layout.addWidget(self.tree_view)
+
+    def workspace_right(self): #right workspace widgets
+        logger.debug("Right workspace successfully loaded! ✅")
+
+        self.right_container = QWidget()
+        self.right_container.setObjectName("RightWorkspace")
+        self.right_layout = QVBoxLayout(self.right_container)
+
+        self.db_information()
+        self.title = QLabel()
+        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label_font = self.title.font()
+        label_font.setBold(True)
+        self.title.setFont(label_font)
+        self.title.setObjectName("RightWorkspaceTitle")
+
+        # SERVICE
+        self.service_lb = QLabel("Service: ")
+        self.service_lb.setObjectName("RightWorkspaceLabel")
+        self.service_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
+
+        #URL
+        self.url_lb = QLabel("URL: ")
+        self.url_lb.setObjectName("RightWorkspaceLabel")
+        self.url_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
+
+        # LOGIN 
+        self.login_lb = QLabel("Login: ")
+        self.login_lb.setObjectName("RightWorkspaceLabel")
+        self.login_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
+
+
+        # PASSWORD
+        self.password_lb = QLabel("Password: ")
+        self.password_lb.setObjectName("RightWorkspaceLabel")
+        self.password_lb.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        #TAG
+        self.tag_lb = QLabel("Tag: ")
+        self.tag_lb.setObjectName("RightWorkspaceLabel")
+
+        # CREATION DATE 
+        self.creation_date_lb = QLabel("Creation date: ")
+        self.creation_date_lb.setObjectName("RightWorkspaceLabel")
+
+        # DESCRIPTION
+        self.description_lb = QLabel("Description:")
+        self.description_lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.description_lb.setObjectName("RightWorkspaceLabel")
+        # FIXME Описание к паролю
+        # Логика в том, что у пользователя может быть несколько аккаунто одного сервиса, быть аунтефикатор, чей-то аккаунт итд, описание служит ориетиром. Нужно при любом действии пользователя единожды сохранить описание.
+        # Описание должно храниться в памяти компьютера при нажатии на другой пароль. При нажатии на другой пароль оно сохраняется в базу данных и при следующем заходе в программу считывает ее уже с базы данных.
+        self.description = QTextEdit()
+        self.description.setObjectName("RightWorkspace")
+
+        icon_size = QSize(24, 24)
+
+        self.hide_password_btn = QPushButton("")
+        self.hide_password_btn.setFixedSize(40, 40)
+        self.hide_password_btn_state = False
+        
+        self.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
+        self.hide_password_btn.setIcon(self.hide_password_icon)
+        self.hide_password_btn.setIconSize(icon_size)
+        self.hide_password_btn.setObjectName("RightWorkspaceButtons")
 
         self.edit_password_btn = QPushButton("")
         self.edit_password_btn.setFixedSize(40, 40)
@@ -469,30 +621,33 @@ class MainWindow(QMainWindow):
         init_db()                             
         data = get_all_passwords()
 
-        while self.sidebar.passwords_cards_layout.count():
-            layout_item = self.sidebar.passwords_cards_layout.takeAt(0)
-            widget = layout_item.widget()
+        try:
+            while self.sidebar.passwords_cards_layout.count():
+                layout_item = self.sidebar.passwords_cards_layout.takeAt(0)
+                widget = layout_item.widget()
 
-            if widget is not None:
-                widget.hide()
-                widget.deleteLater()
+                if widget is not None:
+                    widget.hide()
+                    widget.deleteLater()
 
-        for row in data:
-            entry_id = row[0]
-            service_name = row[1]
-            url = row[2]
-            creation_date = row[5] if len(row) > 5 else "Unknown"
+            for row in data:
+                entry_id = row[0]
+                service_name = row[1]
+                url = row[2]
+                creation_date = row[5] if len(row) > 5 else "Unknown"
 
-            self.card = self.sidebar.all_passwords_page_add_section(
-                entry_id=entry_id,
-                service_name=service_name,
-                url=url,
-                creation_date=creation_date,
-            )
+                self.card = self.sidebar.all_passwords_page_add_section(
+                    entry_id=entry_id,
+                    service_name=service_name,
+                    url=url,
+                    creation_date=creation_date,
+                )
 
-            self.card.setProperty("entry_id", entry_id)
+                self.card.setProperty("entry_id", entry_id)
 
-            self.sidebar.passwords_cards_layout.addWidget(self.card)
+                self.sidebar.passwords_cards_layout.addWidget(self.card)
 
-        self.sidebar.passwords_cards_layout.addStretch()
+            self.sidebar.passwords_cards_layout.addStretch()
 
+        except Exception as e:
+            logger.error(f"Failed to init database: {e}")

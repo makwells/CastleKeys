@@ -11,7 +11,7 @@ class Search(QObject):
         self.search()
 
     def search(self):
-        self._view.search_le.textChanged.connect(self.find) #MainWindow search bar
+        self._view.topbar.search_le.textChanged.connect(self.find) #MainWindow search bar
 
     def find(self):
         data = {"text": self._view.search_le.text().strip()}
