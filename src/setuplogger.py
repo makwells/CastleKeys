@@ -6,6 +6,7 @@ from . import config_manager
 def setup_logger():
     cm = config_manager.ConfigManager()
     path = cm.logs_path
+
     # clear settings 
     logger.remove()
 

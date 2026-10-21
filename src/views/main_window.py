@@ -102,32 +102,48 @@ class MenuBar:
         view_menu.addAction(change_theme)
 
 #SideBar and right workspaces
-class SideBar: 
+class SideBar(QObject): 
     def __init__(self):
+        super().__init__() 
+
+        self.password_entries = {}
+        self.selected_password_id = None
+
+        logger.success("Sidebar init")
         self.init_sidebar()
 
 
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.MouseButtonRelease:
+            if event.button() == Qt.MouseButton.LeftButton:
+                entry_id = obj.property("entry_id")
 
+                if entry_id is not None:
+                    self.show_password_information(entry_id)
+                    return True
+
+        return super().eventFilter(obj, event)
         
     #Создание секции пароля
     def all_passwords_page_add_section(self, entry_id, service_name, url, creation_date):
+        #Full section layout
         self.section_widget = QWidget()
-
         self.section_widget.setStyleSheet("background-color: #222222; border-radius: 8px")
-
         self.section_layout = QVBoxLayout(self.section_widget)
 
+        #Top section layout 
         self.top_section_widget = QWidget()
         self.top_section_layout = QHBoxLayout(self.top_section_widget)
         self.top_section_layout.setContentsMargins(20, 0, 0, 0)
 
+        #Bottom section layout
         self.bottom_section_widget = QWidget()
         self.bottom_section_layout = QHBoxLayout(self.bottom_section_widget)
         self.bottom_section_layout.setContentsMargins(25, 0, 0, 0)
 
         icon_size = QSize(24, 24)
 
-        #top section 
+        #top section widgets
         self.service_icon = ...
         self.service_name = QLabel(service_name)
         self.service_name.setStyleSheet("font-size: 18pt;")
@@ -146,14 +162,12 @@ class SideBar:
         self.fav_password_btn.setIconSize(icon_size)
         self.fav_password_btn.setObjectName("RightWorkspaceButtons")
 
-        self.fav_password_btn.clicked.connect(self.show_password_information)
-
         self.top_section_layout.addWidget(self.service_name)
         self.top_section_layout.addStretch()
         self.top_section_layout.addWidget(self.del_password_btn)
         self.top_section_layout.addWidget(self.fav_password_btn)
 
-        #bottom section 
+        #bottom section widgets 
         self.service_url = QLabel(url)
         self.creation_date = QLabel(creation_date)
 
@@ -164,18 +178,37 @@ class SideBar:
         self.section_layout.addWidget(self.top_section_widget)
         self.section_layout.addWidget(self.bottom_section_widget)
 
+        self.section_widget.setProperty("entry_id", entry_id)
+
+        # Делаем карточку кликабельной
+        self.section_widget.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.section_widget.installEventFilter(self)
+
+        # Обрабатываем нажатия на вложенные элементы
+        for widget in (
+            self.top_section_widget,
+            self.bottom_section_widget,
+            self.service_name,
+            self.service_url,
+            self.creation_date,
+        ):  
+            widget.installEventFilter(self)
+            widget.setCursor(Qt.CursorShape.PointingHandCursor)
+            widget.setProperty("entry_id", entry_id)
+
         return self.section_widget 
-
-
 
     #Страница со всеми паролями
     def all_passwords_page(self):
+
+        self.password_info_widget = QWidget()
+        self.password_info_layout = QHBoxLayout(self.password_info_widget)
         
         self.all_passwords_page_widget = QWidget()
         layout = QVBoxLayout(self.all_passwords_page_widget)
 
-        title = QLabel("All Passwords")
-        title.setStyleSheet("font-size: 24pt;")
+        self.all_passwords_page_title = QLabel("All Passwords")
+        self.all_passwords_page_title.setStyleSheet("font-size: 24pt;")
 
         self.all_passwords_page_widget.setObjectName("RightWorkspace")
         layout.setSpacing(8)
@@ -190,18 +223,16 @@ class SideBar:
         self.passwords_cards_layout.setSpacing(8)
         self.passwords_cards_layout.addStretch()
 
-        self.password_information()
+        self.password_information(None, None, None, None, None, None)
 
-
+        layout.addWidget(self.all_passwords_page_title)
         self.scroll_area_all_passwords.setWidget(self.cards_all_passwords_widget)
         layout.addWidget(self.scroll_area_all_passwords)
         layout.addWidget(self.main_password_information_widget)
+
         self.main_password_information_widget.hide()
 
-
-
         self.cards_all_passwords_widget.setStyleSheet("background-color: #111")
-
 
 
     #SideBar 
@@ -235,31 +266,47 @@ class SideBar:
             lambda: self.pages.setCurrentIndex(0)
         )
 
-        # return self.sidebar_widget
 
+    def show_password_information(self, entry_id):
+        password_data = self.password_entries.get(entry_id)
 
+        if password_data is None:
+            logger.warning(f"Password {entry_id} not found")
+            return
 
+        service, url, login, password, creation_date = password_data
 
+        self.selected_password_id = entry_id
 
-    def show_password_information(self):
+        # Обновляем информацию
+        self.title.setText(service)
+        self.service_lb.setText(f"Service: {service}")
+        self.url_lb.setText(f"URL: {url}")
+        self.login_lb.setText(f"Login: {login}")
+        self.password_lb.setText(f"Password: {password}")
+        self.creation_date_lb.setText(
+            f"Creation date: {creation_date}"
+        )
+
+        # Скрываем список паролей
         self.scroll_area_all_passwords.hide()
+        self.all_passwords_page_title.hide()
+
+        # Показываем информацию внутри главного окна
         self.main_password_information_widget.show()
 
 
-
-
-
     #Страрица с информацией о пароле
-    def password_information(self): 
-
-        logger.debug("All Passwords Page hidden. Showing Password Information Page")
+    def password_information(self, entry_id, service, url, login, password, creation_date): 
 
         self.main_password_information_widget = QWidget()
         self.main_password_information_layout = QHBoxLayout(self.main_password_information_widget)
 
         self.password_information_widget = QWidget()
         self.password_information_widget.setObjectName("RightWorkspace")
+        self.password_info_widget.setStyleSheet("border-color: #111111")
         self.password_information_layout = QVBoxLayout(self.password_information_widget)
+        
 
         self.title = QLabel()
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -268,25 +315,24 @@ class SideBar:
         self.title.setFont(label_font)
         self.title.setObjectName("RightWorkspaceTitle")
 
-
         # SERVICE
-        self.service_lb = QLabel("Service: ")
+        self.service_lb = QLabel(f"Service: {service}")
         self.service_lb.setObjectName("RightWorkspaceLabel")
         self.service_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
 
         #URL
-        self.url_lb = QLabel("URL: ")
+        self.url_lb = QLabel(f"URL: {url}")
         self.url_lb.setObjectName("RightWorkspaceLabel")
         self.url_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
 
         # LOGIN 
-        self.login_lb = QLabel("Login: ")
+        self.login_lb = QLabel(f"Login: {login}")
         self.login_lb.setObjectName("RightWorkspaceLabel")
         self.login_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
 
 
         # PASSWORD
-        self.password_lb = QLabel("Password: ")
+        self.password_lb = QLabel(f"Password: {password}")
         self.password_lb.setObjectName("RightWorkspaceLabel")
         self.password_lb.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
@@ -295,7 +341,7 @@ class SideBar:
         self.tag_lb.setObjectName("RightWorkspaceLabel")
 
         # CREATION DATE 
-        self.creation_date_lb = QLabel("Creation date: ")
+        self.creation_date_lb = QLabel(f"Creation date: {creation_date}")
         self.creation_date_lb.setObjectName("RightWorkspaceLabel")
 
         # DESCRIPTION
@@ -309,6 +355,11 @@ class SideBar:
         self.description.setObjectName("RightWorkspace")
 
         icon_size = QSize(24, 24)
+
+        self.back_btn = QPushButton("Back")
+        self.back_btn.setObjectName("RightWorkspaceButtons")
+        self.back_btn.clicked.connect(self.back_to_passwords)
+
 
         self.hide_password_btn = QPushButton("")
         self.hide_password_btn.setFixedSize(40, 40)
@@ -337,9 +388,14 @@ class SideBar:
         self.under_title_layout = QHBoxLayout()
 
         self.under_title_layout.addStretch()
+        
+
         self.under_title_layout.addWidget(self.hide_password_btn)
         self.under_title_layout.addWidget(self.edit_password_btn)
         self.under_title_layout.addWidget(self.del_password_btn)
+        self.password_information_layout.insertWidget(
+            0, self.back_btn
+        )
         self.password_information_layout.addWidget(self.title)
         self.password_information_layout.addLayout(self.under_title_layout)
         self.password_information_layout.addWidget(self.service_lb)
@@ -353,9 +409,11 @@ class SideBar:
 
         self.main_password_information_layout.addWidget(self.password_information_widget)
 
+    def back_to_passwords(self):
+        self.main_password_information_widget.hide()
 
-
-
+        self.scroll_area_all_passwords.show()
+        self.all_passwords_page_title.show()
 
 class MainWindow(QMainWindow):
     def __init__(self, sidebar, topbar, menubar):
@@ -618,10 +676,11 @@ class MainWindow(QMainWindow):
         #Сделать анимацию при переходе между паролями, вкладками итд.
    
     def load_db(self):
-        init_db()                             
-        data = get_all_passwords()
-
         try:
+            init_db()
+            data = get_all_passwords()
+
+            # Очищаем старые карточки
             while self.sidebar.passwords_cards_layout.count():
                 layout_item = self.sidebar.passwords_cards_layout.takeAt(0)
                 widget = layout_item.widget()
@@ -630,22 +689,34 @@ class MainWindow(QMainWindow):
                     widget.hide()
                     widget.deleteLater()
 
+            self.sidebar.password_entries.clear()
+
             for row in data:
                 entry_id = row[0]
                 service_name = row[1]
                 url = row[2]
+                login = row[3]
+                password = row[4]
                 creation_date = row[5] if len(row) > 5 else "Unknown"
 
-                self.card = self.sidebar.all_passwords_page_add_section(
+                # Сохраняем данные
+                self.sidebar.password_entries[entry_id] = (
+                    service_name,
+                    url,
+                    login,
+                    password,
+                    creation_date
+                )
+
+                # Создаём только карточку
+                card = self.sidebar.all_passwords_page_add_section(
                     entry_id=entry_id,
                     service_name=service_name,
                     url=url,
-                    creation_date=creation_date,
+                    creation_date=creation_date
                 )
 
-                self.card.setProperty("entry_id", entry_id)
-
-                self.sidebar.passwords_cards_layout.addWidget(self.card)
+                self.sidebar.passwords_cards_layout.addWidget(card)
 
             self.sidebar.passwords_cards_layout.addStretch()
 
