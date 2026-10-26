@@ -52,12 +52,12 @@ class MainController():
     # connect signals
     def _connect_signals(self):
         
-        self._view.tree_view.clicked.connect(self._on_category_clicked)               #tree select category
-        self._view.topbar.new_password_btn.clicked.connect(self._new_password_clicked)       #new password menu(button)
-        self._view.topbar.settings_btn.clicked.connect(self._setting_clicked)                #settings menu(button)
-        self._view.edit_password_btn.clicked.connect(self._edit_password_clicked)     #edit password menu(button)
-        self._view.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
-        self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
+        # self._view.tree_view.clicked.connect(self._on_category_clicked)               #tree select category
+        # self._view.topbar.new_password_btn.clicked.connect(self._new_password_clicked)       #new password menu(button)
+        # self._view.topbar.settings_btn.clicked.connect(self._setting_clicked)                #settings menu(button)
+        # self._view.edit_password_btn.clicked.connect(self._edit_password_clicked)     #edit password menu(button)
+        # self._view.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
+        # self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
 
         # self._view.cards_all_passwords_widget.clicked.connect(self.on_card_clicked)
 

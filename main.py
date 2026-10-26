@@ -5,6 +5,8 @@ from src.setuplogger import logger
 
 from src.views import MainWindow
 from src.views import Settings
+from src.views.ui.Pages import Pages
+from src.views.ui.SideBar import SideBar
 
 from src.controllers import MainController
 from src.controllers import SettingsController
@@ -34,10 +36,13 @@ class CastleKeys:
 
         app = QApplication(cleaned_args)
 
+        pages = Pages()
+
         view = MainWindow(
             sidebar=None,
             topbar=None,
-            menubar=None
+            menubar=None,
+            pages=pages
         )
         settings = Settings()
 

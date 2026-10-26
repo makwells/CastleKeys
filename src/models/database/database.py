@@ -35,10 +35,10 @@ def init_db():
             )
         """)
     password_db.commit()
-    # logger.success("The database is connected ✅")
 
 
 def add_password(service: str, url: str, login: str, password: str) -> int:
+    logger.debug("function running")
     global password_db
         
     if password_db is None:
@@ -68,22 +68,40 @@ def add_password(service: str, url: str, login: str, password: str) -> int:
         return -1
 
 def delete_password(password_id: int) -> bool:
-
+    logger.debug("function running")
     global password_db
-    if password_db is None: 
+
+    if password_db is None:
+        logger.error("Database not initialized!")
         return False
+
     try:
         cursor = password_db.cursor()
-        # Удаляем строго одну запись по ее первичному ключу
-        cursor.execute("DELETE FROM passwords WHERE id = ?", (password_id,))
+
+        cursor.execute(
+            "DELETE FROM passwords WHERE id = ?",
+            (password_id,)
+        )
+
+        deleted = cursor.rowcount > 0
+
         password_db.commit()
         cursor.close()
-        return True
-    except sqlite3.Error:
+
+        if deleted:
+            logger.success(f"Password ID {password_id} deleted")
+        else:
+            logger.warning(f"Password ID {password_id} not found")
+
+        return deleted
+
+    except sqlite3.Error as e:
         password_db.rollback()
+        logger.error(f"Error deleting password: {e}")
         return False
 
 def get_all_passwords() -> list:
+    logger.debug("function running")
     global password_db
     if password_db is None:
         logger.error("Database not initialized!")
@@ -97,6 +115,7 @@ def get_all_passwords() -> list:
         return []
 
 def get_count_passwords() -> int:
+    logger.debug("function running")
     global password_db
     if password_db is None:
         logger.error("Database not initialized!")
@@ -112,6 +131,7 @@ def get_count_passwords() -> int:
         return 0
 
 def update_password(password_id: int, service: str, url: str, login: str, password: str) -> bool:
+    logger.debug("function running")
     global password_db
     
     if password_db is None:
