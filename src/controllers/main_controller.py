@@ -30,12 +30,14 @@ from datetime import datetime
 # TODO Сделать настройки
 
 class MainController():
-    def __init__(self, view):
+    def __init__(self, view, pages, topbar):
 
         self.config_manager = ConfigManager()
         self.config = self.config_manager.load_config()
 
         self._view = view #MainWindow
+        self._pages = pages #Pages
+        self._topbar = topbar
         self.search_field = search.Search(self._view)
 
         self.search_field.search_text.connect(self.find_password)
@@ -44,20 +46,36 @@ class MainController():
         self.login_ = None
         self.url_ = None
         self.password_ = None
-        self.current_password = None
+        # self.current_password = None
 
         self._connect_signals() #Connects
+        hotkeys.HotKeys(self)   # Connect hotkeys
 
 
     # connect signals
     def _connect_signals(self):
         
         # self._view.tree_view.clicked.connect(self._on_category_clicked)               #tree select category
-        # self._view.topbar.new_password_btn.clicked.connect(self._new_password_clicked)       #new password menu(button)
-        # self._view.topbar.settings_btn.clicked.connect(self._setting_clicked)                #settings menu(button)
-        # self._view.edit_password_btn.clicked.connect(self._edit_password_clicked)     #edit password menu(button)
-        # self._view.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
+        self._view.topbar.settings_btn.clicked.connect(self._setting_clicked)                #settings menu(button)
+        self._pages.passwords_page.edit_password_btn.clicked.connect(self._edit_password_clicked)     #edit password menu(button)
+        self._pages.passwords_page.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
         # self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
+
+        # self._pages.passwords_page.favorite_btn.clicked.connect(self.favorites_func)
+
+        """
+        Объяснение: Если открыта страница с паролями, то кнопка Add будет адресована только странице с паролями. Добавить пароль с вкладки контактов невозможно. 
+        Если открыта страница с контактами, то кнопка Add будет адресованна только странице с контактами. Добавить контакт с вкладки паролей невозможно. 
+
+        Проще говоря, для каждой вкладки - свой функционал кнопки Add
+        """
+        if self._view.sidebar.pages.currentIndex() == 1:
+                self._view.topbar.new_password_btn.clicked.connect(self._new_password_clicked) #new password menu(button)
+
+        logger.debug(f"\n\n{self._view.sidebar.pages.currentIndex()}\n\n")
+
+        self._pages.passwords_page.delete_requested.connect(self._del_password_clicked)
+        self._pages.passwords_page.delete_selected_password_btn.clicked.connect(lambda checked=False: self._del_password_clicked())
 
         # self._view.cards_all_passwords_widget.clicked.connect(self.on_card_clicked)
 
@@ -65,11 +83,6 @@ class MainController():
         # self._view.menubar.edit_password_menu.triggered.connect(self._edit_password_clicked)  #edit password(menu)
         # self._view.menubar.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
 
-        hotkeys.HotKeys(self)      # Connect hotkeys
-
-
-    def on_card_clicked(self):
-        logger.debug("Hello")
 
     # select category
     def _on_category_clicked(self, index): 
@@ -130,9 +143,11 @@ class MainController():
             # self._view.service_item.setSelectable(True)
 
             if self.config["privacy"]["auto_hide_passwords"]:
-                self._view.hide_password_btn_state = False
+                self._pages.passwords_page.hide_password_btn_state = False
+
             
 
+        #FIXME 
         self.service_name_ = self.item.text()
         self.login_ = self.item.data(Qt.ItemDataRole.UserRole + 1)
         self.url_ = self.item.data(Qt.ItemDataRole.UserRole + 2)
@@ -146,16 +161,21 @@ class MainController():
         self._view.password_lb.setText(f"Password: {self.password_}")
         self._view.creation_date_lb.setText(f"Creation date: {self.date_}")
 
-        
-        self.current_password = self._view.password_lb.text()
-        self.password_length = len(self.current_password)
-        self.hide_password = "*" * self.password_length
-
         #auto hide passwords
         if self.config["privacy"]["auto_hide_passwords"]:
             self.hide()
         else:
             return
+
+
+    def favorites_func(self):
+        logger.debug("Favorite")
+
+        icon_size = QSize(24, 24)
+        self._pages.passwords_page.favorite_btn_icon = icons_set_color("heart_filled.svg", "#D3D3D3", icon_size)
+        self._pages.passwords_page.favorite_btn.setIcon(self._pages.passwords_page.favorite_btn_icon)
+        self._pages.passwords_page.favorite_btn.setIconSize(icon_size)
+        
 
     # add new password
     def _new_password_clicked(self):
@@ -191,15 +211,20 @@ class MainController():
                 
                 current_date = datetime.now().strftime("%Y-%m-%d %H:%M") # get current date
          
-                self.card = self._view.all_passwords_page_add_section(
+                self.card = self._pages.passwords_page.all_passwords_page_add_section(
+                    entry_id = self._current_new_id,
                     service_name=get_service or "new Entry",
                     url=get_url or "Unknow",
                     creation_date=current_date or "Unknow",
                 )
 
-                self._view.passwords_cards_layout.addWidget(self.card)
+                #FIXME 
 
-                self._view.passwords_cards_layout.addStretch()
+                self._pages.passwords_page.passwords_cards_layout.addWidget(self.card)
+                # self._pages.passwords_page.scroll_area_all_passwords.addWidget(self.card)
+
+
+                # self._pages.passwords_page.passwords_cards_layout.addStretch()
 
                 logger.debug(f"New password created in DB with ID {self._current_new_id}")
 
@@ -211,12 +236,6 @@ class MainController():
                 login=get_login,
                 password=get_password
             )
-            
-            if success and self._new_tree_item:
-                self._new_tree_item.setText(get_service or "New Entry")
-                self._new_tree_item.setData(get_login, Qt.ItemDataRole.UserRole + 1)
-                self._new_tree_item.setData(get_url, Qt.ItemDataRole.UserRole + 2)
-                self._new_tree_item.setData(get_password, Qt.ItemDataRole.UserRole + 3)
 
     # edit password
     def _edit_password_clicked(self):
@@ -263,61 +282,53 @@ class MainController():
         )
         if success:
             #change in ui
-            self._view.service_lb.setText(f"Service: {new_service}") 
-            self._view.url_lb.setText(f"URL: {new_url}")
-            self._view.login_lb.setText(f"Login: {new_login}")
-            self._view.password_lb.setText(f"Password: {new_password}")
+            self._pages.passwords_page.service_lb.setText(f"Service: {new_service}") 
+            self._pages.passwords_page.url_lb.setText(f"URL: {new_url}")
+            self._pages.passwords_page.login_lb.setText(f"Login: {new_login}")
+            self._pages.passwords_page.password_lb.setText(f"Password: {new_password}")
 
             self.service_name_ = new_service
             self.url_ = new_url
             self.login_ = new_login
             self.password_ = new_password
 
-            self.item.setText(self.service_name_)                     # title on tree 
-            self._view.title.setText(f"{self.service_name_}".upper()) # title on right_workspace
+            # self.item.setText(self.service_name_)                     # title on tree 
+            self._pages.passwords_page.title.setText(f"{self.service_name_}".upper()) # title on right_workspace
 
     # delete password
-    def _del_password_clicked(self, tree_view): 
-        logger.debug("Run delete confirmation window")
+    def _del_password_clicked(self, entry_id=None):
+        page = self._pages.passwords_page
+
+        if entry_id is None:
+            entry_id = page.selected_password_id
+
+        if entry_id is None:
+            logger.warning("Password is not selected.")
+            return
 
         reply = QMessageBox.question(
-            None, 
-            "Confirmation", 
+            self._view,
+            "Confirmation",
             "Are you sure you want to delete the password?",
-            QMessageBox.Yes | QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
-        
-        if reply == QMessageBox.Yes:
-            logger.success("Password deleted.")
-            #Get current index element
-            current_index = self._view.tree_view.currentIndex()
-    
-            if not current_index.isValid():
-                return
-    
-            model = self._view.tree_view.model() 
-            row = current_index.row()
-            parent_index = current_index.parent()
-    
-            # index first row
-            first_column_index = model.index(row, 0, parent_index)
-            
-            #get database id 
-            db_id = model.data(first_column_index, Qt.ItemDataRole.UserRole)
-    
-            if db_id is None:
-                logger.error("The database identifier is missing from the interface element!")
-                return
-    
-            #delete
-            if database.delete_password(db_id):
-                model.removeRow(row, parent_index)
-                logger.success(f"The row with ID {db_id} has been removed from the interface.")
 
-            self.main_menu()
-        else:
+        if reply != QMessageBox.StandardButton.Yes:
             logger.debug("Deletion cancelled.")
-            return      
+            return
+
+        if not database.delete_password(entry_id):
+            logger.error(f"Failed to delete password {entry_id}.")
+            QMessageBox.warning(
+                self._view,
+                "Error",
+                "Failed to delete password.",
+            )
+            return
+
+        page.delete_password_card(entry_id)   
+        logger.success(f"Password {entry_id} deleted.")
 
     # settings
     def _setting_clicked(self): 
@@ -354,58 +365,38 @@ class MainController():
         self._view.path_to_db.setText(f"Database path: {get_database_path}") #database path
         self._view.db_count_passwords.setText(f"Database count passwords: {database.get_count_passwords()}") #database count passwords
 
-
     # hide/show passwords
-    def hide(self, checked=None): 
+    def hide(self, checked=None):
+        #FIXME сркытие пароля: пароль скрывается, но обратно не показывается, звездочки добавляются снова и снова до бесконечности. Нужно вызывать раньше, чем метод скрытия. 
+        self.current_password = self._pages.passwords_page.password_lb.text()
+        self.password_length = len(self.current_password)
+        self.hide_password = "*" * self.password_length 
+
         icon_size = QSize(24, 24)
 
-        if not self._view.hide_password_btn_state:
-            self._view.password_lb.setText("Password: " + self.hide_password) 
-            self._view.hide_password_btn.setText("")
-            self._view.hide_password_icon = icons_set_color("hide.svg", "#D3D3D3", icon_size)
-            self._view.hide_password_btn.setIcon(self._view.hide_password_icon)
-            self._view.hide_password_btn.setIconSize(icon_size)
+        if not self._pages.passwords_page.hide_password_btn_state:
+            self._pages.passwords_page.password_lb.setText("Password: " + self.hide_password) 
+            self._pages.passwords_page.hide_password_btn.setText("")
+            self._pages.passwords_page.hide_password_icon = icons_set_color("hide.svg", "#D3D3D3", icon_size)
+            self._pages.passwords_page.hide_password_btn.setIcon(self._pages.passwords_page.hide_password_icon)
+            self._pages.passwords_page.hide_password_btn.setIconSize(icon_size)
 
-            self._view.hide_password_btn_state = True
+            self._pages.passwords_page.hide_password_btn_state = True
             logger.debug("Password hidden")
         else:
             # TODO password confirmation
             # confirmation = Password_Confirmation()
             # confirmation.exec()
 
-            self._view.password_lb.setText(self.current_password)
-            self._view.hide_password_btn.setText("")
-            self._view.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
-            self._view.hide_password_btn.setIcon(self._view.hide_password_icon)
-            self._view.hide_password_btn.setIconSize(icon_size)
-            self._view.hide_password_btn_state = False
+            self._pages.passwords_page.password_lb.setText(self.current_password)
+            self._pages.passwords_page.hide_password_btn.setText("")
+            self._pages.passwords_page.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
+            self._pages.passwords_page.hide_password_btn.setIcon(self._pages.passwords_page.hide_password_icon)
+            self._pages.passwords_page.hide_password_btn.setIconSize(icon_size)
+            self._pages.passwords_page.hide_password_btn_state = False
             logger.debug("Password is shown")
 
     def main_menu(self):
         logger.debug("Run main menu")
-        
-        # hide all elements right workspace
-        self._view.title.hide()
-        self._view.service_lb.hide()
-        self._view.url_lb.hide()
-        self._view.login_lb.hide()
-        self._view.password_lb.hide()
-        self._view.creation_date_lb.hide()
-        self._view.description_lb.hide()
-        self._view.description.hide()
-        self._view.hide_password_btn.hide()
-        self._view.edit_password_btn.hide()
-        self._view.del_password_btn.hide()
-        self._view.db_size_lb.hide()
-        self._view.db_creation_date.hide()
-        self._view.path_to_db.hide()
-        self._view.db_count_passwords.hide()
-        self._view.db_count_dublicate.hide()
-        self._view.db_login.hide()
-        self._view.db_password.hide()
-        self._view.tag_lb.hide()
-
-
-        # show logo
-        self._view.welcome_logo.show()
-
+        lambda: self._pages.setCurrentIndex(0)
+        # lambda: self._pages.setCurrentWidget(self._pages.main_menu_page.main_menu_widget)

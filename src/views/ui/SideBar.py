@@ -32,7 +32,6 @@ class SideBar(QObject):
         self.wifi_btn = QPushButton("Wi-Fi")
         self.trash_btn = QPushButton("Trash")
 
-
         #Добавление кнопок в интерфейс 
         self.sidebar_layout.addWidget(self.all_passwords_btn)
         self.sidebar_layout.addWidget(self.favorites_btn)
@@ -44,36 +43,43 @@ class SideBar(QObject):
         self.sidebar_layout.addWidget(self.trash_btn)
 
 
+
+        #Main menu Page
+        # lambda: self.pages.setCurrentWidget(self.pages.main_menu_widget)
+        lambda: self.pages.setCurrentIndex(0)
+
         #Подключение действий к кнопкам в sidebar
         #Passwords Page
         self.all_passwords_btn.clicked.connect(
-            lambda: self.pages.setCurrentWidget(self.pages.passwords_page.passwords_page_widget))
+            lambda: self.pages.setCurrentIndex(1))
+            # lambda: self.pages.setCurrentWidget(self.pages.passwords_page.passwords_page_widget))
 
         #Favorites Page
         self.favorites_btn.clicked.connect(
-            lambda: self.pages.setCurrentWidget(self.pages.favorites_page.favorites_widget))
+            # lambda: self.pages.setCurrentWidget(self.pages.favorites_page.favorites_widget))
+            lambda: self.pages.setCurrentIndex(2))
         
         #Contact Page
         self.contacts_btn.clicked.connect(
-            lambda: self.pages.setCurrentWidget(self.pages.contacts_page.contacts_widget)
-            )
+            # lambda: self.pages.setCurrentWidget(self.pages.contacts_page.contacts_widget))
+            lambda: self.pages.setCurrentIndex(3))
 
         #Cards Page
         self.cards_btn.clicked.connect(
-            lambda: self.pages.setCurrentWidget(self.pages.cards_page.cards_widget)
-            )
+            # lambda: self.pages.setCurrentWidget(self.pages.cards_page.cards_widget))
+            lambda: self.pages.setCurrentIndex(4))
 
         #Tokens Page
         self.tokens_btn.clicked.connect(
-            lambda: self.pages.setCurrentWidget(self.pages.tokens_page.tokens_widget)
-        )
+            # lambda: self.pages.setCurrentWidget(self.pages.tokens_page.tokens_widget))
+            lambda: self.pages.setCurrentIndex(5))
 
         #WiFi Page
         self.wifi_btn.clicked.connect(
-            lambda: self.pages.setCurrentWidget(self.pages.wifi_page.wifi_widget)
-        )
+            # lambda: self.pages.setCurrentWidget(self.pages.wifi_page.wifi_widget))
+            lambda: self.pages.setCurrentIndex(6))
 
         #Trash Page
         self.trash_btn.clicked.connect(
-            lambda: self.pages.setCurrentWidget(self.pages.trash_page.trash_widget)
-        )
+            # lambda: self.pages.setCurrentWidget(self.pages.trash_page.trash_widget))
+            lambda: self.pages.setCurrentIndex(7))

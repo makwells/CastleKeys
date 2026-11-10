@@ -9,6 +9,7 @@ class Cards_page(QObject):
 
     def cards_page(self):
         self.cards_widget = QWidget()
+        self.cards_widget.setObjectName("RightWorkspace")
         self.cards_layout = QVBoxLayout(self.cards_widget)
 
         title = QLabel("Cards")

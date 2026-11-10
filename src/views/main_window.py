@@ -15,11 +15,11 @@ from src.views.ui.icons import icons_set_color
 from src.views.ui.SideBar import SideBar
 from src.views.ui.MenuBar import MenuBar
 from src.views.ui.TopBar import TopBar
-# from src.views.ui.Pages import Pages
+
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, sidebar, pages, topbar, menubar):
+    def __init__(self, pages):
         super().__init__()
 
         self.pages = pages # init pages 
@@ -39,7 +39,6 @@ class MainWindow(QMainWindow):
 
 
         self.ui()                             # run ui
-        # self.load_db()                        # run db
         self.apply_theme()                    # run theme
 
     def ui(self): #ui
@@ -61,9 +60,7 @@ class MainWindow(QMainWindow):
 
         self.workspace_layout.addWidget(self.sidebar.sidebar_widget)
         self.workspace_layout.addWidget(self.pages)
-        # self.workspace_layout.addWidget(self.right_container)
         main_layout.addWidget(self.topbar.tool_container)
-
         main_layout.addLayout(self.workspace_layout)
         self.central_widget.setLayout(main_layout)
     
@@ -96,159 +93,6 @@ class MainWindow(QMainWindow):
 
 
         self.left_layout.addWidget(self.tree_view)
-
-    def workspace_right(self): #right workspace widgets
-        logger.debug("Right workspace successfully loaded! ✅")
-
-        self.right_container = QWidget()
-        self.right_container.setObjectName("RightWorkspace")
-        self.right_layout = QVBoxLayout(self.right_container)
-
-        self.db_information()
-        self.title = QLabel()
-        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label_font = self.title.font()
-        label_font.setBold(True)
-        self.title.setFont(label_font)
-        self.title.setObjectName("RightWorkspaceTitle")
-
-        # SERVICE
-        self.service_lb = QLabel("Service: ")
-        self.service_lb.setObjectName("RightWorkspaceLabel")
-        self.service_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
-
-        #URL
-        self.url_lb = QLabel("URL: ")
-        self.url_lb.setObjectName("RightWorkspaceLabel")
-        self.url_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
-
-        # LOGIN 
-        self.login_lb = QLabel("Login: ")
-        self.login_lb.setObjectName("RightWorkspaceLabel")
-        self.login_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
-
-
-        # PASSWORD
-        self.password_lb = QLabel("Password: ")
-        self.password_lb.setObjectName("RightWorkspaceLabel")
-        self.password_lb.setTextInteractionFlags(Qt.TextSelectableByMouse)
-
-        #TAG
-        self.tag_lb = QLabel("Tag: ")
-        self.tag_lb.setObjectName("RightWorkspaceLabel")
-
-        # CREATION DATE 
-        self.creation_date_lb = QLabel("Creation date: ")
-        self.creation_date_lb.setObjectName("RightWorkspaceLabel")
-
-        # DESCRIPTION
-        self.description_lb = QLabel("Description:")
-        self.description_lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.description_lb.setObjectName("RightWorkspaceLabel")
-        # FIXME Описание к паролю
-        # Логика в том, что у пользователя может быть несколько аккаунто одного сервиса, быть аунтефикатор, чей-то аккаунт итд, описание служит ориетиром. Нужно при любом действии пользователя единожды сохранить описание.
-        # Описание должно храниться в памяти компьютера при нажатии на другой пароль. При нажатии на другой пароль оно сохраняется в базу данных и при следующем заходе в программу считывает ее уже с базы данных.
-        self.description = QTextEdit()
-        self.description.setObjectName("RightWorkspace")
-
-        icon_size = QSize(24, 24)
-
-        self.hide_password_btn = QPushButton("")
-        self.hide_password_btn.setFixedSize(40, 40)
-        self.hide_password_btn_state = False
-        
-        self.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
-        self.hide_password_btn.setIcon(self.hide_password_icon)
-        self.hide_password_btn.setIconSize(icon_size)
-        self.hide_password_btn.setObjectName("RightWorkspaceButtons")
-
-        self.edit_password_btn = QPushButton("")
-        self.edit_password_btn.setFixedSize(40, 40)
-        self.edit_password_icon = icons_set_color("edit.svg", "#D3D3D3", icon_size)
-        self.edit_password_btn.setIcon(self.edit_password_icon)
-        self.edit_password_btn.setIconSize(icon_size)
-        self.edit_password_btn.setObjectName("RightWorkspaceButtons")
-
-
-        self.del_password_btn = QPushButton("")
-        self.del_password_btn.setFixedSize(40, 40)
-        self.del_password_icon = icons_set_color("delete.svg", "#D3D3D3", icon_size)
-        self.del_password_btn.setIcon(self.del_password_icon)
-        self.del_password_btn.setIconSize(icon_size)
-        self.del_password_btn.setObjectName("RightWorkspaceButtons")
-
-        
-
-        self.welcome_logo = QLabel()
-        self.welcome_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        welcome_logo_path = self.config["view"]["welcome_logo"]
-        pixmap = QPixmap(self.config_manager.get_resource_path(welcome_logo_path))
-        
-        
-        if not pixmap.isNull():
-            # Масштабируем до 200x200 с сохранением пропорций и сглаживанием
-            scaled_pixmap = pixmap.scaled(
-                self.config["view"]["welcome_logo_width"], self.config["view"]["welcome_logo_height"], 
-                Qt.AspectRatioMode.KeepAspectRatio, 
-                Qt.TransformationMode.SmoothTransformation
-            )
-            self.welcome_logo.setPixmap(scaled_pixmap)
-        else:
-            logger.warning("Logo image not found! Showing placeholder text.")
-
-        self.under_title_layout = QHBoxLayout()
-
-        right_workspace_db_information_elements = [
-            self.db_size_lb,
-            self.db_creation_date,
-            self.path_to_db,
-            self.db_count_passwords,
-            self.db_count_dublicate,
-            self.db_login,
-            self.db_password
-
-        ]
-
-        self.under_title_layout.addStretch()
-        self.under_title_layout.addWidget(self.hide_password_btn)
-        self.under_title_layout.addWidget(self.edit_password_btn)
-        self.under_title_layout.addWidget(self.del_password_btn)
-
-        self.title.hide()
-        self.welcome_logo.show()
-        self.hide_password_btn.hide()
-        self.edit_password_btn.hide()
-        self.del_password_btn.hide()
-
-        self.right_layout.addWidget(self.title)
-        self.right_layout.addWidget(self.welcome_logo)
-        self.right_layout.addLayout(self.under_title_layout)
-        self.right_layout.addWidget(self.service_lb)
-        self.right_layout.addWidget(self.url_lb)
-        self.right_layout.addWidget(self.login_lb)
-        self.right_layout.addWidget(self.password_lb)
-        self.right_layout.addWidget(self.tag_lb)
-        self.right_layout.addWidget(self.creation_date_lb)
-        self.right_layout.addWidget(self.description_lb)
-        self.right_layout.addWidget(self.description)
-
-        self.title.hide()
-        self.service_lb.hide()
-        self.url_lb.hide()
-        self.login_lb.hide()
-        self.password_lb.hide()
-        self.tag_lb.hide()
-        self.creation_date_lb.hide()
-        self.description_lb.hide()
-        self.description.hide()
-
-        # Добавление элементов database_infromation
-        for db_information_elements in right_workspace_db_information_elements:
-            self.right_layout.addWidget(db_information_elements)
-            db_information_elements.hide()
-        
-        self.right_container.setLayout(self.right_layout)
 
     def db_information(self): #database information widgets
         logger.debug("Database information successfully loaded! ✅")

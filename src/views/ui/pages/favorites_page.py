@@ -11,6 +11,7 @@ class Favorites_page(QObject):
 
     def favorites_page(self):
         self.favorites_widget = QWidget()
+        self.favorites_widget.setObjectName("RightWorkspace")
         self.favorites_layout = QVBoxLayout(self.favorites_widget)
 
         title = QLabel("Favorites")

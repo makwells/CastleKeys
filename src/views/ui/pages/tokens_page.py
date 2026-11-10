@@ -14,6 +14,7 @@ class Tokens_page(QObject):
 
     def tokens_page(self):
         self.tokens_widget = QWidget()
+        self.tokens_widget.setObjectName("RightWorkspace")
         self.tokens_layout = QVBoxLayout(self.tokens_widget)
 
         title = QLabel("Tokens")

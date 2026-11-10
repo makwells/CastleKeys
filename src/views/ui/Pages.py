@@ -21,6 +21,7 @@ from src.setuplogger import *
 from src.models.database.database import *
 from src.views.ui.notifications.notifications_window import *
 
+from src.views.ui.pages.mainMenu_page import Main_menu_page
 from src.views.ui.pages.passwords_page import Passwords_page
 from src.views.ui.pages.contacts_page import Contacts_page 
 from src.views.ui.pages.favorites_page import Favorites_page
@@ -33,6 +34,7 @@ class Pages(QStackedWidget):
     def __init__(self):
         super().__init__()
 
+        self.main_menu_page = Main_menu_page()
         self.passwords_page = Passwords_page()
         self.favorites_page = Favorites_page()
         self.contacts_page = Contacts_page()  
@@ -49,7 +51,12 @@ class Pages(QStackedWidget):
         self.load_pages()
         self.load_db()
 
+
     def load_pages(self):
+        #Add main menu page
+        self.addWidget(self.main_menu_page.main_menu_widget)
+        logger.success("Passwords page init.")
+
         #Add passwords page
         self.addWidget(self.passwords_page.passwords_page_widget)
         logger.success("Passwords page init.")
@@ -80,49 +87,48 @@ class Pages(QStackedWidget):
 
 
     def load_db(self):
-        try:
-            init_db()  
-            data = get_all_passwords()
+        # try:
+        init_db() #init database
+        data = get_all_passwords() #database get all passwords
+        self.count_passwords = len(data)
+        self.count_favorites = None
+        self.passwords_page.passwords_count.setText(f"Count: {self.count_passwords}")
+        self.passwords_page.favorites_count.setText(f"Favorites: {self.count_favorites}")
 
-            # Очищаем старые карточки
-            while self.passwords_page.passwords_cards_layout.count():
-                layout_item = self.passwords_page.passwords_cards_layout.takeAt(0)
-                widget = layout_item.widget()
+        # Очищаем старые карточки
+        while self.passwords_page.passwords_cards_layout.count():
+            layout_item = self.passwords_page.passwords_cards_layout.takeAt(0)
+            widget = layout_item.widget()
 
-                if widget is not None:
-                    widget.hide()
-                    widget.deleteLater()
+            if widget is not None:
+                widget.hide()
+                widget.deleteLater()
 
-            self.passwords_page.password_entries.clear()
+        self.passwords_page.password_entries.clear()
 
-            for row in data:
-                entry_id = row[0]
-                service_name = row[1]
-                url = row[2]
-                login = row[3]
-                password = row[4]
-                creation_date = row[5] if len(row) > 5 else "Unknown"
+        for row in data:
+            entry_id = row[0]
+            service_name = row[1]
+            url = row[2]
+            login = row[3]
+            password = row[4]
+            creation_date = row[5] if len(row) > 5 else "Unknown"
 
-                # Сохраняем данные
-                self.passwords_page.password_entries[entry_id] = (
-                    service_name,
-                    url,
-                    login,
-                    password,
-                    creation_date
-                )
+            self.passwords_page.password_entries[entry_id] = (
+                service_name,
+                url,
+                login,
+                password,
+                creation_date
+            )
 
-                # Создаём только карточку
-                card = self.passwords_page.all_passwords_page_add_section(
-                    entry_id=entry_id,
-                    service_name=service_name,
-                    url=url,
-                    creation_date=creation_date
-                )
+            password_card = self.passwords_page.all_passwords_page_add_section(
+                entry_id=entry_id,
+                service_name=service_name,
+                url=url,
+                creation_date=creation_date
+            )
 
-                self.passwords_page.passwords_cards_layout.addWidget(card)
+            self.passwords_page.passwords_cards_layout.addWidget(password_card)
 
-            self.passwords_page.passwords_cards_layout.addStretch()
-
-        except Exception as e:
-            logger.error(f"{e}")
+        self.passwords_page.passwords_cards_layout.addStretch()

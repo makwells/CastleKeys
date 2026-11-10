@@ -7,6 +7,8 @@ from src.views import MainWindow
 from src.views import Settings
 from src.views.ui.Pages import Pages
 from src.views.ui.SideBar import SideBar
+from src.views.ui.TopBar import TopBar
+
 
 from src.controllers import MainController
 from src.controllers import SettingsController
@@ -36,17 +38,15 @@ class CastleKeys:
 
         app = QApplication(cleaned_args)
 
+        settings = Settings()
         pages = Pages()
+        topbar = TopBar()
 
         view = MainWindow(
-            sidebar=None,
-            topbar=None,
-            menubar=None,
             pages=pages
         )
-        settings = Settings()
-
-        controller = MainController(view)
+        
+        controller = MainController(view, pages, topbar)
         settings_controller = SettingsController(settings, view)
 
         settings.hide()

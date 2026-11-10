@@ -12,52 +12,88 @@ from PySide6.QtCore import *
 
 from src.setuplogger import *
 from src.views.ui.icons import icons_set_color
+from src.models.database.database import *
+
 
 class Passwords_page(QObject):
+
+    delete_requested = Signal(int)
+
     def __init__(self):
-        super().__init__()     
+        super().__init__()
 
         self.password_entries = {}
+        self.favorites_passwords = {}
         self.selected_password_id = None
 
         logger.success("Passwords page init")
 
         self.passwords_page()
 
-    #Страница со всеми паролями
+    # Страница со всеми паролями
     def passwords_page(self):
-        logger.success("all passwords blocks widget init")
+        data = get_all_passwords()  # database get all passwords
 
+        logger.success("all passwords cards widget init")
+
+        # main passwords page layout 
         self.password_info_widget = QWidget()
         self.password_info_layout = QHBoxLayout(self.password_info_widget)
-        
+
+        # second passwords page layout 
         self.passwords_page_widget = QWidget()
         layout = QVBoxLayout(self.passwords_page_widget)
 
+        # page title section 
+        self.passwords_page_title_widget = QWidget()
+        self.passwords_page_title_layout = QHBoxLayout(
+            self.passwords_page_title_widget)
+
+        # title 
         self.passwords_page_title = QLabel("All Passwords")
         self.passwords_page_title.setStyleSheet("font-size: 24pt;")
 
+        # counter passwords
+        self.passwords_count = QLabel()
+        self.passwords_count.setStyleSheet("font-size: 12pt;")
+
+        # counter favorites passwords
+        self.favorites_count = QLabel("Favorites: ")
+        self.favorites_count.setStyleSheet("font-size: 12pt;")
+
+        # added widgets on layout 
+        self.passwords_page_title_layout.addWidget(self.passwords_page_title)
+        self.passwords_page_title_layout.addStretch()
+        self.passwords_page_title_layout.addWidget(self.passwords_count)
+        self.passwords_page_title_layout.addWidget(self.favorites_count)
+
+        # connect styles for layout 
         self.passwords_page_widget.setObjectName("RightWorkspace")
         layout.setSpacing(8)
 
+        # scroll area with passwords cards 
         self.scroll_area_all_passwords = QScrollArea()
         self.scroll_area_all_passwords.setWidgetResizable(True)
         self.scroll_area_all_passwords.setFrameShape(QFrame.Shape.NoFrame)
 
+        # card
         self.cards_all_passwords_widget = QWidget()
         self.passwords_cards_layout = QVBoxLayout(self.cards_all_passwords_widget)
         self.passwords_cards_layout.setContentsMargins(0, 0, 0, 0)
         self.passwords_cards_layout.setSpacing(8)
         self.passwords_cards_layout.addStretch()
 
+        # show information about current password  
         self.password_information(None, None, None, None, None, None)
-
-        layout.addWidget(self.passwords_page_title)
+        
+        layout.addWidget(self.passwords_page_title_widget)
         layout.addWidget(self.passwords_page_widget)
         self.scroll_area_all_passwords.setWidget(self.cards_all_passwords_widget)
         layout.addWidget(self.scroll_area_all_passwords)
         layout.addWidget(self.main_password_information_widget)
 
+
+        # hide on start menu with information about current password
         self.main_password_information_widget.hide()
 
         self.cards_all_passwords_widget.setStyleSheet("background-color: #111")
@@ -77,7 +113,7 @@ class Passwords_page(QObject):
 
         self.selected_password_id = entry_id
 
-        # Update information 
+        # Update information
         self.title.setText(service)
         self.service_lb.setText(f"Service: {service}")
         self.url_lb.setText(f"URL: {url}")
@@ -87,11 +123,11 @@ class Passwords_page(QObject):
             f"Creation date: {creation_date}"
         )
 
-        # Hide passwords array 
+        # Hide passwords array
         self.scroll_area_all_passwords.hide()
         self.passwords_page_title.hide()
 
-        # Show information inside main window  
+        # Show information inside main window
         self.main_password_information_widget.show()
 
     def back_to_passwords(self):
@@ -105,37 +141,6 @@ class Passwords_page(QObject):
         self.passwords_page_title.show()
 
     def delete_password_card(self, entry_id):
-        """
-        Функция удаления пароля. 
-
-        Удаление карточки и пароля из базы данных. 
-        Функция проверяет существует ли пароль в базе данных. 
-
-        FIXME Необходимо будет перенести в main_controller.py
-        """
-
-        # Подтверждение удаления
-        # reply = QMessageBox.question(
-        #     self.sidebar_widget,
-        #     "Delete password",
-        #     "Are you sure you want to delete this password?",
-        #     QMessageBox.StandardButton.Yes |
-        #     QMessageBox.StandardButton.No,
-        #     QMessageBox.StandardButton.No
-        # )
-
-        # if reply != QMessageBox.StandardButton.Yes:
-        #     return
-
-        # # Удаляем запись из базы данных
-        # if not delete_password(entry_id):
-        #     QMessageBox.warning(
-        #         self.sidebar_widget,
-        #         "Error",
-        #         "Failed to delete password"
-        #     )
-        #     return
-
         # Удаляем пароль из словаря
         self.password_entries.pop(entry_id, None)
 
@@ -145,7 +150,7 @@ class Passwords_page(QObject):
             widget = item.widget()
 
             if widget is None:
-                continue
+                continue 
 
             if widget.property("entry_id") == entry_id:
                 # Удаляем из layout
@@ -166,17 +171,18 @@ class Passwords_page(QObject):
 
         logger.success(f"Password card {entry_id} removed")
 
-    #Страница с информацией о выбранном пароле
-    def password_information(self, entry_id, service, url, login, password, creation_date): 
+    # Страница с информацией о выбранном пароле
+    def password_information(self, entry_id, service, url, login, password, creation_date):
 
         self.main_password_information_widget = QWidget()
-        self.main_password_information_layout = QHBoxLayout(self.main_password_information_widget)
+        self.main_password_information_layout = QHBoxLayout(
+            self.main_password_information_widget)
 
         self.password_information_widget = QWidget()
         self.password_information_widget.setObjectName("RightWorkspace")
         self.password_info_widget.setStyleSheet("border-color: #111111")
-        self.password_information_layout = QVBoxLayout(self.password_information_widget)
-        
+        self.password_information_layout = QVBoxLayout(
+            self.password_information_widget)
 
         self.title = QLabel()
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -188,29 +194,31 @@ class Passwords_page(QObject):
         # SERVICE
         self.service_lb = QLabel(f"Service: {service}")
         self.service_lb.setObjectName("RightWorkspaceLabel")
-        self.service_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
+        self.service_lb.setTextInteractionFlags(
+            Qt.TextSelectableByMouse)  # copy text
 
-        #URL
+        # URL
         self.url_lb = QLabel(f"URL: {url}")
         self.url_lb.setObjectName("RightWorkspaceLabel")
-        self.url_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
+        self.url_lb.setTextInteractionFlags(
+            Qt.TextSelectableByMouse)  # copy text
 
-        # LOGIN 
+        # LOGIN
         self.login_lb = QLabel(f"Login: {login}")
         self.login_lb.setObjectName("RightWorkspaceLabel")
-        self.login_lb.setTextInteractionFlags(Qt.TextSelectableByMouse) #copy text
-
+        self.login_lb.setTextInteractionFlags(
+            Qt.TextSelectableByMouse)  # copy text
 
         # PASSWORD
         self.password_lb = QLabel(f"Password: {password}")
         self.password_lb.setObjectName("RightWorkspaceLabel")
         self.password_lb.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
-        #TAG
+        # TAG
         self.tag_lb = QLabel("Tag: ")
         self.tag_lb.setObjectName("RightWorkspaceLabel")
 
-        # CREATION DATE 
+        # CREATION DATE
         self.creation_date_lb = QLabel(f"Creation date: {creation_date}")
         self.creation_date_lb.setObjectName("RightWorkspaceLabel")
 
@@ -218,9 +226,7 @@ class Passwords_page(QObject):
         self.description_lb = QLabel("Description:")
         self.description_lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.description_lb.setObjectName("RightWorkspaceLabel")
-        # FIXME Описание к паролю
-        # Логика в том, что у пользователя может быть несколько аккаунто одного сервиса, быть аунтефикатор, чей-то аккаунт итд, описание служит ориетиром. Нужно при любом действии пользователя единожды сохранить описание.
-        # Описание должно храниться в памяти компьютера при нажатии на другой пароль. При нажатии на другой пароль оно сохраняется в базу данных и при следующем заходе в программу считывает ее уже с базы данных.
+        # TODO Описание к паролю: Добавить сохранение в базе данных
         self.description = QTextEdit()
         self.description.setObjectName("RightWorkspace")
 
@@ -228,36 +234,40 @@ class Passwords_page(QObject):
 
         self.back_btn = QPushButton("")
         self.back_btn.setFixedSize(40, 40)
-        self.back_btn_icon = icons_set_color("arrow_left.svg", "#D3D3D3", icon_size)
+        self.back_btn_icon = icons_set_color(
+            "arrow_left.svg", "#D3D3D3", icon_size)
         self.back_btn.setIcon(self.back_btn_icon)
         self.back_btn.setIconSize(icon_size)
         self.back_btn.setObjectName("RightWorkspaceButtons")
-        
-        self.back_btn.clicked.connect(self.back_to_passwords)
 
+        self.back_btn.clicked.connect(self.back_to_passwords)
 
         self.hide_password_btn = QPushButton("")
         self.hide_password_btn.setFixedSize(40, 40)
         self.hide_password_btn_state = False
-        self.hide_password_icon = icons_set_color("show.svg", "#D3D3D3", icon_size)
+        self.hide_password_icon = icons_set_color(
+            "show.svg", "#D3D3D3", icon_size)
         self.hide_password_btn.setIcon(self.hide_password_icon)
         self.hide_password_btn.setIconSize(icon_size)
         self.hide_password_btn.setObjectName("RightWorkspaceButtons")
 
         self.edit_password_btn = QPushButton("")
         self.edit_password_btn.setFixedSize(40, 40)
-        self.edit_password_icon = icons_set_color("edit.svg", "#D3D3D3", icon_size)
+        self.edit_password_icon = icons_set_color(
+            "edit.svg", "#D3D3D3", icon_size)
         self.edit_password_btn.setIcon(self.edit_password_icon)
         self.edit_password_btn.setIconSize(icon_size)
         self.edit_password_btn.setObjectName("RightWorkspaceButtons")
 
-        self.del_password_btn = QPushButton("")
-        self.del_password_btn.setFixedSize(40, 40)
-        self.del_password_icon = icons_set_color("delete.svg", "#D3D3D3", icon_size)
-        self.del_password_btn.setIcon(self.del_password_icon)
-        self.del_password_btn.setIconSize(icon_size)
-        self.del_password_btn.setObjectName("RightWorkspaceButtons")
-
+        self.delete_selected_password_btn = QPushButton("")
+        self.delete_selected_password_btn.setFixedSize(40, 40)
+        self.delete_selected_password_icon = icons_set_color(
+            "delete.svg", "#D3D3D3", icon_size)
+        self.delete_selected_password_btn.setIcon(
+            self.delete_selected_password_icon)
+        self.delete_selected_password_btn.setIconSize(icon_size)
+        self.delete_selected_password_btn.setObjectName(
+            "RightWorkspaceButtons")
 
         self.under_title_layout = QHBoxLayout()
 
@@ -265,7 +275,7 @@ class Passwords_page(QObject):
         self.under_title_layout.addStretch()
         self.under_title_layout.addWidget(self.hide_password_btn)
         self.under_title_layout.addWidget(self.edit_password_btn)
-        self.under_title_layout.addWidget(self.del_password_btn)
+        self.under_title_layout.addWidget(self.delete_selected_password_btn)
 
         self.password_information_layout.addWidget(self.title)
         self.password_information_layout.addLayout(self.under_title_layout)
@@ -278,56 +288,60 @@ class Passwords_page(QObject):
         self.password_information_layout.addWidget(self.description_lb)
         self.password_information_layout.addWidget(self.description)
 
-        self.main_password_information_layout.addWidget(self.password_information_widget)
+        self.main_password_information_layout.addWidget(
+            self.password_information_widget)
 
-    #Создание секции пароля
+    # Создание секции пароля
     def all_passwords_page_add_section(self, entry_id, service_name, url, creation_date):
-        #Full section layout
+        # Full section layout
         self.section_widget = QWidget()
-        self.section_widget.setStyleSheet("background-color: #222222; border-radius: 8px")
+        self.section_widget.setStyleSheet(
+            "background-color: #222222; border-radius: 8px")
         self.section_layout = QVBoxLayout(self.section_widget)
 
-        #Top section layout 
+        # Top section layout
         self.top_section_widget = QWidget()
         self.top_section_layout = QHBoxLayout(self.top_section_widget)
         self.top_section_layout.setContentsMargins(20, 0, 0, 0)
 
-        #Bottom section layout
+        # Bottom section layout
         self.bottom_section_widget = QWidget()
         self.bottom_section_layout = QHBoxLayout(self.bottom_section_widget)
         self.bottom_section_layout.setContentsMargins(25, 0, 0, 0)
 
         icon_size = QSize(24, 24)
 
-        #top section widgets
+        # top section widgets
+        #TODO Добавить возможность добавлять иконки к сервисам! 
         self.service_icon = ...
         self.service_name = QLabel(service_name)
         self.service_name.setStyleSheet("font-size: 18pt;")
 
         self.del_password_btn = QPushButton("")
         self.del_password_btn.setFixedSize(30, 30)
-        self.del_password_icon = icons_set_color("delete.svg", "#D3D3D3", icon_size)
+        self.del_password_icon = icons_set_color(
+            "delete.svg", "#D3D3D3", icon_size)
         self.del_password_btn.setIcon(self.del_password_icon)
         self.del_password_btn.setIconSize(icon_size)
         self.del_password_btn.setObjectName("RightWorkspaceButtons")
 
         self.del_password_btn.clicked.connect(
-    lambda checked=False, eid=entry_id: self.delete_password_card(eid)
-)
+            lambda checked=False, eid=entry_id: self.delete_requested.emit(eid))
 
-        self.fav_password_btn = QPushButton("")
-        self.fav_password_btn.setFixedSize(30, 30)
-        self.fav_password_icon = icons_set_color("heart.svg", "#D3D3D3", icon_size)
-        self.fav_password_btn.setIcon(self.fav_password_icon)
-        self.fav_password_btn.setIconSize(icon_size)
-        self.fav_password_btn.setObjectName("RightWorkspaceButtons")
+        self.favorite_btn = QPushButton("")
+        self.favorite_btn.setFixedSize(30, 30)
+        self.favorite_btn_icon = icons_set_color(
+            "heart.svg", "#D3D3D3", icon_size)
+        self.favorite_btn.setIcon(self.favorite_btn_icon)
+        self.favorite_btn.setIconSize(icon_size)
+        self.favorite_btn.setObjectName("RightWorkspaceButtons")
 
         self.top_section_layout.addWidget(self.service_name)
         self.top_section_layout.addStretch()
         self.top_section_layout.addWidget(self.del_password_btn)
-        self.top_section_layout.addWidget(self.fav_password_btn)
+        self.top_section_layout.addWidget(self.favorite_btn)
 
-        #bottom section widgets 
+        # bottom section widgets
         self.service_url = QLabel(url)
         self.creation_date = QLabel(creation_date)
 
@@ -351,12 +365,12 @@ class Passwords_page(QObject):
             self.service_name,
             self.service_url,
             self.creation_date,
-        ):  
+        ):
             widget.installEventFilter(self)
             widget.setCursor(Qt.CursorShape.PointingHandCursor)
             widget.setProperty("entry_id", entry_id)
 
-        return self.section_widget 
+        return self.section_widget
 
     # Обработчик кликов по карточке пароля.
     def eventFilter(self, obj, event):

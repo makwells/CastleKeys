@@ -11,6 +11,7 @@ class WiFi_page(QObject):
 
     def wifi_page(self):
         self.wifi_widget = QWidget()
+        self.wifi_widget.setObjectName("RightWorkspace")
         self.wifi_layout = QVBoxLayout(self.wifi_widget)
 
         title = QLabel("Wi-Fi")
