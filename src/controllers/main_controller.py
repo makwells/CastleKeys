@@ -72,7 +72,7 @@ class MainController():
         if self._view.sidebar.pages.currentIndex() == 1:
                 self._view.topbar.new_password_btn.clicked.connect(self._new_password_clicked) #new password menu(button)
 
-        logger.debug(f"\n\n{self._view.sidebar.pages.currentIndex()}\n\n")
+        # logger.debug(f"\n\n{self._view.sidebar.pages.currentIndex()}\n\n")
 
         self._pages.passwords_page.delete_requested.connect(self._del_password_clicked)
         self._pages.passwords_page.delete_selected_password_btn.clicked.connect(lambda checked=False: self._del_password_clicked())
@@ -267,10 +267,10 @@ class MainController():
         new_login    = data.get("login") or self.login_
         new_password = data.get("password") or self.password_
         
-        if new_service != "": logger.debug(f"Received updated service data: {new_service}") # if service = Null return old data
-        if new_url != "": logger.debug(f"Received updated url data: {new_url}") # if url = Null return old data
-        if new_login != "": logger.debug(f"Received updated login data: {new_login}") # if login = Null return old data
-        if new_password != "": logger.debug(f"Received updated password data: {new_password}")# if password = Null return old data
+        if new_service != "": logger.debug("Received updated service data") # if service = Null return old data
+        if new_url != "": logger.debug("Received updated url data") # if url = Null return old data
+        if new_login != "": logger.debug("Received updated login data") # if login = Null return old data
+        if new_password != "": logger.debug("Received updated password data")# if password = Null return old data
 
         # change in db
         success = database.update_password(

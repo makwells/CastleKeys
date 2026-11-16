@@ -87,7 +87,6 @@ class Pages(QStackedWidget):
 
 
     def load_db(self):
-        # try:
         init_db() #init database
         data = get_all_passwords() #database get all passwords
         self.count_passwords = len(data)

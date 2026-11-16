@@ -55,7 +55,7 @@ def add_password(service: str, url: str, login: str, password: str) -> int:
         
         # Получаем ID только что созданной записи
         new_id = cursor.lastrowid 
-        logger.success(f"Password for '{service}' ({login}) saved successfully with ID {new_id}")
+        logger.success(f"Password entry saved successfully with ID {new_id}")
         return new_id
             
     except sqlite3.IntegrityError as e:

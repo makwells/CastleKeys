@@ -27,7 +27,6 @@ class CastleKeys:
         logger.success("The application has started")
         logger.debug(f"OS: {sys.platform}") 
 
-
         self.castlekeys()
 
     def castlekeys(self):

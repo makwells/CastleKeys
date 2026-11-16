@@ -1,8 +1,11 @@
-import random
+#generate_passwords.py
+
+import secrets
 import string
 
-def generate_random_password(symbols=15):
-    letters = string.ascii_letters + string.digits + string.punctuation
-    generate = "".join(random.choices(letters, k=symbols))
+def generate_random_password(symbols: int = 15) -> str:
+    if symbols < 1:
+        raise ValueError("Длина пароля должна быть больше нуля")
 
-    return generate
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    return "".join(secrets.choice(alphabet) for _ in range(symbols))
