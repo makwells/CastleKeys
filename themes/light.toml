@@ -1,41 +1,46 @@
 [main]
-background = "#B7B7B7" #151515
-text       = "#222"
-border     = "#EEE"
-icons      = "#222"
+background = "#F4F5F7"
+foreground = "#FFFFFF"
+text       = "#24292F"
+border     = "#D0D7DE"
+icons      = "#343B45"
 
 [buttons]
-btn_background = "#D3D3D3"
-btn_border     = "#EEE"
-btn_icons      = "#D3D3D3"
-btn_background_hover = "#222222"
-btn_border_hover = "#626262"
+btn_background = "#FFFFFF"
+btn_border     = "#D0D7DE"
+btn_icons      = "#343B45"
+btn_background_hover = "#E8EDF3"
+btn_border_hover = "#8C959F"
 
 [toolbar]
-tool_background = "#D3D3D3"
-tool_border = "#EEE"
+tool_background = "#FFFFFF"
+tool_border = "#D0D7DE"
 
 [tree]
-tree_background = "#D3D3D3"
-tree_text       = "#222222"
-tree_border     = "#EEE"
-tree_selection  = "#333333"
-tree_selection_text = "#C7C7C7"
+tree_background = "#FFFFFF"
+tree_text       = "#343B45"
+tree_border     = "#D0D7DE"
+tree_selection  = "#E8EDF3"
+tree_selection_text = "#24292F"
+tree_separator = ""
 
 [search]
-search_backgorund = "#D3D3D3"
-serach_background_pressed = ""
-serach_backgorund_focus = ""
-search_text = "#111"
-serach_border = "#EEE"
+search_backgorund = "#FFFFFF"
+search_background_pressed = ""
+search_backgorund_focus = ""
+search_text = "#343B45"
+search_border = "#D0D7DE"
 
 [right_workspace]
-r_workspace_background = "#D3D3D3"
-r_workspace_text = "#eee"
-r_workspace_border = "#EEE"
+r_workspace_background = "#FFFFFF"
+r_workspace_border = "#D0D7DE"
+r_workspace_text = "#24292F"
+
+[right_workspace_title]
+r_workspace_title_background = "#E8EDF3"
+r_workspace_titile_border = "#D0D7DE"
 
 [dialogs]
-background = "#151515"
-accient = "#D3D3D3"
-border = "#222222"
-icons = "#D3D3D3"
+dialog_background = "#F4F5F7"
+
+[settings]

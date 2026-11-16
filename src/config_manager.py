@@ -82,7 +82,8 @@ class ConfigManager:
                     user_theme_path.touch()
                     logger.warning(f"Created empty {theme_name}")
 
-        return user_dark_theme
+        theme = self.load_config().get("view", {}).get("theme", "dark.toml")
+        return user_light_theme if theme == "light.toml" else user_dark_theme
 
     def _get_logs_path(self):
         logs_dir = self.base_dir / "logs"

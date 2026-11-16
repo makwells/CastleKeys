@@ -69,10 +69,10 @@ class MainController():
 
         Проще говоря, для каждой вкладки - свой функционал кнопки Add
         """
-        if self._view.sidebar.pages.currentIndex() == 1:
-                self._view.topbar.new_password_btn.clicked.connect(self._new_password_clicked) #new password menu(button)
+        self._view.topbar.new_password_btn.clicked.connect(self._add_entry_clicked)
+        self._pages.currentChanged.connect(self._update_add_button)
+        self._update_add_button()
 
-        # logger.debug(f"\n\n{self._view.sidebar.pages.currentIndex()}\n\n")
 
         self._pages.passwords_page.delete_requested.connect(self._del_password_clicked)
         self._pages.passwords_page.delete_selected_password_btn.clicked.connect(lambda checked=False: self._del_password_clicked())
@@ -82,6 +82,23 @@ class MainController():
         # self._view.menubar.new_password_menu.triggered.connect(self._new_password_clicked)    #new password menu(menubar)
         # self._view.menubar.edit_password_menu.triggered.connect(self._edit_password_clicked)  #edit password(menu)
         # self._view.menubar.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
+
+    
+    # Включает кнопку только на странице паролей
+    def _update_add_button(self, index=None):
+        is_passwords_page = (
+            self._pages.currentWidget()
+            is self._pages.passwords_page.passwords_page_widget
+        )
+        self._view.topbar.new_password_btn.setEnabled(is_passwords_page)
+
+    # Проверяет текущую страницу и открывает окно создания пароля.
+    def _add_entry_clicked(self, checked=False):
+        if (
+            self._pages.currentWidget()
+            is self._pages.passwords_page.passwords_page_widget
+        ):
+            self._new_password_clicked()
 
 
     # select category
@@ -218,9 +235,12 @@ class MainController():
                     creation_date=current_date or "Unknow",
                 )
 
-                #FIXME 
-
-                self._pages.passwords_page.passwords_cards_layout.addWidget(self.card)
+                cards_layout = self._pages.passwords_page.passwords_cards_layout
+                # Вставляем карточку перед растяжкой в конце списка.
+                cards_layout.insertWidget(
+                    max(0, cards_layout.count() - 1),
+                    self.card,
+                )
                 # self._pages.passwords_page.scroll_area_all_passwords.addWidget(self.card)
 
 
@@ -336,17 +356,26 @@ class MainController():
         logger.debug("Run settings menu")
         Settings(self._view).exec() 
 
-    # search
+    # Search
     def find_password(self, data: dict):
-        search_text = data.get("text", "")
+        query = data.get("text", "").strip().casefold()
+        layout = self._pages.passwords_page.passwords_cards_layout
 
-        self._view.proxy_model.setRecursiveFilteringEnabled(True)
-        self._view.proxy_model.setFilterKeyColumn(0)  # Filter by service name
-        self._view.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        for index in range(layout.count()):
+            card = layout.itemAt(index).widget()
 
-        # We pass the text to the proxy models. 
-        self._view.proxy_model.setFilterFixedString(search_text)
-        self._view.tree_view.expandAll()
+            if card is None:
+                continue
+
+            # В текущей структуре карточки первый QLabel — название сервиса.
+            service_label = card.findChild(QLabel)
+            service = (
+                service_label.text().casefold()
+                if service_label is not None
+                else ""
+            )
+
+            card.setVisible(not query or query in service)
 
     # database information
     def db_information(self):
