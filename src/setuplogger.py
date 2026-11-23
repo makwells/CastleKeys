@@ -19,7 +19,7 @@ def setup_logger():
 
     # write file 
     logger.add(
-        f"{path}",             # Путь к файлу (папка logs создастся сама)
+        f"{path}",             # path to logs file (folder logs creating)
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {file}:{function}:{line} - {message}",
         level="INFO",                      # В файл пишем только важные логи (без DEBUG)
         rotation="10 MB",                  # Создать новый файл, когда текущий достигнет 10 МБ

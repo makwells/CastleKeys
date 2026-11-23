@@ -61,3 +61,11 @@ class TopBar:
 
         # self.settings_btn.hide()
 
+        for widget, title in (
+        (self.new_password_btn, "Create new password"),
+        (self.settings_btn, "Settings"),
+        (self.search_le, "Search"),
+        ):
+            widget.setToolTip(title)
+            widget.setAccessibleName(title)
+

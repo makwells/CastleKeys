@@ -5,7 +5,10 @@ import os
 from src.setuplogger import *
 from src.config_manager import ConfigManager
 
-# TODO нужно сделать хеширование паролей
+#FIXME: Отправлять закэшированные пароли 
+#FIXME: Сервер: переписать под нормальную СУБД
+
+#TODO:  Создать хранилища для других страниц: Favorites_page, Contacts_page, Cards_page, Tokens_page, WiFi_page, Trash_page()
 
 password_db = None
 
@@ -155,4 +158,38 @@ def update_password(password_id: int, service: str, url: str, login: str, passwo
     except sqlite3.Error as e:
         password_db.rollback()
         logger.error(f"Error updating password ID {password_id}: {e}")
+        return False
+
+def get_description(entry_id):
+    if password_db is None:
+        raise RuntimeError("Database not initialized")
+
+    row = password_db.execute(
+        "SELECT Description FROM passwords WHERE id = ?",
+        (entry_id,),
+    ).fetchone()
+
+    if row is None:
+        raise LookupError("Entry not found")
+
+    return row[0] or ""
+
+
+def update_description(entry_id, description):
+    if password_db is None:
+        return False
+
+    try:
+        cursor = password_db.execute(
+            "UPDATE passwords SET Description = ? WHERE id = ?",
+            (description, entry_id),
+        )
+
+        updated = cursor.rowcount > 0
+        password_db.commit()
+        return updated
+
+    except sqlite3.Error:
+        password_db.rollback()
+        logger.error("Failed to save description")
         return False

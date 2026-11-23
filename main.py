@@ -23,14 +23,12 @@ class CastleKeys:
     project = "https://github.com/makwells/CastleKeys"
 
     def __init__(self):
-
         logger.success("The application has started")
         logger.debug(f"OS: {sys.platform}") 
-
         self.castlekeys()
 
     def castlekeys(self):
-        backups.backup_timer() # Run backup timer
+        # backups.backup_timer() #FIXME: Run backup timer 
         logger.debug("Backup timer is running!")
 
         cleaned_args = [arg for arg in sys.argv if not arg.startswith("-psn")]

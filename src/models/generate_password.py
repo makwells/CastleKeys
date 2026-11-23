@@ -1,5 +1,4 @@
 #generate_passwords.py
-
 import secrets
 import string
 

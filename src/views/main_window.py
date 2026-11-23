@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(900, 700)         # minimum window size
 
         self.central_widget = QWidget()       # Central widget
-        self.workspace_container = QWidget()
+        self.workspace_container = QWidget() 
         self.workspace_layout = QHBoxLayout()
         main_layout = QVBoxLayout()
 
@@ -72,45 +72,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logger.error(f"Failed to apply theme {self.current_theme}: {e}")
 
-    def workspace_left(self): #left workspace widgets
-        logger.debug("Left workspace successfully loaded! ✅")
-
-        self.left_container = QWidget()
-        self.left_layout = QVBoxLayout()
-
-        self.tree_view = QTreeView()         # Tree
-        self.tree_view.setObjectName("LeftWorkspace")
-        self.tree_view.setAnimated(True)     # opening animation
-        self.tree_view.setHeaderHidden(True) # Hide header 
-        self.tree_view.setFixedWidth(250)    # Width
-        self.tree_view.setEditTriggers(QTreeView.EditTrigger.NoEditTriggers) # Read only
-
-        #Tree
-        self.tree_model = QStandardItemModel()
-        self.proxy_model = QSortFilterProxyModel()
-        self.proxy_model.setSourceModel(self.tree_model)
-        self.tree_view.setModel(self.proxy_model)
-
-
-        self.left_layout.addWidget(self.tree_view)
-
-    def db_information(self): #database information widgets
-        logger.debug("Database information successfully loaded! ✅")
-        self.db_size_lb = QLabel()
-        self.db_size_lb.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_creation_date = QLabel()
-        self.db_creation_date.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.path_to_db = QLabel()
-        self.path_to_db.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_count_passwords = QLabel()
-        self.db_count_passwords.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_count_dublicate = QLabel()
-        self.db_count_dublicate.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_login = QLabel()
-        self.db_login.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-        self.db_password = QLabel()
-        self.db_password.setStyleSheet("font-size: 16pt; border: 0px solid #111111;")
-
     def _animations(self):
         #startup window opening animation 
         self.setWindowOpacity(self.config["view"]["window_opacity"])
@@ -121,6 +82,6 @@ class MainWindow(QMainWindow):
             duration=self.config["view"]["window_startup_animations_duration"]
             )
 
-        #TODO switch windows
+        #TODO: switch windows
         #Сделать анимацию при переходе между паролями, вкладками итд.
    

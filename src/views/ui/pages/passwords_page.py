@@ -13,6 +13,12 @@ from PySide6.QtCore import *
 from src.setuplogger import *
 from src.views.ui.icons import icons_set_color
 from src.models.database.database import *
+import sqlite3
+
+from src.models.database.database import (
+    get_description,
+    update_description,
+)
 
 
 class Passwords_page(QObject):
@@ -87,7 +93,7 @@ class Passwords_page(QObject):
         self.password_information(None, None, None, None, None, None)
         
         layout.addWidget(self.passwords_page_title_widget)
-        layout.addWidget(self.passwords_page_widget)
+        # layout.addWidget(self.passwords_page_widget)
         self.scroll_area_all_passwords.setWidget(self.cards_all_passwords_widget)
         layout.addWidget(self.scroll_area_all_passwords)
         layout.addWidget(self.main_password_information_widget)
@@ -109,9 +115,20 @@ class Passwords_page(QObject):
             logger.warning(f"Password {entry_id} not found")
             return
 
+        try:
+            description = get_description(entry_id)
+        except (sqlite3.Error, RuntimeError, LookupError):
+            QMessageBox.warning(
+                self.passwords_page_widget,
+                "Ошибка",
+                "Не удалось загрузить описание.",
+            )
+            return
+
         service, url, login, password, creation_date = password_data
 
         self.selected_password_id = entry_id
+        self.description.setPlainText(description)
 
         # Update information
         self.title.setText(service)
@@ -226,9 +243,14 @@ class Passwords_page(QObject):
         self.description_lb = QLabel("Description:")
         self.description_lb.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.description_lb.setObjectName("RightWorkspaceLabel")
-        # TODO Описание к паролю: Добавить сохранение в базе данных
+        # TODO: Описание к паролю: Добавить сохранение в базе данных
         self.description = QTextEdit()
         self.description.setObjectName("RightWorkspace")
+        self.description.setAccessibleName("Description note")
+
+        self.save_description_btn = QPushButton("Сохранить описание")
+        self.save_description_btn.clicked.connect(self.save_description)
+
 
         icon_size = QSize(24, 24)
 
@@ -287,6 +309,16 @@ class Passwords_page(QObject):
         self.password_information_layout.addWidget(self.creation_date_lb)
         self.password_information_layout.addWidget(self.description_lb)
         self.password_information_layout.addWidget(self.description)
+
+        self.password_information_layout.addWidget(self.save_description_btn)
+        for button, title in (
+            (self.back_btn, "Back"),
+            (self.hide_password_btn, "Hide/Show password"),
+            (self.edit_password_btn, "Edit password"),
+            (self.delete_selected_password_btn, "Delete password"),
+        ):
+            button.setToolTip(title)
+            button.setAccessibleName(title)
 
         self.main_password_information_layout.addWidget(
             self.password_information_widget)
@@ -369,11 +401,36 @@ class Passwords_page(QObject):
             widget.installEventFilter(self)
             widget.setCursor(Qt.CursorShape.PointingHandCursor)
             widget.setProperty("entry_id", entry_id)
+            self.section_widget.setFocusPolicy(
+            Qt.FocusPolicy.StrongFocus
+        )
+        self.section_widget.setAccessibleName(
+            f"Открыть запись: {service_name}"
+        )
+
+        self.del_password_btn.setToolTip("Удалить пароль")
+        self.del_password_btn.setAccessibleName("Удалить пароль")
+
+        self.favorite_btn.setToolTip("Избранное пока недоступно")
+        self.favorite_btn.setAccessibleName("Избранное")
+        self.favorite_btn.setEnabled(False)
 
         return self.section_widget
 
     # Обработчик кликов по карточке пароля.
     def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.KeyPress:
+            if event.key() in (
+                Qt.Key.Key_Return,
+                Qt.Key.Key_Enter,
+                Qt.Key.Key_Space,
+            ):
+                entry_id = obj.property("entry_id")
+
+                if entry_id is not None:
+                    self.show_password_information(entry_id)
+                    return True
+
         if event.type() == QEvent.Type.MouseButtonRelease:
             if event.button() == Qt.MouseButton.LeftButton:
                 entry_id = obj.property("entry_id")
@@ -383,3 +440,26 @@ class Passwords_page(QObject):
                     return True
 
         return super().eventFilter(obj, event)
+
+
+    def save_description(self):
+        if self.selected_password_id is None:
+            return
+
+        success = update_description(
+            self.selected_password_id,
+            self.description.toPlainText(),
+        )
+
+        if success:
+            QMessageBox.information(
+                self.passwords_page_widget,
+                "Description",
+                "Description saved.",
+            )
+        else:
+            QMessageBox.warning(
+                self.passwords_page_widget,
+                "Error",
+                "Not saved.",
+            )

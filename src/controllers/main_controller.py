@@ -16,18 +16,9 @@ from src.models import hotkeys
 from src.setuplogger import *
 from src import ConfigManager
 
-from . import search
+from src.controllers.search import Search
 
 from datetime import datetime
-
-
-# FIXME Изменить логику редактирования пароля. Нужно сделать редактирование в реальном времени, также как и создание нового пароля.
-# FIXME если пароль изменить, а после пару раз скрыть и открыть пароль, то пароль в интерфейсе заменяется на старое значение, при этом он меняется только в интерфейсе, в базе данных он не изменяется. Дело в функции редактирования пароля или в скрытии. После перезапуска создается два экземпляра паролей, с одинаковыми данными, кроме пароля. 
-
-# TODO Создать подтверждения пароля от базы данных.  
-# TODO добавить окно с информацией о бд. Чтобы зайти в это окно, нужно будет ввести логин и пароль от базы данных. Там же их можно будет и поменять. 
-# TODO Сделать уведомления, которые будут всплывать, когда пользователь будет взаимодействовать с программой: "Пароль успешно создан", "Пароль успешно удален". Но эти уведомления должны быть всплывающими в интерфейсе самой программы, а не системно. Перекрывая часть интерфейса(пример vscode). Добавить возможность менять углы(левый верхний, правый нижний итд)
-# TODO Сделать настройки
 
 class MainController():
     def __init__(self, view, pages, topbar):
@@ -35,18 +26,15 @@ class MainController():
         self.config_manager = ConfigManager()
         self.config = self.config_manager.load_config()
 
-        self._view = view #MainWindow
-        self._pages = pages #Pages
-        self._topbar = topbar
-        self.search_field = search.Search(self._view)
-
-        self.search_field.search_text.connect(self.find_password)
+        self._view = view                           #MainWindow
+        self._pages = pages                         #Pages
+        self._topbar = topbar                       #Topbar
+        self.search_field = Search(self._view)      #Search 
 
         self.service_name_ = None
         self.login_ = None
         self.url_ = None
         self.password_ = None
-        # self.current_password = None
 
         self._connect_signals() #Connects
         hotkeys.HotKeys(self)   # Connect hotkeys
@@ -54,14 +42,14 @@ class MainController():
 
     # connect signals
     def _connect_signals(self):
-        
-        # self._view.tree_view.clicked.connect(self._on_category_clicked)               #tree select category
-        self._view.topbar.settings_btn.clicked.connect(self._setting_clicked)                #settings menu(button)
-        self._pages.passwords_page.edit_password_btn.clicked.connect(self._edit_password_clicked)     #edit password menu(button)
-        self._pages.passwords_page.hide_password_btn.clicked.connect(self.hide)                       #hide password(button)
-        # self._view.del_password_btn.clicked.connect(self._del_password_clicked)       #del password(button)
-
-        # self._pages.passwords_page.favorite_btn.clicked.connect(self.favorites_func)
+        #search 
+        self.search_field.search_text.connect(self.find_password) 
+        #settings menu(button)
+        self._view.topbar.settings_btn.clicked.connect(self._setting_clicked)
+        #edit password menu(button)
+        self._pages.passwords_page.edit_password_btn.clicked.connect(self._edit_password_clicked)     
+        #hide password
+        self._pages.passwords_page.hide_password_btn.clicked.connect(self.hide)                       
 
         """
         Объяснение: Если открыта страница с паролями, то кнопка Add будет адресована только странице с паролями. Добавить пароль с вкладки контактов невозможно. 
@@ -76,13 +64,6 @@ class MainController():
 
         self._pages.passwords_page.delete_requested.connect(self._del_password_clicked)
         self._pages.passwords_page.delete_selected_password_btn.clicked.connect(lambda checked=False: self._del_password_clicked())
-
-        # self._view.cards_all_passwords_widget.clicked.connect(self.on_card_clicked)
-
-        # self._view.menubar.new_password_menu.triggered.connect(self._new_password_clicked)    #new password menu(menubar)
-        # self._view.menubar.edit_password_menu.triggered.connect(self._edit_password_clicked)  #edit password(menu)
-        # self._view.menubar.settings_menu.triggered.connect(self._setting_clicked)             #settings menu(menu)
-
     
     # Включает кнопку только на странице паролей
     def _update_add_button(self, index=None):
@@ -100,91 +81,6 @@ class MainController():
         ):
             self._new_password_clicked()
 
-
-    # select category
-    def _on_category_clicked(self, index): 
-        real_index = self._view.proxy_model.mapToSource(index)
-        self.item = self._view.tree_model.itemFromIndex(real_index) #current element
-        item_name = self.item.text()                                #get text
-        # self._view.title.setText(f"{item_name}".upper())            #change title
-        
-
-        if self.item == self._view.root_item: # если выбран заголовок в пункте меню, то скрывать значения сервиса логина и пароля, вызвав функцию для просмотра информации о бд
-            self._view.title.hide()
-            self._view.service_lb.hide()
-            self._view.url_lb.hide()
-            self._view.login_lb.hide()
-            self._view.password_lb.hide()
-            self._view.creation_date_lb.hide()
-            self._view.tag_lb.hide()
-            self._view.description_lb.hide()
-            self._view.description.hide()
-            self._view.hide_password_btn.hide()
-            self._view.edit_password_btn.hide()
-            self._view.del_password_btn.hide()
-            self._view.welcome_logo.hide()
-
-            self._view.edit_password_menu.blockSignals(True)
-
-            self.db_information()
-            return
-
-        else: # если выбрано что-то иное то показывать
-            logger.debug(f"Tree element selected: {item_name}")
-            self._view.title.show()
-            self._view.service_lb.show()
-            self._view.url_lb.show()
-            self._view.login_lb.show()
-            self._view.password_lb.show()
-            self._view.creation_date_lb.show()
-            self._view.tag_lb.show()
-            self._view.description_lb.show()
-            self._view.description.show()
-            self._view.hide_password_btn.show()
-            self._view.edit_password_btn.show()
-            self._view.del_password_btn.show()
-
-            self._view.welcome_logo.hide()
-            self._view.db_size_lb.hide()
-            self._view.db_creation_date.hide()
-            self._view.path_to_db.hide()
-            self._view.db_count_passwords.hide()
-            self._view.db_count_dublicate.hide()
-            self._view.db_login.hide()
-            self._view.db_password.hide()
-
-            #unblock signals
-            self._view.edit_password_menu.blockSignals(False)
-            self._view.del_password_btn.setEnabled(True)
-
-            # self._view.service_item.setSelectable(True)
-
-            if self.config["privacy"]["auto_hide_passwords"]:
-                self._pages.passwords_page.hide_password_btn_state = False
-
-            
-
-        #FIXME 
-        self.service_name_ = self.item.text()
-        self.login_ = self.item.data(Qt.ItemDataRole.UserRole + 1)
-        self.url_ = self.item.data(Qt.ItemDataRole.UserRole + 2)
-        self.password_ = self.item.data(Qt.ItemDataRole.UserRole + 3)
-        self.date_ = self.item.data(Qt.ItemDataRole.UserRole + 4)
-        self.description_ = self.item.data(Qt.ItemDataRole.UserRole + 5)
-
-        self._view.service_lb.setText(f"Service: {self.service_name_}")
-        self._view.login_lb.setText(f"Login: {self.login_}")
-        self._view.url_lb.setText(f"URL: {self.url_}")
-        self._view.password_lb.setText(f"Password: {self.password_}")
-        self._view.creation_date_lb.setText(f"Creation date: {self.date_}")
-
-        #auto hide passwords
-        if self.config["privacy"]["auto_hide_passwords"]:
-            self.hide()
-        else:
-            return
-
-
     def favorites_func(self):
         logger.debug("Favorite")
 
@@ -195,6 +91,7 @@ class MainController():
         
 
     # add new password
+    #FIXME: После добавления пароля его нельзя открыть. Открывается он лишь после перезапуска всего приложения. 
     def _new_password_clicked(self):
         logger.success("Run new password window form")
 
@@ -241,10 +138,6 @@ class MainController():
                     max(0, cards_layout.count() - 1),
                     self.card,
                 )
-                # self._pages.passwords_page.scroll_area_all_passwords.addWidget(self.card)
-
-
-                # self._pages.passwords_page.passwords_cards_layout.addStretch()
 
                 logger.debug(f"New password created in DB with ID {self._current_new_id}")
 
@@ -316,6 +209,11 @@ class MainController():
             self._pages.passwords_page.title.setText(f"{self.service_name_}".upper()) # title on right_workspace
 
     # delete password
+    #FIXME: Подтверждение: Переделать диалоговое окно подтверждения удаления пароля под стилистику программы.
+    #FIXME: После добавления пароля его нельзя удалить. Удаляется он лишь после перезапуска всего приложения.
+    #TODO: переделать логику удаления: после нажатия кнопки удаления на пароле он переноситься на страницу "trash", после чего его можно будет удалить окончательно из базы данных. 
+    #TODO: На данный момент больше всего сделана страница с паролями: блокировать поиск, если страница с паролями не выбрана. 
+
     def _del_password_clicked(self, entry_id=None):
         page = self._pages.passwords_page
 
@@ -357,6 +255,7 @@ class MainController():
         Settings(self._view).exec() 
 
     # Search
+    #FIXME: Сделать поиск даже на главной странице. При вводе текста искать совпадения во всех страницах и выводить отдельной страницей(Find Page). 
     def find_password(self, data: dict):
         query = data.get("text", "").strip().casefold()
         layout = self._pages.passwords_page.passwords_cards_layout
@@ -378,6 +277,7 @@ class MainController():
             card.setVisible(not query or query in service)
 
     # database information
+    #TODO: Информация о базе данных: Переделать под новый интерфейс программы. Перенести во вкладку настроек.
     def db_information(self):
         logger.debug("Run database info window")
         self._view.db_size_lb.show()
@@ -396,7 +296,9 @@ class MainController():
 
     # hide/show passwords
     def hide(self, checked=None):
-        #FIXME сркытие пароля: пароль скрывается, но обратно не показывается, звездочки добавляются снова и снова до бесконечности. Нужно вызывать раньше, чем метод скрытия. 
+        #FIXME: сркытие пароля: пароль скрывается, но обратно не показывается, звездочки добавляются снова и снова до бесконечности. Нужно вызывать раньше, чем метод скрытия. 
+        #FIXME: автоматическое скрытие пароля: скрывать пароли при запуске программы и переключении между ними. 
+        #FIXME: показ пароля: перед тем, как показать пароль нужно сначала его подтвердить. Добавить параметр для отключение подтверждения. 
         self.current_password = self._pages.passwords_page.password_lb.text()
         self.password_length = len(self.current_password)
         self.hide_password = "*" * self.password_length 
@@ -413,9 +315,6 @@ class MainController():
             self._pages.passwords_page.hide_password_btn_state = True
             logger.debug("Password hidden")
         else:
-            # TODO password confirmation
-            # confirmation = Password_Confirmation()
-            # confirmation.exec()
 
             self._pages.passwords_page.password_lb.setText(self.current_password)
             self._pages.passwords_page.hide_password_btn.setText("")
@@ -427,5 +326,4 @@ class MainController():
 
     def main_menu(self):
         logger.debug("Run main menu")
-        lambda: self._pages.setCurrentIndex(0)
-        # lambda: self._pages.setCurrentWidget(self._pages.main_menu_page.main_menu_widget)
+        self._pages.setCurrentIndex(0)

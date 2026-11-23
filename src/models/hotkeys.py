@@ -1,43 +1,67 @@
-#hotkeys.py
-from PySide6.QtGui import *
+from PySide6.QtGui import QKeySequence, QShortcut
 
-def HotKeys(self): 
-    hotkeys = {
-        "new_password":  self.config["hotkeys"].get("new_password", "Ctrl+N"),
-        "edit_password": self.config["hotkeys"].get("edit_password", "Ctrl+E"),
-        "del_password": self.config["hotkeys"].get("del_password", "Ctrl+Backspace"),
-        "hide_password": self.config["hotkeys"].get("hide_password", "Ctrl+G"),
-        "settings": self.config["hotkeys"].get("settings", "Ctrl+I"),
-        "main_menu": self.config["hotkeys"].get("main_menu", "Escape"),
-        "search": self.config["hotkeys"].get("search", "Ctrl+F")
+
+def HotKeys(self):
+    def selected_action(action):
+        page = self._pages.passwords_page
+
+        if (
+            self._pages.currentWidget() is page.passwords_page_widget
+            and page.selected_password_id is not None
+            and not page.main_password_information_widget.isHidden()
+        ):
+            action()
+
+    def focus_search():
+        page = self._pages.passwords_page
+
+        self._pages.setCurrentWidget(page.passwords_page_widget)
+        page.back_to_passwords()
+
+        self._view.topbar.search_le.setFocus()
+        self._view.topbar.search_le.selectAll()
+
+    actions = {
+        "new_password": (
+            "Ctrl+N",
+            self._add_entry_clicked,
+        ),
+        "edit_password": (
+            "Ctrl+E",
+            lambda: selected_action(self._edit_password_clicked),
+        ),
+        "del_password": (
+            "Ctrl+Backspace",
+            lambda: selected_action(self._del_password_clicked),
+        ),
+        "hide_password": (
+            "Ctrl+G",
+            lambda: selected_action(self.hide),
+        ),
+        "settings": (
+            "Ctrl+I",
+            self._setting_clicked,
+        ),
+        "main_menu": (
+            "Escape",
+            self.main_menu,
+        ),
+        "search": (
+            "Ctrl+F",
+            focus_search,
+        ),
     }
 
-    if hotkeys["new_password"]:
-        self.shortcut_new = QShortcut(QKeySequence(hotkeys["new_password"]), self._view)
-        self.shortcut_new.activated.connect(self._new_password_clicked)
+    self.shortcuts = {}
+    config = self.config.get("hotkeys", {})
 
-    if hotkeys["edit_password"]:
-        self.shortcut_edit = QShortcut(QKeySequence(hotkeys["edit_password"]), self._view)
-        self.shortcut_edit.activated.connect(self._edit_password_clicked)
-    
-    if hotkeys["del_password"]:
-        self.shortcut_del = QShortcut(QKeySequence(hotkeys["del_password"]), self._view)
-        self.shortcut_del.activated.connect(lambda: self._del_password_clicked(self._view.tree_view))
+    for name, (default, callback) in actions.items():
+        sequence = config.get(name, default)
 
-    if hotkeys["hide_password"]:
-        self.shortcut_hide = QShortcut(QKeySequence(hotkeys["hide_password"]), self._view)
-        self.shortcut_hide.activated.connect(self.hide)
-
-    if hotkeys["settings"]:
-        self.shortcut_settings = QShortcut(QKeySequence(hotkeys["settings"]), self._view)
-        self.shortcut_settings.activated.connect(self._setting_clicked)
-
-    if hotkeys["main_menu"]:
-        self.shortcut_main_menu = QShortcut(QKeySequence(hotkeys["main_menu"]), self._view)
-        self.shortcut_main_menu.activated.connect(self.main_menu)
-
-    if hotkeys["search"]:
-        self.shortcut_search = QShortcut(QKeySequence(hotkeys["search"]), self._view)
-        self._view.topbar.search_le.setFocus()
-
-        
+        if sequence:
+            shortcut = QShortcut(
+                QKeySequence(sequence),
+                self._view,
+            )
+            shortcut.activated.connect(callback)
+            self.shortcuts[name] = shortcut
